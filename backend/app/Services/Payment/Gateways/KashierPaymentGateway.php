@@ -14,15 +14,15 @@ use Illuminate\Support\Facades\Log;
 /**
  * Kashier payment gateway implementation
  * Follows Single Responsibility Principle - only handles Kashier payment processing
- * Extends AbstractPaymentGateway following Template Method pattern
+ * Extends AbstractPaymentGateway following Template Method pattern.
  */
 class KashierPaymentGateway extends AbstractPaymentGateway
 {
-    protected string $merchantId;
+    protected ?string $merchantId;
 
-    protected string $apiKey;
+    protected ?string $apiKey;
 
-    protected string $mode;
+    protected ?string $mode;
 
     public function __construct(
         \App\Interfaces\PaymentValidatorInterface $validator,
@@ -38,7 +38,7 @@ class KashierPaymentGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Get the gateway identifier
+     * Get the gateway identifier.
      */
     public function getGatewayId(): string
     {
@@ -46,7 +46,7 @@ class KashierPaymentGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Check feature support for Kashier
+     * Check feature support for Kashier.
      */
     public function supports(string $feature): bool
     {
@@ -61,7 +61,7 @@ class KashierPaymentGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Create Kashier-specific payment data
+     * Create Kashier-specific payment data.
      */
     protected function createPaymentData(Order $order): PaymentResultData
     {
@@ -114,7 +114,7 @@ class KashierPaymentGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Execute refund through Kashier API
+     * Execute refund through Kashier API.
      */
     protected function executeRefund(RefundRequestData $refundRequest): RefundResultData
     {
@@ -190,7 +190,7 @@ class KashierPaymentGateway extends AbstractPaymentGateway
     }
 
     /**
-     * Get the API base URL based on mode
+     * Get the API base URL based on mode.
      */
     public function getApiBaseUrl(): string
     {

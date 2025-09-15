@@ -1,0 +1,120 @@
+{
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your account",
+      "createAccount": "create an account",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password?",
+      "signInButton": "Sign in",
+      "signingIn": "Signing in...",
+      "continueWith": "Or continue with",
+      "google": "Google",
+      "facebook": "Facebook"
+    },
+    "register": {
+      "title": "Create your account",
+      "subtitle": "sign in to your existing account",
+      "nameLabel": "Full Name",
+      "namePlaceholder": "Enter your full name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "createAccountButton": "Create account",
+      "creatingAccount": "Creating account...",
+      "continueWith": "Or register with",
+      "google": "Google",
+      "facebook": "Facebook",
+      "termsAccept": "I agree to the",
+      "termsLink": "Terms and Conditions",
+      "privacyLink": "Privacy Policy",
+      "passwordStrength": {
+        "weak": "Weak",
+        "medium": "Medium",
+        "strong": "Strong",
+        "requirements": "Password must contain:",
+        "minLength": "At least 8 characters",
+        "uppercase": "One uppercase letter",
+        "lowercase": "One lowercase letter",
+        "number": "One number"
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "We'll send you a link to reset it",
+      "backToLogin": "Back to login",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "sendButton": "Send reset link",
+      "sending": "Sending...",
+      "success": "Reset link sent! Check your email for further instructions.",
+      "instruction": "Enter your email address and we'll send you a link to reset your password."
+    },
+    "resetPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your new password below",
+      "backToLogin": "Back to login",
+      "passwordLabel": "New Password",
+      "passwordPlaceholder": "Enter your new password",
+      "confirmPasswordLabel": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "resetButton": "Reset password",
+      "resetting": "Resetting..."
+    },
+    "confirmPassword": {
+      "title": "Confirm Password",
+      "subtitle": "Please confirm your password to continue",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "confirmButton": "Confirm",
+      "confirming": "Confirming...",
+      "forgotPassword": "Forgot your password?"
+    },
+    "confirmPasswordExtras": {
+      "signedInAs": "Signed in as:",
+      "verifyFailed": "Failed to verify password. Please try again.",
+      "forgotInstruction": "If you can't remember your password, you can reset it instead.",
+      "resetPasswordLink": "Reset password"
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "subtitle": "We've sent you a verification link",
+      "instruction": "Please check your email and click the verification link to activate your account.",
+      "resendButton": "Resend verification email",
+      "resending": "Resending...",
+      "backToLogin": "Back to login",
+      "success": "Verification email sent! Please check your inbox."
+    }
+  },
+  "validation": {
+    "required": "This field is required",
+    "email": "Please enter a valid email address",
+    "invalidPassword": "Password must be at least 8 characters",
+    "passwordMismatch": "Passwords do not match",
+    "termsRequired": "You must accept the terms and conditions"
+  },
+  "common": {
+    "or": "Or",
+    "and": "and",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close"
+  }
+}

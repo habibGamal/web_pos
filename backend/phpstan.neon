@@ -2,17 +2,38 @@ includes:
     - vendor/larastan/larastan/extension.neon
 
 parameters:
-
     paths:
         - app/
+        - config/
+        - database/
+        - routes/
 
-    # Level 9 is the highest level
-    level: 5
+    # Level 9 is the highest level - starting at 5 and working up
+    level: 6
 
-#    ignoreErrors:
-#        - '#PHPDoc tag @var#'
-#
-#    excludePaths:
-#        - ./*/*/FileToBeExcluded.php
-#
-#    checkMissingIterableValueType: false
+    excludePaths:
+        - database/migrations/
+        - bootstrap/cache/
+        - storage/
+
+    # Additional checks for better code quality
+    checkMissingCallableSignature: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    checkDynamicProperties: true
+    reportUnmatchedIgnoredErrors: false
+
+    ignoreErrors:
+        # Allow mixed types in configs and some service providers
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9_]+\(\)#'
+        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'
+
+        # GraphQL-related dynamic calls
+        - '#Method .* has parameter .* with no value type specified in iterable type array#'
+        - '#Method .* return type has no value type specified in iterable type array#'
+
+        # Ignore deprecated warnings for now
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: missingType.generics

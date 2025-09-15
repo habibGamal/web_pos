@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Kashier-specific payment validator
- * Follows Single Responsibility Principle - only handles Kashier validation
+ * Follows Single Responsibility Principle - only handles Kashier validation.
  */
 class KashierPaymentValidator implements PaymentValidatorInterface
 {
-    protected string $apiKey;
+    protected ?string $apiKey;
 
     public function __construct(?string $apiKey = null)
     {
@@ -19,7 +19,7 @@ class KashierPaymentValidator implements PaymentValidatorInterface
     }
 
     /**
-     * Validate the payment response from Kashier
+     * Validate the payment response from Kashier.
      */
     public function validatePaymentResponse(array $params): bool
     {
@@ -39,12 +39,14 @@ class KashierPaymentValidator implements PaymentValidatorInterface
         if (isset($params['merchantOrderId']) || isset($params['orderReference'])) {
             // This looks like a success URL redirect - basic validation
             Log::info('Treating as URL redirect parameters', ['params' => $params]);
+
             return true; // We'll rely on the payment being processed via webhook
         }
 
         // For direct payment response data with signature
         if (! isset($params['signature'])) {
             Log::warning('No signature found in payment response', ['params' => $params]);
+
             return false;
         }
 
@@ -63,7 +65,7 @@ class KashierPaymentValidator implements PaymentValidatorInterface
 
         $isValid = hash_equals($expectedSignature, $receivedSignature);
 
-        if (!$isValid) {
+        if (! $isValid) {
             Log::warning('Signature validation failed', [
                 'expected' => $expectedSignature,
                 'received' => $receivedSignature,
@@ -75,7 +77,7 @@ class KashierPaymentValidator implements PaymentValidatorInterface
     }
 
     /**
-     * Validate webhook response data structure
+     * Validate webhook response data structure.
      */
     private function validateWebhookResponseData(array $data): bool
     {
@@ -104,7 +106,7 @@ class KashierPaymentValidator implements PaymentValidatorInterface
     }
 
     /**
-     * Validate the webhook payload from Kashier
+     * Validate the webhook payload from Kashier.
      */
     public function validateWebhookPayload(string $rawPayload, array $headers): bool
     {

@@ -1,0 +1,608 @@
+# GraphQL Schema Contract
+
+```graphql
+scalar DateTime
+scalar JSON
+
+# Authentication Types
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  emailVerifiedAt: DateTime
+  avatar: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  addresses: [Address!]!
+  orders(first: Int, after: String): OrderConnection!
+  cart: Cart
+  wishlist: [WishlistItem!]!
+  returnOrders: [ReturnOrder!]!
+}
+
+type Address {
+  id: ID!
+  governorate: String!
+  area: String!
+  addressLine1: String!
+  addressLine2: String
+  phone: String!
+  isDefault: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+# Product Catalog Types
+type Product {
+  id: ID!
+  nameEn: String!
+  nameAr: String!
+  descriptionEn: String
+  descriptionAr: String
+  price: Float!
+  comparePrice: Float
+  sku: String
+  stock: Int!
+  isActive: Boolean!
+  images: [ProductImage!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  category: Category!
+  brand: Brand
+  variants: [ProductVariant!]!
+  sections: [Section!]!
+  
+  # Computed fields
+  averageRating: Float
+  reviewCount: Int!
+  isInStock: Boolean!
+  hasVariants: Boolean!
+}
+
+type ProductVariant {
+  id: ID!
+  nameEn: String!
+  nameAr: String!
+  price: Float!
+  stock: Int!
+  sku: String
+  attributes: JSON!
+  isActive: Boolean!
+}
+
+type ProductImage {
+  id: ID!
+  url: String!
+  altTextEn: String
+  altTextAr: String
+  sortOrder: Int!
+}
+
+type Category {
+  id: ID!
+  nameEn: String!
+  nameAr: String!
+  descriptionEn: String
+  descriptionAr: String
+  slug: String!
+  image: String
+  isActive: Boolean!
+  sortOrder: Int!
+  
+  # Relationships
+  parent: Category
+  children: [Category!]!
+  products(first: Int, after: String): ProductConnection!
+}
+
+type Brand {
+  id: ID!
+  nameEn: String!
+  nameAr: String!
+  descriptionEn: String
+  descriptionAr: String
+  logo: String
+  isActive: Boolean!
+  
+  # Relationships
+  products(first: Int, after: String): ProductConnection!
+}
+
+type Section {
+  id: ID!
+  nameEn: String!
+  nameAr: String!
+  descriptionEn: String
+  descriptionAr: String
+  sectionType: SectionType!
+  isActive: Boolean!
+  sortOrder: Int!
+  
+  # Relationships
+  products(first: Int, after: String): ProductConnection!
+}
+
+enum SectionType {
+  REAL
+  RECOMMENDATION
+  TRENDING
+  NEW_ARRIVALS
+}
+
+# Shopping Cart Types
+type Cart {
+  id: ID!
+  items: [CartItem!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Computed fields
+  totalItems: Int!
+  subtotal: Float!
+  appliedPromotions: [AppliedPromotion!]!
+  total: Float!
+}
+
+type CartItem {
+  id: ID!
+  productId: ID!
+  productVariantId: ID
+  quantity: Int!
+  price: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  product: Product!
+  variant: ProductVariant
+  
+  # Computed fields
+  totalPrice: Float!
+}
+
+type WishlistItem {
+  id: ID!
+  productId: ID!
+  createdAt: DateTime!
+  
+  # Relationships
+  product: Product!
+}
+
+# Order Management Types
+type Order {
+  id: ID!
+  orderNumber: String!
+  status: OrderStatus!
+  paymentStatus: PaymentStatus!
+  paymentMethod: PaymentMethod!
+  
+  # Pricing
+  subtotal: Float!
+  shippingCost: Float!
+  discount: Float!
+  total: Float!
+  
+  # Address
+  shippingAddress: JSON!
+  
+  # Tracking
+  notes: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  user: User!
+  items: [OrderItem!]!
+  returns: [ReturnOrder!]!
+  payments: [Payment!]!
+  appliedPromotions: [AppliedPromotion!]!
+  
+  # Computed fields
+  canBeCancelled: Boolean!
+  canBeReturned: Boolean!
+  estimatedDelivery: DateTime
+}
+
+type OrderItem {
+  id: ID!
+  productId: ID!
+  productVariantId: ID
+  quantity: Int!
+  price: Float!
+  productSnapshot: JSON!
+  
+  # Relationships
+  order: Order!
+  product: Product
+  variant: ProductVariant
+  
+  # Computed fields
+  totalPrice: Float!
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum PaymentMethod {
+  KASHIER_CREDIT_CARD
+  CASH_ON_DELIVERY
+}
+
+# Returns Management Types
+type ReturnOrder {
+  id: ID!
+  returnNumber: String!
+  status: ReturnOrderStatus!
+  reason: String!
+  description: String
+  totalRefundAmount: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  order: Order!
+  user: User!
+  items: [ReturnOrderItem!]!
+  
+  # Computed fields
+  canBeModified: Boolean!
+}
+
+type ReturnOrderItem {
+  id: ID!
+  quantity: Int!
+  reason: String!
+  refundAmount: Float!
+  
+  # Relationships
+  returnOrder: ReturnOrder!
+  orderItem: OrderItem!
+}
+
+enum ReturnOrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+# Payment Types
+type Payment {
+  id: ID!
+  amount: Float!
+  method: PaymentMethod!
+  status: PaymentStatus!
+  transactionId: String
+  gatewayResponse: JSON
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  order: Order!
+}
+
+# Promotion Types
+type Promotion {
+  id: ID!
+  code: String!
+  nameEn: String!
+  nameAr: String!
+  descriptionEn: String
+  descriptionAr: String
+  type: PromotionType!
+  discountValue: Float!
+  minimumAmount: Float
+  usageLimit: Int
+  usageCount: Int!
+  isActive: Boolean!
+  startsAt: DateTime!
+  expiresAt: DateTime!
+}
+
+type AppliedPromotion {
+  id: ID!
+  discountAmount: Float!
+  appliedAt: DateTime!
+  
+  # Relationships
+  promotion: Promotion!
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+# Pagination Types
+type ProductConnection {
+  edges: [ProductEdge!]!
+  pageInfo: PageInfo!
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+type OrderConnection {
+  edges: [OrderEdge!]!
+  pageInfo: PageInfo!
+}
+
+type OrderEdge {
+  node: Order!
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+# Input Types
+input LoginInput {
+  email: String!
+  password: String!
+  remember: Boolean = false
+}
+
+input RegisterInput {
+  name: String!
+  email: String!
+  password: String!
+  passwordConfirmation: String!
+}
+
+input SocialLoginInput {
+  provider: String!
+  token: String!
+}
+
+input ForgotPasswordInput {
+  email: String!
+}
+
+input ResetPasswordInput {
+  token: String!
+  email: String!
+  password: String!
+  passwordConfirmation: String!
+}
+
+input AddToCartInput {
+  productId: ID!
+  productVariantId: ID
+  quantity: Int!
+}
+
+input UpdateCartItemInput {
+  cartItemId: ID!
+  quantity: Int!
+}
+
+input AddToWishlistInput {
+  productId: ID!
+}
+
+input AddressInput {
+  governorate: String!
+  area: String!
+  addressLine1: String!
+  addressLine2: String
+  phone: String!
+  isDefault: Boolean = false
+}
+
+input CreateOrderInput {
+  addressId: ID!
+  paymentMethod: PaymentMethod!
+  couponCode: String
+  notes: String
+}
+
+input CreateReturnOrderInput {
+  orderId: ID!
+  items: [ReturnOrderItemInput!]!
+  reason: String!
+  description: String
+}
+
+input ReturnOrderItemInput {
+  orderItemId: ID!
+  quantity: Int!
+  reason: String!
+}
+
+input ApplyPromotionInput {
+  code: String!
+}
+
+input UpdateProfileInput {
+  name: String
+  email: String
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  password: String!
+  passwordConfirmation: String!
+}
+
+input ProductSearchInput {
+  query: String
+  categoryId: ID
+  brandId: ID
+  minPrice: Float
+  maxPrice: Float
+  sortBy: ProductSortBy = CREATED_AT
+  sortOrder: SortOrder = DESC
+}
+
+enum ProductSortBy {
+  CREATED_AT
+  UPDATED_AT
+  PRICE
+  NAME
+  POPULARITY
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+# Response Types
+type AuthPayload {
+  user: User!
+  token: String
+  message: String!
+}
+
+type CartPayload {
+  cart: Cart!
+  message: String!
+}
+
+type OrderPayload {
+  order: Order!
+  message: String!
+}
+
+type PaymentInitiationPayload {
+  paymentUrl: String!
+  orderId: ID!
+  message: String!
+}
+
+type MessagePayload {
+  message: String!
+  success: Boolean!
+}
+
+# Root Types
+type Query {
+  # Authentication
+  me: User
+  
+  # Products
+  products(
+    first: Int = 12
+    after: String
+    search: ProductSearchInput
+  ): ProductConnection!
+  
+  product(id: ID!): Product
+  
+  # Categories
+  categories: [Category!]!
+  category(id: ID!): Category
+  categoryBySlug(slug: String!): Category
+  
+  # Brands
+  brands: [Brand!]!
+  brand(id: ID!): Brand
+  
+  # Sections
+  sections: [Section!]!
+  section(id: ID!): Section
+  
+  # Search
+  searchProducts(query: String!, first: Int = 12, after: String): ProductConnection!
+  searchSuggestions(query: String!): [String!]!
+  
+  # Cart & Wishlist
+  cart: Cart
+  wishlist: [WishlistItem!]!
+  
+  # Orders
+  orders(first: Int = 10, after: String): OrderConnection!
+  order(id: ID!): Order
+  
+  # Returns
+  returnOrders: [ReturnOrder!]!
+  returnOrder(id: ID!): ReturnOrder
+  
+  # Addresses
+  addresses: [Address!]!
+  areas: [String!]!
+  
+  # Promotions
+  availablePromotions: [Promotion!]!
+}
+
+type Mutation {
+  # Authentication
+  login(input: LoginInput!): AuthPayload!
+  register(input: RegisterInput!): AuthPayload!
+  socialLogin(input: SocialLoginInput!): AuthPayload!
+  logout: MessagePayload!
+  forgotPassword(input: ForgotPasswordInput!): MessagePayload!
+  resetPassword(input: ResetPasswordInput!): MessagePayload!
+  
+  # Profile Management
+  updateProfile(input: UpdateProfileInput!): User!
+  changePassword(input: ChangePasswordInput!): MessagePayload!
+  deleteAccount: MessagePayload!
+  
+  # Address Management
+  createAddress(input: AddressInput!): Address!
+  updateAddress(id: ID!, input: AddressInput!): Address!
+  deleteAddress(id: ID!): MessagePayload!
+  
+  # Cart Management
+  addToCart(input: AddToCartInput!): CartPayload!
+  updateCartItem(input: UpdateCartItemInput!): CartPayload!
+  removeFromCart(cartItemId: ID!): CartPayload!
+  clearCart: CartPayload!
+  
+  # Wishlist Management
+  addToWishlist(input: AddToWishlistInput!): WishlistItem!
+  removeFromWishlist(productId: ID!): MessagePayload!
+  clearWishlist: MessagePayload!
+  
+  # Order Management
+  createOrder(input: CreateOrderInput!): OrderPayload!
+  cancelOrder(orderId: ID!): OrderPayload!
+  
+  # Return Management
+  createReturnOrder(input: CreateReturnOrderInput!): ReturnOrder!
+  
+  # Payment Management
+  initiatePayment(orderId: ID!): PaymentInitiationPayload!
+  
+  # Promotion Management
+  applyPromotion(input: ApplyPromotionInput!): CartPayload!
+  removePromotion: CartPayload!
+}
+
+# Subscription Types (Future Implementation)
+type Subscription {
+  cartUpdated: Cart!
+  orderStatusUpdated(orderId: ID!): Order!
+}
+```

@@ -1,0 +1,120 @@
+{
+  "auth": {
+    "login": {
+      "title": "مرحباً بعودتك",
+      "subtitle": "سجل دخولك إلى حسابك",
+      "createAccount": "إنشاء حساب",
+      "emailLabel": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "أدخل عنوان بريدك الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "rememberMe": "تذكرني",
+      "forgotPassword": "هل نسيت كلمة المرور؟",
+      "signInButton": "تسجيل الدخول",
+      "signingIn": "جاري تسجيل الدخول...",
+      "continueWith": "أو المتابعة مع",
+      "google": "جوجل",
+      "facebook": "فيسبوك"
+    },
+    "register": {
+      "title": "إنشاء حسابك",
+      "subtitle": "سجل دخولك إلى حسابك الحالي",
+      "nameLabel": "الاسم الكامل",
+      "namePlaceholder": "أدخل اسمك الكامل",
+      "emailLabel": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "أدخل عنوان بريدك الإلكتروني",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أنشئ كلمة مرور قوية",
+      "confirmPasswordLabel": "تأكيد كلمة المرور",
+      "confirmPasswordPlaceholder": "أكد كلمة المرور",
+      "createAccountButton": "إنشاء حساب",
+      "creatingAccount": "جاري إنشاء الحساب...",
+      "continueWith": "أو التسجيل مع",
+      "google": "جوجل",
+      "facebook": "فيسبوك",
+      "termsAccept": "أوافق على",
+      "termsLink": "الشروط والأحكام",
+      "privacyLink": "سياسة الخصوصية",
+      "passwordStrength": {
+        "weak": "ضعيفة",
+        "medium": "متوسطة",
+        "strong": "قوية",
+        "requirements": "يجب أن تحتوي كلمة المرور على:",
+        "minLength": "8 أحرف على الأقل",
+        "uppercase": "حرف كبير واحد",
+        "lowercase": "حرف صغير واحد",
+        "number": "رقم واحد"
+      }
+    },
+    "forgotPassword": {
+      "title": "هل نسيت كلمة المرور؟",
+      "subtitle": "سنرسل لك رابط لإعادة تعيينها",
+      "backToLogin": "العودة لتسجيل الدخول",
+      "emailLabel": "عنوان البريد الإلكتروني",
+      "emailPlaceholder": "أدخل عنوان بريدك الإلكتروني",
+      "sendButton": "إرسال رابط الإعادة",
+      "sending": "جاري الإرسال...",
+      "success": "تم إرسال رابط الإعادة! تحقق من بريدك الإلكتروني للحصول على تعليمات أخرى.",
+      "instruction": "أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور."
+    },
+    "resetPassword": {
+      "title": "إعادة تعيين كلمة المرور",
+      "subtitle": "أدخل كلمة المرور الجديدة أدناه",
+      "backToLogin": "العودة لتسجيل الدخول",
+      "passwordLabel": "كلمة المرور الجديدة",
+      "passwordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+      "confirmPasswordPlaceholder": "أكد كلمة المرور الجديدة",
+      "resetButton": "إعادة تعيين كلمة المرور",
+      "resetting": "جاري الإعادة..."
+    },
+    "confirmPassword": {
+      "title": "تأكيد كلمة المرور",
+      "subtitle": "يرجى تأكيد كلمة المرور للمتابعة",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "confirmButton": "تأكيد",
+      "confirming": "جاري التأكيد...",
+      "forgotPassword": "هل نسيت كلمة المرور؟"
+    },
+    "confirmPasswordExtras": {
+      "signedInAs": "مسجل الدخول باسم:",
+      "verifyFailed": "فشل التحقق من كلمة المرور. الرجاء المحاولة مرة أخرى.",
+      "forgotInstruction": "إذا كنت لا تتذكر كلمة المرور، يمكنك إعادة تعيينها بدلاً من ذلك.",
+      "resetPasswordLink": "إعادة تعيين كلمة المرور"
+    },
+    "verifyEmail": {
+      "title": "تحقق من بريدك الإلكتروني",
+      "subtitle": "لقد أرسلنا لك رابط التحقق",
+      "instruction": "يرجى فحص بريدك الإلكتروني والنقر على رابط التحقق لتفعيل حسابك.",
+      "resendButton": "إعادة إرسال بريد التحقق",
+      "resending": "جاري الإعادة...",
+      "backToLogin": "العودة لتسجيل الدخول",
+      "success": "تم إرسال بريد التحقق! يرجى فحص صندوق الوارد."
+    }
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب",
+    "email": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+    "invalidPassword": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+    "passwordMismatch": "كلمات المرور غير متطابقة",
+    "termsRequired": "يجب عليك قبول الشروط والأحكام"
+  },
+  "common": {
+    "or": "أو",
+    "and": "و",
+    "loading": "جاري التحميل...",
+    "error": "حدث خطأ",
+    "success": "نجح",
+    "cancel": "إلغاء",
+    "continue": "متابعة",
+    "back": "رجوع",
+    "next": "التالي",
+    "previous": "السابق",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "view": "عرض",
+    "close": "إغلاق"
+  }
+}

@@ -1,0 +1,249 @@
+# Authentication Types and Mutations
+# This file contains all authentication-related GraphQL types, inputs, and mutations
+
+# Extended User type for authentication context
+extend type User {
+    "User's profile image URL with fallback to default avatar"
+    avatar: String @field(resolver: "App\\GraphQL\\Types\\UserType@avatar")
+
+    "User's full name (alias for name field)"
+    full_name: String! @field(resolver: "App\\GraphQL\\Types\\UserType@fullName")
+
+    "User's initials for avatar generation"
+    initials: String! @field(resolver: "App\\GraphQL\\Types\\UserType@initials")
+
+    "Whether the user has completed email verification"
+    email_verified: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@emailVerified")
+
+    "Whether the user has completed email verification (alias)"
+    is_email_verified: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@emailVerified")
+
+    "User's phone number"
+    phone: String
+
+    "User's preferred language/locale"
+    locale: String!
+
+    "Whether the user is an admin"
+    is_admin: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@isAdmin")
+
+    "User's Google ID (only visible to self)"
+    google_id: String @field(resolver: "App\\GraphQL\\Types\\UserType@googleId")
+
+    "User's Facebook ID (only visible to self)"
+    facebook_id: String @field(resolver: "App\\GraphQL\\Types\\UserType@facebookId")
+
+    "Whether the user can access admin panel"
+    can_access_admin: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@canAccessAdmin")
+
+    "Whether the user has any social login accounts"
+    has_social_accounts: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@hasSocialAccounts")
+
+    "User's linked social providers (only visible to self)"
+    linked_providers: [SocialProvider!]! @field(resolver: "App\\GraphQL\\Types\\UserType@linkedProviders")
+}
+
+# Social provider information
+type SocialProvider {
+    "Provider name (google, facebook, apple)"
+    provider: String!
+
+    "Provider user ID"
+    provider_id: String!
+}
+
+# Authentication Response
+type AuthPayload {
+    "Authentication token"
+    access_token: String!
+
+    "Token type (Bearer)"
+    token_type: String!
+
+    "Token expiration in seconds"
+    expires_in: Int!
+
+    "Authenticated user"
+    user: User!
+}
+
+# Password Reset Response
+type PasswordResetPayload {
+    "Success message"
+    message: String!
+
+    "Reset token (only for testing environments)"
+    reset_token: String
+}
+
+# Email Verification Response
+type EmailVerificationPayload {
+    "Success message"
+    message: String!
+
+    "Whether email was successfully verified"
+    verified: Boolean!
+}
+
+# Generic Success Response
+type SuccessPayload {
+    "Success message"
+    message: String!
+
+    "Operation success status"
+    success: Boolean!
+}
+
+# Input Types for Authentication
+input LoginInput {
+    "User's email address"
+    email: String! @rules(apply: ["required", "email"])
+
+    "User's password"
+    password: String! @rules(apply: ["required", "min:8"])
+
+    "Remember me flag"
+    remember: Boolean = false
+}
+
+input RegisterInput {
+    "User's full name"
+    name: String! @rules(apply: ["required", "string", "min:2", "max:255"])
+
+    "User's email address"
+    email: String! @rules(apply: ["required", "email", "unique:users,email"])
+
+    "User's password"
+    password: String! @rules(apply: ["required", "string", "min:8", "confirmed"])
+
+    "Password confirmation"
+    password_confirmation: String!
+
+    "User's phone number"
+    phone: String @rules(apply: ["nullable", "string", "max:20"])
+
+    "User's preferred language"
+    locale: String @rules(apply: ["nullable", "in:en,ar"])
+}
+
+input SocialLoginInput {
+    "Social provider (google, facebook, apple)"
+    provider: String! @rules(apply: ["required", "in:google,facebook,apple"])
+
+    "Provider access token"
+    access_token: String! @rules(apply: ["required", "string"])
+
+    "Provider user ID (optional, will be fetched if not provided)"
+    provider_id: String
+
+    "User's preferred language"
+    locale: String @rules(apply: ["nullable", "in:en,ar"])
+}
+
+input ForgotPasswordInput {
+    "User's email address"
+    email: String! @rules(apply: ["required", "email"])
+
+    "Callback URL for password reset (frontend URL)"
+    callback_url: String @rules(apply: ["nullable", "url"])
+}
+
+input ResetPasswordInput {
+    "Password reset token"
+    token: String! @rules(apply: ["required", "string"])
+
+    "User's email address"
+    email: String! @rules(apply: ["required", "email"])
+
+    "New password"
+    password: String! @rules(apply: ["required", "string", "min:8", "confirmed"])
+
+    "Password confirmation"
+    password_confirmation: String!
+}
+
+input ChangePasswordInput {
+    "Current password"
+    current_password: String! @rules(apply: ["required", "string"])
+
+    "New password"
+    password: String! @rules(apply: ["required", "string", "min:8", "confirmed"])
+
+    "Password confirmation"
+    password_confirmation: String!
+}
+
+input UpdateProfileInput {
+    "User's full name"
+    name: String @rules(apply: ["nullable", "string", "min:2", "max:255"])
+
+    "User's phone number"
+    phone: String @rules(apply: ["nullable", "string", "max:20"])
+
+    "User's preferred language"
+    locale: String @rules(apply: ["nullable", "in:en,ar"])
+
+    "User's profile image"
+    avatar: String @rules(apply: ["nullable", "url"])
+}
+
+input VerifyEmailInput {
+    "Verification token"
+    token: String! @rules(apply: ["required", "string"])
+
+    "User's email address"
+    email: String! @rules(apply: ["required", "email"])
+}
+
+input ResendVerificationInput {
+    "User's email address"
+    email: String! @rules(apply: ["required", "email"])
+
+    "Callback URL for email verification (frontend URL)"
+    callback_url: String @rules(apply: ["nullable", "url"])
+}
+
+# Authentication Mutations
+extend type Mutation {
+    "Login with email and password"
+    login(input: LoginInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\LoginMutation")
+
+    "Register a new user account"
+    register(input: RegisterInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\RegisterMutation")
+
+    "Login with social provider"
+    socialLogin(input: SocialLoginInput! @spread): AuthPayload! @field(resolver: "App\\GraphQL\\Mutations\\SocialLoginMutation")
+
+    "Logout the authenticated user"
+    logout: SuccessPayload! @guard @field(resolver: "App\\GraphQL\\Mutations\\LogoutMutation")
+
+    "Request password reset"
+    forgotPassword(input: ForgotPasswordInput! @spread): PasswordResetPayload! @field(resolver: "App\\GraphQL\\Mutations\\ForgotPasswordMutation")
+
+    "Reset password with token"
+    resetPassword(input: ResetPasswordInput! @spread): SuccessPayload! @field(resolver: "App\\GraphQL\\Mutations\\ResetPasswordMutation")
+
+    "Change password for authenticated user"
+    changePassword(input: ChangePasswordInput! @spread): SuccessPayload! @guard @field(resolver: "App\\GraphQL\\Mutations\\ChangePasswordMutation")
+
+    "Update user profile"
+    updateProfile(input: UpdateProfileInput! @spread): User! @guard
+
+    "Verify email address"
+    verifyEmail(input: VerifyEmailInput! @spread): EmailVerificationPayload!
+
+    "Resend email verification"
+    resendVerification(input: ResendVerificationInput! @spread): SuccessPayload!
+
+    "Delete user account"
+    deleteAccount: SuccessPayload! @guard
+
+    "Refresh authentication token"
+    refreshToken: AuthPayload! @guard
+}
+
+# Authentication Queries
+extend type Query {
+    "Get current authenticated user"
+    me: User @auth
+}

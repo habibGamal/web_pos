@@ -1,14 +1,18 @@
-- the stack of this project is laravel & react js with inertia
-- using typescript and #index.d.ts for all model types
-- using shadcn for building ui components
-- be consistent in the visual identity : theme , coloring , fonts , spaceing , layouts , titles 
-- Create a clean, modern, and responsive (mobile , tablet , desktop) UI component using React , shadcn/ui and Tailwind CSS.
-- for any empty list state display empty state UI
-- this project support arabic/english language
-- any name or title or description in db migrations use en , ar postfixs in them for translations purpose
-    -- currently we are in the first phase
-- translation files of the frontend in resources/js/translations/*.json
-- always use docs before any implementation to follow the newest practices  
+- this project is migrating from laravel & react js with inertia to Next.js 15+ with GraphQL
+- MIGRATION IN PROGRESS: Currently implementing Next.js 15 frontend with GraphQL API communication
+- Backend: Laravel 11 with GraphQL (lighthouse-php) API layer + existing Inertia.js (legacy)
+- Frontend: Next.js 15+ with App Router, Apollo Client, shadcn/ui, TypeScript
+- using typescript for all model types (shared between frontend/backend)
+- using shadcn/ui for building modern, accessible UI components
+- be consistent in the visual identity: theme, coloring, fonts, spacing, layouts, titles 
+- Create clean, modern, and responsive (mobile, tablet, desktop) UI components using React, shadcn/ui and Tailwind CSS
+- for any empty list state display empty state UI with proper loading skeletons
+- this project supports Arabic/English language with Next.js i18n
+- any name or title or description in db migrations use en, ar postfixes for translations
+- GraphQL schema in /contracts/schema.graphql defines all API contracts
+- translation files: frontend in Next.js i18n structure, backend in resources/lang/
+- always use docs before implementation to follow newest practices for Next.js 15 App Router and GraphQL
+- maintain 100% feature parity with existing Inertia.js pages during migration
 ===
 
 <laravel-boost-guidelines>
