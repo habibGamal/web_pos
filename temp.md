@@ -1,0 +1,1 @@
+OPENAI_API_KEY="ollama" OPENAI_API_BASE="http://localhost:11434/v1" DOCS_MCP_EMBEDDING_MODEL="embeddinggemma" npx @arabold/docs-mcp-server@latest

@@ -1,0 +1,422 @@
+# Product Catalog Types and Queries
+# This file contains all product catalog-related GraphQL types, inputs, and queries
+
+# Enhanced Product type
+extend type Product {
+
+    "Product's name in current locale"
+    name: String! @field(resolver: "App\\GraphQL\\Types\\ProductType@name")
+
+    "Product's description in current locale"
+    description: String @field(resolver: "App\\GraphQL\\Types\\ProductType@description")
+
+    "Product's sale price (if on sale)"
+    sale_price: Float
+
+    "Product's cost price (admin only)"
+    cost_price: Float @field(resolver: "App\\GraphQL\\Types\\ProductType@costPrice")
+
+    "Whether the product is featured"
+    is_featured: Boolean!
+
+    "Whether the product is in stock"
+    is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductType@isInStock")
+
+    "Product's featured image URL"
+    featured_image: String @field(resolver: "App\\GraphQL\\Types\\ProductType@featuredImage")
+
+    "Product's image gallery URLs"
+    images: [String!]! @field(resolver: "App\\GraphQL\\Types\\ProductType@images")
+
+    "Product's effective price (considers sale price)"
+    effective_price: Float! @field(resolver: "App\\GraphQL\\Types\\ProductType@effectivePrice")
+
+    "Product's discount percentage (if on sale)"
+    discount_percentage: Float @field(resolver: "App\\GraphQL\\Types\\ProductType@discountPercentage")
+
+    "Whether the product is on sale"
+    is_on_sale: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductType@isOnSale")
+
+    "Whether the user has this product in wishlist"
+    is_in_wishlist: Boolean @field(resolver: "App\\GraphQL\\Types\\ProductType@isInWishlist")
+
+    "Product's SEO-friendly URL"
+    url: String! @field(resolver: "App\\GraphQL\\Types\\ProductType@url")
+
+    "Product's total stock across all variants"
+    stock: Int! @field(resolver: "App\\GraphQL\\Types\\ProductType@stock")
+
+    "Product's variants"
+    variants: [ProductVariant!]! @hasMany
+
+    "Product's sections"
+    sections: [Section!]! @belongsToMany
+}
+
+# Product Variant type
+type ProductVariant {
+    "Unique identifier"
+    id: ID!
+
+    "Product ID this variant belongs to"
+    product_id: ID!
+
+    "Variant display name based on attributes"
+    name: String! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@name")
+
+    "Variant SKU"
+    sku: String!
+
+    "Variant images array"
+    images: [String!]! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@images")
+
+    "Variant stock quantity"
+    quantity: Int!
+
+    "Variant price (nullable - uses product price if not set)"
+    price: Float
+
+    "Variant sale price (nullable)"
+    sale_price: Float
+
+    "Variant color attribute"
+    color: String
+
+    "Variant size attribute"
+    size: String
+
+    "Variant capacity attribute"
+    capacity: String
+
+    "Additional variant attributes (JSON)"
+    additional_attributes: JSON
+
+    "Variant attributes combined (computed)"
+    attributes: JSON! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@attributes")
+
+    "Whether this is the default variant"
+    is_default: Boolean!
+
+    "Whether the variant is active"
+    is_active: Boolean!
+
+    "Variant's effective price (with fallback)"
+    effective_price: Float! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@effectivePrice")
+
+    "When the variant was created"
+    created_at: DateTime!
+
+    "When the variant was last updated"
+    updated_at: DateTime!
+
+    "Parent product"
+    product: Product! @belongsTo
+
+    "Whether the variant is in stock"
+    is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@isInStock")
+
+    "Variant's featured image URL"
+    featured_image: String @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@featuredImage")
+}
+
+# Enhanced Category type
+extend type Category {
+    "Category slug for URL generation"
+    slug: String!
+
+    "Category name in current locale"
+    name: String! @field(resolver: "App\\GraphQL\\Types\\CategoryType@name")
+
+    "Category description in current locale"
+    description: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@description")
+
+    "Category's display image with fallback logic"
+    display_image: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@displayImage")
+
+    "Category's image URL with fallback"
+    image_url: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@imageUrl")
+
+    "Category's display order"
+    display_order: Int!
+
+    "Category's parent ID"
+    parent_id: ID
+
+    "Whether the category is active"
+    is_active: Boolean!
+
+    "Category's SEO-friendly URL"
+    url: String! @field(resolver: "App\\GraphQL\\Types\\CategoryType@url")
+
+    "Number of products in this category"
+    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\CategoryType@productsCount")
+
+    "Number of active products in this category"
+    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\CategoryType@activeProductsCount")
+
+    "Whether the category has any products"
+    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\CategoryType@hasProducts")
+
+    "Category's parent category"
+    parent: Category @belongsTo(relation: "parent")
+
+    "Category's child categories"
+    children: [Category!]! @hasMany(relation: "children")
+
+    "Category's products"
+    products: [Product!]! @hasMany
+}
+
+# Enhanced Brand type
+extend type Brand {
+    "Brand slug for URL generation"
+    slug: String!
+
+    "Brand name in current locale"
+    name: String! @field(resolver: "App\\GraphQL\\Types\\BrandType@name")
+
+    "Brand description in current locale"
+    description: String @field(resolver: "App\\GraphQL\\Types\\BrandType@description")
+
+    "Brand's display image with fallback logic"
+    display_image: String @field(resolver: "App\\GraphQL\\Types\\BrandType@displayImage")
+
+    "Brand's image URL with fallback"
+    image_url: String @field(resolver: "App\\GraphQL\\Types\\BrandType@imageUrl")
+
+    "Brand's display order"
+    display_order: Int!
+
+    "Brand's parent ID"
+    parent_id: ID
+
+    "Whether the brand is active"
+    is_active: Boolean!
+
+    "Brand's SEO-friendly URL"
+    url: String! @field(resolver: "App\\GraphQL\\Types\\BrandType@url")
+
+    "Number of products for this brand"
+    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\BrandType@productsCount")
+
+    "Number of active products for this brand"
+    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\BrandType@activeProductsCount")
+
+    "Whether the brand has any products"
+    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\BrandType@hasProducts")
+
+    "Brand's parent brand"
+    parent: Brand @belongsTo(relation: "parent")
+
+    "Brand's child brands"
+    children: [Brand!]! @hasMany(relation: "children")
+
+    "Brand's products"
+    products: [Product!]! @hasMany
+}
+
+# Section type
+type Section {
+    "Unique identifier"
+    id: ID!
+
+    "Section title in English"
+    title_en: String!
+
+    "Section title in Arabic"
+    title_ar: String!
+
+    "Section title in current locale"
+    title: String! @field(resolver: "App\\GraphQL\\Types\\SectionType@title")
+
+    "Whether the section is active"
+    active: Boolean!
+
+    "Section's sort order"
+    sort_order: Int!
+
+    "Section type (REAL, RECOMMENDATION, etc.)"
+    section_type: SectionType!
+
+    "When the section was created"
+    created_at: DateTime!
+
+    "When the section was last updated"
+    updated_at: DateTime!
+
+    "Section's products"
+    products: [Product!]! @belongsToMany
+
+    "Number of products in this section"
+    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\SectionType@productsCount")
+
+    "Number of active products in this section"
+    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\SectionType@activeProductsCount")
+
+    "Whether the section has any products"
+    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\SectionType@hasProducts")
+}
+
+# Enums
+enum SectionType {
+    "Real section with manually selected products"
+    REAL @enum(value: "REAL")
+
+    "Recommendation section with algorithmic products"
+    RECOMMENDATION @enum(value: "RECOMMENDATION")
+
+    "Trending products section"
+    TRENDING @enum(value: "TRENDING")
+
+    "New arrivals section"
+    NEW_ARRIVALS @enum(value: "NEW_ARRIVALS")
+}
+
+# Input Types for Queries
+input ProductSearchInput {
+    "Search query string"
+    query: String
+
+    "Filter by category ID"
+    category_id: ID
+
+    "Filter by brand ID"
+    brand_id: ID
+
+    "Minimum price filter"
+    min_price: Float
+
+    "Maximum price filter"
+    max_price: Float
+
+    "Filter by featured products only"
+    is_featured: Boolean
+
+    "Filter by products on sale only"
+    is_on_sale: Boolean
+
+    "Filter by in stock products only"
+    in_stock_only: Boolean
+}
+
+input ProductOrderByClause {
+    "Field to order by"
+    column: ProductOrderByColumn!
+
+    "Sort order direction"
+    order: SortOrder!
+}
+
+enum ProductOrderByColumn {
+    ID @enum(value: "id")
+    NAME_EN @enum(value: "name_en")
+    NAME_AR @enum(value: "name_ar")
+    PRICE @enum(value: "price")
+    SALE_PRICE @enum(value: "sale_price")
+    CREATED_AT @enum(value: "created_at")
+    UPDATED_AT @enum(value: "updated_at")
+    IS_FEATURED @enum(value: "is_featured")
+}
+
+enum SortOrder {
+    ASC @enum(value: "asc")
+    DESC @enum(value: "desc")
+}
+
+
+
+# Product Catalog Queries
+extend type Query {
+    "Get all products with filtering and pagination"
+    products(
+        "Search and filter options"
+        search: ProductSearchInput
+        "Sort order"
+        orderBy: [ProductOrderByClause!]
+    ): [Product!]! @paginate(defaultCount: 12, builder: "App\\GraphQL\\Queries\\ProductsQuery")
+
+    "Get a single product by ID"
+    product(
+        "Product ID"
+        id: ID! @rules(apply: ["required", "exists:products,id"])
+    ): Product @find
+
+    "Get a single product by slug"
+    productBySlug(
+        "Product slug"
+        slug: String! @rules(apply: ["required"])
+    ): Product @field(resolver: "App\\GraphQL\\Queries\\ProductsQuery@productBySlug")
+
+    "Get all categories in hierarchical structure"
+    categories(
+        "Filter by active status"
+        is_active: Boolean = true
+        "Include parent categories only"
+        parents_only: Boolean = false
+    ): [Category!]! @field(resolver: "App\\GraphQL\\Queries\\CategoriesQuery")
+
+    "Get a single category by ID"
+    category(
+        "Category ID"
+        id: ID! @rules(apply: ["required", "exists:categories,id"])
+    ): Category @find
+
+    "Get a single category by slug"
+    categoryBySlug(
+        "Category slug"
+        slug: String! @rules(apply: ["required", "exists:categories,slug"])
+    ): Category @field(resolver: "App\\GraphQL\\Queries\\CategoriesQuery@categoryBySlug")
+
+    "Get all brands in hierarchical structure"
+    brands(
+        "Filter by active status"
+        is_active: Boolean = true
+        "Include parent brands only"
+        parents_only: Boolean = false
+    ): [Brand!]! @field(resolver: "App\\GraphQL\\Queries\\BrandsQuery")
+
+    "Get a single brand by ID"
+    brand(
+        "Brand ID"
+        id: ID! @rules(apply: ["required", "exists:brands,id"])
+    ): Brand @find
+
+    "Get a single brand by slug"
+    brandBySlug(
+        "Brand slug"
+        slug: String! @rules(apply: ["required", "exists:brands,slug"])
+    ): Brand @field(resolver: "App\\GraphQL\\Queries\\BrandsQuery@brandBySlug")
+
+    "Get all sections"
+    sections(
+        "Filter by active status"
+        active: Boolean = true @where
+    ): [Section!]! @all @orderBy(column: "sort_order")
+
+    "Get a single section by ID"
+    section(
+        "Section ID"
+        id: ID! @rules(apply: ["required", "exists:sections,id"])
+    ): Section @find
+
+    "Search products with text-based search"
+    searchProducts(
+        "Search query"
+        query: String! @rules(apply: ["required", "min:2"])
+        "Additional filters"
+        filters: ProductSearchInput
+        "Sort order"
+        orderBy: [ProductOrderByClause!]
+    ): [Product!]! @paginate(defaultCount: 12, builder: "App\\GraphQL\\Queries\\SearchQuery")
+
+    "Get search suggestions based on query"
+    searchSuggestions(
+        "Search query"
+        query: String! @rules(apply: ["required", "min:1"])
+        "Maximum number of suggestions"
+        limit: Int = 10
+    ): [String!]! @field(resolver: "App\\GraphQL\\Queries\\SearchQuery@suggestions")
+}
+
+# JSON scalar for variant attributes and other JSON data
+scalar JSON @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\JSON")

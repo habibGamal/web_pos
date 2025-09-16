@@ -54,7 +54,7 @@
 ### Schema Structure (Refactored into smaller files)
 - [x] T007 [P] Create base GraphQL schema in backend/graphql/schema.graphql
 - [x] T008 [P] Create authentication types schema in backend/graphql/auth.graphql
-- [ ] T009 [P] Create product catalog types schema in backend/graphql/products.graphql
+- [x] T009 [P] Create product catalog types schema in backend/graphql/products.graphql
 - [ ] T010 [P] Create cart & wishlist types schema in backend/graphql/cart.graphql
 - [ ] T011 [P] Create order management types schema in backend/graphql/orders.graphql
 - [ ] T012 [P] Create return management types schema in backend/graphql/returns.graphql
@@ -68,11 +68,11 @@
 - [x] T018 [P] Contract test password reset flow in backend/tests/Feature/GraphQL/PasswordResetTest.php
 
 ### Contract Tests for Product Catalog
-- [ ] T019 [P] Contract test products query in backend/tests/Feature/GraphQL/ProductsTest.php
-- [ ] T020 [P] Contract test categories query in backend/tests/Feature/GraphQL/CategoriesTest.php
-- [ ] T021 [P] Contract test brands query in backend/tests/Feature/GraphQL/BrandsTest.php
-- [ ] T022 [P] Contract test sections query in backend/tests/Feature/GraphQL/SectionsTest.php
-- [ ] T023 [P] Contract test product search in backend/tests/Feature/GraphQL/SearchTest.php
+- [x] T019 [P] Contract test products query in backend/tests/Feature/GraphQL/ProductsTest.php
+- [x] T020 [P] Contract test categories query in backend/tests/Feature/GraphQL/CategoriesTest.php
+- [x] T021 [P] Contract test brands query in backend/tests/Feature/GraphQL/BrandsTest.php
+- [x] T022 [P] Contract test sections query in backend/tests/Feature/GraphQL/SectionsTest.php
+- [x] T023 [P] Contract test product search in backend/tests/Feature/GraphQL/SearchTest.php
 
 ### Contract Tests for Cart & Orders
 - [ ] T024 [P] Contract test cart mutations in backend/tests/Feature/GraphQL/CartTest.php
@@ -108,11 +108,11 @@
 - [x] T044 [P] Implement password reset in backend/app/GraphQL/Mutations/Auth/PasswordResetMutation.php
 
 ### Product Catalog Resolvers
-- [ ] T045 [P] Implement products query in backend/app/GraphQL/Queries/ProductsQuery.php
-- [ ] T046 [P] Implement categories query in backend/app/GraphQL/Queries/CategoriesQuery.php
-- [ ] T047 [P] Implement brands query in backend/app/GraphQL/Queries/BrandsQuery.php
-- [ ] T048 [P] Implement sections query in backend/app/GraphQL/Queries/SectionsQuery.php
-- [ ] T049 [P] Implement search query in backend/app/GraphQL/Queries/SearchQuery.php
+- [x] T045 [P] Implement products query in backend/app/GraphQL/Queries/ProductsQuery.php
+- [x] T046 [P] Implement categories query in backend/app/GraphQL/Queries/CategoriesQuery.php
+- [x] T047 [P] Implement brands query in backend/app/GraphQL/Queries/BrandsQuery.php
+- [x] T048 [P] Implement sections query in backend/app/GraphQL/Queries/SectionsQuery.php
+- [x] T049 [P] Implement search query in backend/app/GraphQL/Queries/SearchQuery.php
 
 ### Cart & Wishlist Resolvers
 - [ ] T050 [P] Implement cart mutations in backend/app/GraphQL/Mutations/Cart/CartMutations.php

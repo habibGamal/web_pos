@@ -27,7 +27,12 @@ class SectionFactory extends Factory
             'title_ar' => $this->faker->words(3, true),
             'active' => $this->faker->boolean(80),
             'sort_order' => $this->faker->numberBetween(0, 100),
-            'section_type' => $this->faker->randomElement([SectionType::REAL, SectionType::VIRTUAL]),
+            'section_type' => $this->faker->randomElement([
+                SectionType::REAL,
+                SectionType::RECOMMENDATION,
+                SectionType::TRENDING,
+                SectionType::NEW_ARRIVALS
+            ]),
             'created_at' => now(),
             'updated_at' => now(),
         ];
@@ -48,15 +53,43 @@ class SectionFactory extends Factory
     }
 
     /**
-     * Configure the factory to create a VIRTUAL section.
+     * Configure the factory to create a RECOMMENDATION section.
      *
      * @return static
      */
-    public function virtual(): static
+    public function recommendation(): static
     {
         return $this->state(function () {
             return [
-                'section_type' => SectionType::VIRTUAL,
+                'section_type' => SectionType::RECOMMENDATION,
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a TRENDING section.
+     *
+     * @return static
+     */
+    public function trending(): static
+    {
+        return $this->state(function () {
+            return [
+                'section_type' => SectionType::TRENDING,
+            ];
+        });
+    }
+
+    /**
+     * Configure the factory to create a NEW_ARRIVALS section.
+     *
+     * @return static
+     */
+    public function newArrivals(): static
+    {
+        return $this->state(function () {
+            return [
+                'section_type' => SectionType::NEW_ARRIVALS,
             ];
         });
     }

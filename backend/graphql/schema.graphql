@@ -1,4 +1,5 @@
 #import auth.graphql
+#import products.graphql
 
 "A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
@@ -42,5 +43,80 @@ type User {
     created_at: DateTime!
 
     "When the account was last updated."
+    updated_at: DateTime!
+}
+
+"Product model base type"
+type Product {
+    "Unique primary key."
+    id: ID!
+
+    "Product name in English."
+    name_en: String!
+
+    "Product name in Arabic."
+    name_ar: String!
+
+    "Product price."
+    price: Float!
+
+    "Product slug for URL generation."
+    slug: String!
+
+    "Whether the product is active."
+    is_active: Boolean!
+
+    "When the product was created."
+    created_at: DateTime!
+
+    "When the product was last updated."
+    updated_at: DateTime!
+
+    "Product category."
+    category: Category! @belongsTo
+
+    "Product brand."
+    brand: Brand! @belongsTo
+}
+
+"Category model base type"
+type Category {
+    "Unique primary key."
+    id: ID!
+
+    "Category name in English."
+    name_en: String!
+
+    "Category name in Arabic."
+    name_ar: String!
+
+    "Category image."
+    image: String
+
+    "When the category was created."
+    created_at: DateTime!
+
+    "When the category was last updated."
+    updated_at: DateTime!
+}
+
+"Brand model base type"
+type Brand {
+    "Unique primary key."
+    id: ID!
+
+    "Brand name in English."
+    name_en: String!
+
+    "Brand name in Arabic."
+    name_ar: String!
+
+    "Brand image."
+    image: String
+
+    "When the brand was created."
+    created_at: DateTime!
+
+    "When the brand was last updated."
     updated_at: DateTime!
 }

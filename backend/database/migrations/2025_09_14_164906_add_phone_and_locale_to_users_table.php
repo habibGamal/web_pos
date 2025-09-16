@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->string('phone', 20)->nullable()->after('avatar');
             $table->string('locale', 5)->default('en')->after('phone');
-            $table->boolean('is_admin')->default(false)->after('locale');
         });
     }
 
