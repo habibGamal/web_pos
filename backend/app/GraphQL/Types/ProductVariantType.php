@@ -57,13 +57,13 @@ class ProductVariantType
      */
     public function effectivePrice(ProductVariant $variant): float
     {
-        return $variant->sale_price ?? $variant->price ?? $variant->product->price;
+        return (float) ($variant->sale_price ?? $variant->price ?? $variant->product->price);
     }
 
     /**
      * Get variant attributes as JSON.
      */
-    public function attributes(ProductVariant $variant): array
+    public function attributes(ProductVariant $variant): string
     {
         $attributes = [];
 
@@ -82,6 +82,6 @@ class ProductVariantType
             $attributes = array_merge($attributes, $variant->additional_attributes);
         }
 
-        return $attributes;
+        return json_encode($attributes);
     }
 }

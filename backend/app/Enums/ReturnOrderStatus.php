@@ -10,16 +10,22 @@ enum ReturnOrderStatus: string implements HasColor, HasIcon, HasLabel
 {
     case REQUESTED = 'requested';
     case APPROVED = 'approved';
-    case COMPLETED = 'completed';
     case REJECTED = 'rejected';
+    case RECEIVED = 'received';
+    case REFUNDED = 'refunded';
+    case CANCELLED = 'cancelled';
+    case COMPLETED = 'completed';
 
     public function getColor(): ?string
     {
         return match ($this) {
             self::REQUESTED => 'warning',
             self::APPROVED => 'info',
-            self::COMPLETED => 'success',
             self::REJECTED => 'danger',
+            self::RECEIVED => 'info',
+            self::REFUNDED => 'success',
+            self::CANCELLED => 'gray',
+            self::COMPLETED => 'success',
         };
     }
 
@@ -28,8 +34,11 @@ enum ReturnOrderStatus: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::REQUESTED => 'heroicon-o-clock',
             self::APPROVED => 'heroicon-o-check',
-            self::COMPLETED => 'heroicon-o-check-circle',
             self::REJECTED => 'heroicon-o-x-mark',
+            self::RECEIVED => 'heroicon-o-inbox-arrow-down',
+            self::REFUNDED => 'heroicon-o-banknotes',
+            self::CANCELLED => 'heroicon-o-x-circle',
+            self::COMPLETED => 'heroicon-o-check-circle',
         };
     }
 
@@ -38,8 +47,11 @@ enum ReturnOrderStatus: string implements HasColor, HasIcon, HasLabel
         return match ($this) {
             self::REQUESTED => 'مطلوب',
             self::APPROVED => 'معتمد',
-            self::COMPLETED => 'مكتمل',
             self::REJECTED => 'مرفوض',
+            self::RECEIVED => 'مستلم',
+            self::REFUNDED => 'مسترد',
+            self::CANCELLED => 'ملغي',
+            self::COMPLETED => 'مكتمل',
         };
     }
 
@@ -48,8 +60,11 @@ enum ReturnOrderStatus: string implements HasColor, HasIcon, HasLabel
         return [
             self::REQUESTED->value => self::REQUESTED->getLabel(),
             self::APPROVED->value => self::APPROVED->getLabel(),
-            self::COMPLETED->value => self::COMPLETED->getLabel(),
             self::REJECTED->value => self::REJECTED->getLabel(),
+            self::RECEIVED->value => self::RECEIVED->getLabel(),
+            self::REFUNDED->value => self::REFUNDED->getLabel(),
+            self::CANCELLED->value => self::CANCELLED->getLabel(),
+            self::COMPLETED->value => self::COMPLETED->getLabel(),
         ];
     }
 }

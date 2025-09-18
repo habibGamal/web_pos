@@ -11,8 +11,177 @@
 - any name or title or description in db migrations use en, ar postfixes for translations
 - GraphQL schema in /contracts/schema.graphql defines all API contracts
 - translation files: frontend in Next.js i18n structure, backend in resources/lang/
-- always use docs before implementation to follow newest practices for Next.js 15 App Router and GraphQL
 - maintain 100% feature parity with existing Inertia.js pages during migration
+- you are in windows environment, so use powershell commands when needed
+always use docs before implementation to follow newest practices for Next.js 15 App Router and GraphQL
+- always use docs-mcp-server for searching documentation 
+- always use laravel-boost and laravel-boost-guidelines for Laravel specific guidelines before any action
+- always use shadcn mcp tools for shadcn/ui documentation search before any action
+
+The docs-mcp-server provides two primary MCP tools:
+
+1. **list_libraries**: Lists all libraries that have been indexed and are available for documentation search.
+2. **search_docs**: Searches the indexed documentation for specific libraries using natural language queries.
+
+These tools are designed to work with the MCP server running either locally or remotely, allowing developers to quickly access and query documentation without leaving their development environment.
+
+## Tool 1: List Libraries (`list_libraries`)
+
+### Description
+
+This tool retrieves a complete list of all libraries that have been indexed in the docs-mcp-server database. It provides an overview of available documentation resources.
+
+### Parameters
+
+This tool requires no parameters.
+
+### Usage
+
+Invoke the tool using the MCP interface in your development environment. The tool will return a list of all indexed libraries.
+
+### Example
+
+```json
+{
+  "tool": "list_libraries"
+}
+```
+
+### Output
+
+The tool returns a JSON response containing an array of library names:
+
+```json
+{
+  "libraries": [
+    "inertiajs",
+    "lighthouse",
+    "nextjs",
+    "reactjs",
+    "shadcn"
+  ]
+}
+```
+
+### Common Use Cases
+
+- Discovering available documentation resources
+- Checking if a specific library has been indexed
+- Planning documentation indexing tasks
+- Validating server setup and data availability
+
+## Tool 2: Search Documentation (`search_docs`)
+
+### Description
+
+This tool performs semantic search across the indexed documentation of a specified library. It uses natural language processing to find relevant documentation snippets based on your query.
+
+### Parameters
+
+- **library** (required): The name of the library to search within (e.g., "react", "typescript")
+- **query** (required): The search query in natural language (e.g., "hooks lifecycle", "ReturnType example")
+- **limit** (optional): Maximum number of results to return (default: 5)
+- **version** (optional): Specific version or version range to search within (e.g., "18.0.0", "5.x")
+
+### Usage
+
+Provide the library name and your search query. The tool will return relevant documentation snippets with context.
+
+### Examples
+
+#### Basic Search (Latest Version)
+```json
+{
+  "tool": "search_docs",
+  "parameters": {
+    "library": "react",
+    "query": "hooks lifecycle"
+  }
+}
+```
+
+#### Search Specific Version
+```json
+{
+  "tool": "search_docs",
+  "parameters": {
+    "library": "react",
+    "version": "18.0.0",
+    "query": "hooks lifecycle"
+  }
+}
+```
+
+#### Search with Version Range
+```json
+{
+  "tool": "search_docs",
+  "parameters": {
+    "library": "typescript",
+    "version": "5.x",
+    "query": "ReturnType example"
+  }
+}
+```
+
+#### Limited Results
+```json
+{
+  "tool": "search_docs",
+  "parameters": {
+    "library": "nextjs",
+    "query": "routing",
+    "limit": 3
+  }
+}
+```
+
+### Output
+
+The tool returns search results in a structured text format, with each result containing a URL and relevant documentation excerpt:
+
+```
+Result 1: https://react.dev/learn/
+
+[Documentation content excerpt here...]
+
+Result 2: https://react.dev/learn/escape-hatches
+
+[Documentation content excerpt here...]
+
+...
+```
+
+Each result includes:
+- **URL**: Link to the full documentation page
+- **Content**: Relevant excerpt from the documentation, which may include code examples, explanations, and links
+
+The results are ordered by relevance, with the most relevant matches appearing first. The content preserves formatting such as code blocks, lists, and links from the original documentation.
+
+### Common Use Cases
+
+- Finding API documentation for specific functions or classes
+- Understanding library features and usage patterns
+- Troubleshooting implementation issues
+- Learning best practices from official documentation
+- Comparing features across different versions
+
+
+## Best Practices
+
+1. **Start Broad**: Begin with general queries and narrow down as needed
+2. **Use Version Ranges**: For compatibility across versions, use ranges like "5.x"
+3. **Combine Tools**: Use `list_libraries` to discover available resources before searching
+4. **Cache Results**: For frequently accessed documentation, consider caching results
+5. **Monitor Relevance**: Pay attention to relevance scores to gauge result quality
+
+## Advanced Usage
+
+### Batch Searching
+Perform multiple searches programmatically by calling the tool in sequence with different parameters.
+
+
+
 ===
 
 <laravel-boost-guidelines>
@@ -235,43 +404,6 @@ Forms\Components\Select::make('user_id')
 - Requires implementing `FilamentUser` contract for production access control.
 
 
-=== inertia-laravel/core rules ===
-
-## Inertia Core
-
-- Inertia.js components should be placed in the `resources/js/Pages` directory unless specified differently in the JS bundler (vite.config.js).
-- Use `Inertia::render()` for server-side routing instead of traditional Blade views.
-- Use `search-docs` for accurate guidance on all things Inertia.
-
-<code-snippet lang="php" name="Inertia::render Example">
-// routes/web.php example
-Route::get('/users', function () {
-    return Inertia::render('Users/Index', [
-        'users' => User::all()
-    ]);
-});
-</code-snippet>
-
-
-=== inertia-laravel/v2 rules ===
-
-## Inertia v2
-
-- Make use of all Inertia features from v1 & v2. Check the documentation before making any changes to ensure we are taking the correct approach.
-
-### Inertia v2 New Features
-- Polling
-- Prefetching
-- Deferred props
-- Infinite scrolling using merging props and `WhenVisible`
-- Lazy loading data on scroll
-
-### Deferred Props & Empty States
-- When using deferred props on the frontend, you should add a nice empty state with pulsing / animated skeleton.
-
-### Inertia Form General Guidance
-- Build forms using the `useForm` helper. Use the code examples and `search-docs` tool with a query of `useForm helper` for guidance.
-
 
 === laravel/core rules ===
 
@@ -347,89 +479,6 @@ Route::get('/users', function () {
     - `php artisan make:interface`
 
 
-=== livewire/core rules ===
-
-## Livewire Core
-- Use the `search-docs` tool to find exact version specific documentation for how to write Livewire & Livewire tests.
-- Use the `php artisan make:livewire [Posts\\CreatePost]` artisan command to create new components
-- State should live on the server, with the UI reflecting it.
-- All Livewire requests hit the Laravel backend, they're like regular HTTP requests. Always validate form data, and run authorization checks in Livewire actions.
-
-## Livewire Best Practices
-- Livewire components require a single root element.
-- Use `wire:loading` and `wire:dirty` for delightful loading states.
-- Add `wire:key` in loops:
-
-    ```blade
-    @foreach ($items as $item)
-        <div wire:key="item-{{ $item->id }}">
-            {{ $item->name }}
-        </div>
-    @endforeach
-    ```
-
-- Prefer lifecycle hooks like `mount()`, `updatedFoo()`) for initialization and reactive side effects:
-
-<code-snippet name="Lifecycle hook examples" lang="php">
-    public function mount(User $user) { $this->user = $user; }
-    public function updatedSearch() { $this->resetPage(); }
-</code-snippet>
-
-
-## Testing Livewire
-
-<code-snippet name="Example Livewire component test" lang="php">
-    Livewire::test(Counter::class)
-        ->assertSet('count', 0)
-        ->call('increment')
-        ->assertSet('count', 1)
-        ->assertSee(1)
-        ->assertStatus(200);
-</code-snippet>
-
-
-    <code-snippet name="Testing a Livewire component exists within a page" lang="php">
-        $this->get('/posts/create')
-        ->assertSeeLivewire(CreatePost::class);
-    </code-snippet>
-
-
-=== livewire/v3 rules ===
-
-## Livewire 3
-
-### Key Changes From Livewire 2
-- These things changed in Livewire 2, but may not have been updated in this application. Verify this application's setup to ensure you conform with application conventions.
-    - Use `wire:model.live` for real-time updates, `wire:model` is now deferred by default.
-    - Components now use the `App\Livewire` namespace (not `App\Http\Livewire`).
-    - Use `$this->dispatch()` to dispatch events (not `emit` or `dispatchBrowserEvent`).
-    - Use the `components.layouts.app` view as the typical layout path (not `layouts.app`).
-
-### New Directives
-- `wire:show`, `wire:transition`, `wire:cloak`, `wire:offline`, `wire:target` are available for use. Use the documentation to find usage examples.
-
-### Alpine
-- Alpine is now included with Livewire, don't manually include Alpine.js.
-- Plugins included with Alpine: persist, intersect, collapse, and focus.
-
-### Lifecycle Hooks
-- You can listen for `livewire:init` to hook into Livewire initialization, and `fail.status === 419` for the page expiring:
-
-<code-snippet name="livewire:load example" lang="js">
-document.addEventListener('livewire:init', function () {
-    Livewire.hook('request', ({ fail }) => {
-        if (fail && fail.status === 419) {
-            alert('Your session expired');
-        }
-    });
-
-    Livewire.hook('message.failed', (message, component) => {
-        console.error(message);
-    });
-});
-</code-snippet>
-
-
 === pint/core rules ===
 
 ## Laravel Pint Code Formatter
@@ -491,87 +540,6 @@ it('has emails', function (string $email) {
 ]);
 </code-snippet>
 
-
-=== inertia-react/core rules ===
-
-## Inertia + React
-
-- Use `router.visit()` or `<Link>` for navigation instead of traditional links.
-
-<code-snippet name="Inertia Client Navigation" lang="react">
-
-import { Link } from '@inertiajs/react'
-<Link href="/">Home</Link>
-
-</code-snippet>
-
-
-=== inertia-react/v2/forms rules ===
-
-## Inertia + React Forms
-
-<code-snippet name="Inertia React useForm Example" lang="react">
-
-import { useForm } from '@inertiajs/react'
-
-const { data, setData, post, processing, errors } = useForm({
-    email: '',
-    password: '',
-    remember: false,
-})
-
-function submit(e) {
-    e.preventDefault()
-    post('/login')
-}
-
-return (
-<form onSubmit={submit}>
-    <input type="text" value={data.email} onChange={e => setData('email', e.target.value)} />
-    {errors.email && <div>{errors.email}</div>}
-    <input type="password" value={data.password} onChange={e => setData('password', e.target.value)} />
-    {errors.password && <div>{errors.password}</div>}
-    <input type="checkbox" checked={data.remember} onChange={e => setData('remember', e.target.checked)} /> Remember Me
-    <button type="submit" disabled={processing}>Login</button>
-</form>
-)
-
-</code-snippet>
-
-
-=== tailwindcss/core rules ===
-
-## Tailwind Core
-
-- Use Tailwind CSS classes to style HTML, check and use existing tailwind conventions within the project before writing your own.
-- Offer to extract repeated patterns into components that match the project's conventions (i.e. Blade, JSX, Vue, etc..)
-- Think through class placement, order, priority, and defaults - remove redundant classes, add classes to parent or child carefully to limit repetition, group elements logically
-- You can use the `search-docs` tool to get exact examples from the official documentation when needed.
-
-### Spacing
-- When listing items, use gap utilities for spacing, don't use margins.
-
-    <code-snippet name="Valid Flex Gap Spacing Example" lang="html">
-        <div class="flex gap-8">
-            <div>Superior</div>
-            <div>Michigan</div>
-            <div>Erie</div>
-        </div>
-    </code-snippet>
-
-
-### Dark Mode
-- If existing pages and components support dark mode, new pages and components must support dark mode in a similar way, typically using `dark:`.
-
-
-=== tailwindcss/v3 rules ===
-
-## Tailwind 3
-
-- Always use Tailwind CSS v3 - verify you're using only classes supported by this version.
-
-
-=== tests rules ===
 
 ## Test Enforcement
 

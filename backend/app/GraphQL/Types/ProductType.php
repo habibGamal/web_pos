@@ -70,10 +70,9 @@ class ProductType
     public function effectivePrice(Product $product): float
     {
         if ($product->sale_price && $product->sale_price > 0) {
-            return (float) $product->sale_price;
+            return floatval($product->sale_price);
         }
-
-        return (float) $product->price;
+        return floatval($product->price);
     }
 
     /**
@@ -125,5 +124,13 @@ class ProductType
     public function stock(Product $product): int
     {
         return $product->total_quantity ?? 0;
+    }
+
+    /**
+     * Get the default variant for the product.
+     */
+    public function defaultVariant(Product $product)
+    {
+        return $product->defaultVariant();
     }
 }

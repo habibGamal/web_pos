@@ -37,15 +37,15 @@ class ReturnOrderConfirmationNotification extends Notification implements Should
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $returnItemsDetails = $this->returnOrder->items->map(function ($item) {
-            $variant = $item->order_item->variant ? " ({$item->order_item->variant->name_ar})" : '';
+        $returnItemsDetails = $this->returnOrder->returnItems->map(function ($item) {
+            $variant = $item->orderItem->variant ? " ({$item->orderItem->variant->name_ar})" : '';
 
-            return "• {$item->order_item->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
+            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
                    number_format((float) $item->total_price, 2).' جنيه';
         })->implode("\n");
 
-        $totalItemsCount = $this->returnOrder->items->sum('quantity');
-        $totalRefundAmount = $this->returnOrder->items->sum(function ($item) {
+        $totalItemsCount = $this->returnOrder->returnItems->sum('quantity');
+        $totalRefundAmount = $this->returnOrder->returnItems->sum(function ($item) {
             return (float) $item->total_price;
         });
 

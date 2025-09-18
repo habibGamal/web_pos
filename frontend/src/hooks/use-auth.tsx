@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import type { ReactNode } from 'react';
 import { useQuery, useLazyQuery, useMutation } from '@apollo/client/react';
@@ -221,7 +221,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     skip: !getToken(),
     errorPolicy: 'ignore', // Don't throw on unauthenticated
   });
-  const[getMeLazy] = useLazyQuery(meQueryDocument, {
+  const [getMeLazy] = useLazyQuery(meQueryDocument, {
     errorPolicy: 'ignore',
   });
 
@@ -251,19 +251,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     if (token) {
       localStorage.setItem('auth_token', token);
-    } else {
-      localStorage.removeItem('auth_token');
     }
   }
 
   // Helper function to handle auth response
   function handleAuthResponse(data: AuthPayload): AuthPayload {
+    apolloClient.resetStore();
     setToken(data.access_token);
     setUser(data.user);
     setError(null);
 
     // Reset Apollo cache to ensure fresh data
-    apolloClient.resetStore();
 
     return data;
   }
@@ -297,11 +295,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: LoginInput): Promise<AuthPayload> => {
       try {
         setError(null);
-        
+
         const { data } = await loginMutation({ variables: { input } });
         console.log(data);
         if (!data?.login) throw new Error('No data returned');
-        
+
         const authResult: AuthPayload = {
           __typename: 'AuthPayload',
           access_token: data.login.access_token,
@@ -323,10 +321,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         // Ensure CSRF cookie is available
         await fetchCsrfCookie();
-        
+
         const { data } = await registerMutation({ variables: { input } });
         if (!data?.register) throw new Error('No data returned');
-        
+
         const authResult: AuthPayload = {
           __typename: 'AuthPayload',
           access_token: data.register.access_token,
@@ -348,10 +346,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         // Ensure CSRF cookie is available
         await fetchCsrfCookie();
-        
+
         const { data } = await socialLoginMutation({ variables: { input } });
         if (!data?.socialLogin) throw new Error('No data returned');
-        
+
         const authResult: AuthPayload = {
           __typename: 'AuthPayload',
           access_token: data.socialLogin.access_token,
@@ -392,7 +390,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         // Ensure CSRF cookie is available
         await fetchCsrfCookie();
-        
+
         const { data } = await forgotPasswordMutation({ variables: { input } });
         if (!data?.forgotPassword) throw new Error('No data returned');
         return { message: data.forgotPassword.message };
@@ -409,7 +407,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         // Ensure CSRF cookie is available
         await fetchCsrfCookie();
-        
+
         const { data } = await resetPasswordMutation({ variables: { input } });
         if (!data?.resetPassword) throw new Error('No data returned');
         return data.resetPassword;
@@ -426,7 +424,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         // Ensure CSRF cookie is available
         await fetchCsrfCookie();
-        
+
         const { data } = await changePasswordMutation({ variables: { input } });
         if (!data?.changePassword) throw new Error('No data returned');
         return data.changePassword;
@@ -443,7 +441,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setError(null);
         const { data } = await updateProfileMutation({ variables: { input } });
         if (!data?.updateProfile) throw new Error('No data returned');
-        
+
         const updatedUser = useFragment(UserFragment, data.updateProfile) as User;
         setUser(updatedUser);
         return updatedUser;
@@ -510,7 +508,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setError(null);
       const { data } = await refreshTokenMutation();
       if (!data?.refreshToken) throw new Error('No data returned');
-      
+
       const authResult: AuthPayload = {
         __typename: 'AuthPayload',
         access_token: data.refreshToken.access_token,
@@ -582,7 +580,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 }
 
 // Auth Hook
-
 
 export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);

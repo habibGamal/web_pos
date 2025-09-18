@@ -1,0 +1,550 @@
+# Order Management Types and Mutations
+# This file contains all order-related GraphQL types, inputs, and mutations
+
+# Order type
+type Order {
+    "Unique identifier"
+    id: ID!
+
+    "Order number (user-facing)"
+    order_number: String! @field(resolver: "App\\GraphQL\\Types\\OrderType@orderNumber")
+
+    "User ID this order belongs to"
+    user_id: ID! @field(resolver: "App\\GraphQL\\Types\\OrderType@userId")
+
+    "Order status"
+    status: OrderStatus! @field(resolver: "App\\GraphQL\\Types\\OrderType@status")
+
+    "Payment status"
+    payment_status: PaymentStatus!
+
+    "Subtotal before taxes and discounts"
+    subtotal: Float!
+
+    "Tax amount"
+    tax_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@taxAmount")
+
+    "Shipping cost"
+    shipping_cost: Float!
+
+    "Discount amount"
+    discount_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@discountAmount")
+
+    "Total order amount"
+    total_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@totalAmount")
+
+    "Currency code"
+    currency: String! @field(resolver: "App\\GraphQL\\Types\\OrderType@currency")
+
+    "Shipping address"
+    shipping_address: Address! @field(resolver: "App\\GraphQL\\Types\\OrderType@shippingAddress")
+
+    "Billing address"
+    billing_address: Address! @field(resolver: "App\\GraphQL\\Types\\OrderType@billingAddress")
+
+    "Order notes"
+    notes: String
+
+    "When the order was placed"
+    created_at: DateTime!
+
+    "When the order was last updated"
+    updated_at: DateTime!
+
+    "Order owner"
+    user: User! @belongsTo
+
+    "Order items"
+    items: [OrderItem!]! @hasMany
+
+    "Order status history"
+    statusHistory: [OrderStatusHistory!]! @hasMany
+
+    "Returns for this order"
+    returns: [ReturnOrder!]! @hasMany
+
+    "Payment transactions"
+    payments: [Payment!]! @hasMany
+
+    "Whether the order can be cancelled"
+    can_be_cancelled: Boolean! @field(resolver: "App\\GraphQL\\Types\\OrderType@canBeCancelled")
+
+    "Whether the order can be returned"
+    can_be_returned: Boolean! @field(resolver: "App\\GraphQL\\Types\\OrderType@canBeReturned")
+
+    "Order tracking information"
+    tracking_number: String
+
+    "Estimated delivery date"
+    estimated_delivery_date: DateTime
+
+    "Actual delivery date"
+    delivered_at: DateTime
+}
+
+# Order Item type
+type OrderItem {
+    "Unique identifier"
+    id: ID!
+
+    "Order ID this item belongs to"
+    order_id: ID!
+
+    "Product variant ID"
+    variant_id: ID!
+
+    "Quantity ordered"
+    quantity: Int!
+
+    "Unit price at time of order"
+    unit_price: Float!
+
+    "Total price for this line item"
+    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\OrderItemType@totalPrice")
+
+    "Product this order item belongs to"
+    product: Product! @belongsTo(foreignKey: "product_id")
+
+    "Product variant details at time of order"
+    variant_details: String
+
+    "When the item was added to order"
+    created_at: DateTime!
+
+    "When the item was last updated"
+    updated_at: DateTime!
+
+    "Product variant (current state)"
+    variant: ProductVariant @belongsTo(relation: "variant")
+
+    "Order this item belongs to"
+    order: Order! @belongsTo
+
+    "Return items for this order item"
+    returnItems: [ReturnItem!]! @hasMany
+
+    "Quantity that can still be returned"
+    returnable_quantity: Int! @field(resolver: "App\\GraphQL\\Types\\OrderItemType@returnableQuantity")
+}
+
+# Address type (embedded in orders)
+type Address {
+    "Full name"
+    full_name: String!
+
+    "Phone number"
+    phone: String!
+
+    "Address line 1"
+    address_line_1: String!
+
+    "Address line 2"
+    address_line_2: String
+
+    "City"
+    city: String!
+
+    "State/Province"
+    state: String!
+
+    "Postal code"
+    postal_code: String!
+
+    "Country"
+    country: String!
+}
+
+# Order Status History type
+type OrderStatusHistory {
+    "Unique identifier"
+    id: ID!
+
+    "Order ID"
+    order_id: ID!
+
+    "Previous status"
+    previous_status: OrderStatus
+
+    "New status"
+    new_status: OrderStatus!
+
+    "Status change reason/notes"
+    notes: String
+
+    "User who made the change (admin)"
+    changed_by_user_id: ID
+
+    "When the status was changed"
+    created_at: DateTime!
+
+    "Order this history belongs to"
+    order: Order! @belongsTo
+
+    "User who made the change"
+    changedBy: User @belongsTo(relation: "changedBy")
+}
+
+# Return Order type
+type ReturnOrder {
+    "Unique identifier"
+    id: ID!
+
+    "Return number (user-facing)"
+    return_number: String!
+
+    "Original order ID"
+    order_id: ID!
+
+    "Return status"
+    status: ReturnStatus!
+
+    "Return reason"
+    reason: ReturnReason!
+
+    "Additional return notes"
+    notes: String
+
+    "Refund amount"
+    refund_amount: Float!
+
+    "When the return was requested"
+    created_at: DateTime!
+
+    "When the return was last updated"
+    updated_at: DateTime!
+
+    "When the return was approved"
+    approved_at: DateTime
+
+    "When the refund was processed"
+    refunded_at: DateTime
+
+    "Original order"
+    order: Order! @belongsTo
+
+    "Return items"
+    returnItems: [ReturnItem!]! @hasMany
+
+    "Return status history"
+    statusHistory: [ReturnStatusHistory!]! @hasMany
+}
+
+# Return Item type
+type ReturnItem {
+    "Unique identifier"
+    id: ID!
+
+    "Return order ID"
+    return_order_id: ID!
+
+    "Original order item ID"
+    order_item_id: ID!
+
+    "Quantity being returned"
+    quantity: Int!
+
+    "Unit price at time of return"
+    unit_price: Float!
+
+    "Total price for this return item"
+    subtotal: Float!
+
+    "When the item was added to return"
+    created_at: DateTime!
+
+    "Return order this item belongs to"
+    returnOrder: ReturnOrder! @belongsTo
+
+    "Original order item"
+    orderItem: OrderItem! @belongsTo
+}
+
+# Return Status History type
+type ReturnStatusHistory {
+    "Unique identifier"
+    id: ID!
+
+    "Return order ID"
+    return_order_id: ID!
+
+    "Previous status"
+    previous_status: ReturnStatus
+
+    "New status"
+    new_status: ReturnStatus!
+
+    "Status change notes"
+    notes: String
+
+    "User who made the change"
+    changed_by_user_id: ID
+
+    "When the status was changed"
+    created_at: DateTime!
+
+    "Return order this history belongs to"
+    returnOrder: ReturnOrder! @belongsTo
+
+    "User who made the change"
+    changedBy: User @belongsTo(relation: "changedBy")
+}
+
+# Payment type
+type Payment {
+    "Unique identifier"
+    id: ID!
+
+    "Order ID this payment belongs to"
+    order_id: ID!
+
+    "Payment method"
+    payment_method: PaymentMethod!
+
+    "Payment gateway (Kashier, etc.)"
+    gateway: String!
+
+    "Payment gateway transaction ID"
+    gateway_transaction_id: String
+
+    "Payment amount"
+    amount: Float!
+
+    "Payment currency"
+    currency: String!
+
+    "Payment status"
+    status: PaymentStatus!
+
+    "Payment gateway response"
+    gateway_response: String
+
+    "When the payment was initiated"
+    created_at: DateTime!
+
+    "When the payment was last updated"
+    updated_at: DateTime!
+
+    "Order this payment belongs to"
+    order: Order! @belongsTo
+}
+
+# Enums
+enum OrderStatus {
+    "Order placed but not yet confirmed"
+    PENDING @enum(value: "PENDING")
+
+    "Order confirmed and being prepared"
+    CONFIRMED @enum(value: "CONFIRMED")
+
+    "Order is being processed"
+    PROCESSING @enum(value: "PROCESSING")
+
+    "Order has been shipped"
+    SHIPPED @enum(value: "SHIPPED")
+
+    "Order has been delivered"
+    DELIVERED @enum(value: "DELIVERED")
+
+    "Order has been cancelled"
+    CANCELLED @enum(value: "CANCELLED")
+
+    "Order has been refunded"
+    REFUNDED @enum(value: "REFUNDED")
+}
+
+enum PaymentStatus {
+    "Payment is pending"
+    PENDING @enum(value: "PENDING")
+
+    "Payment was successful"
+    PAID @enum(value: "PAID")
+
+    "Payment failed"
+    FAILED @enum(value: "FAILED")
+
+    "Payment was cancelled"
+    CANCELLED @enum(value: "CANCELLED")
+
+    "Payment was refunded"
+    REFUNDED @enum(value: "REFUNDED")
+
+    "Partial refund processed"
+    PARTIALLY_REFUNDED @enum(value: "PARTIALLY_REFUNDED")
+}
+
+enum PaymentMethod {
+    "Credit/Debit Card"
+    CARD @enum(value: "CARD")
+
+    "Cash on Delivery"
+    COD @enum(value: "COD")
+
+    "Bank Transfer"
+    BANK_TRANSFER @enum(value: "BANK_TRANSFER")
+
+    "Digital Wallet"
+    WALLET @enum(value: "WALLET")
+}
+
+enum ReturnStatus {
+    "Return requested by customer"
+    REQUESTED @enum(value: "REQUESTED")
+
+    "Return approved by admin"
+    APPROVED @enum(value: "APPROVED")
+
+    "Return rejected by admin"
+    REJECTED @enum(value: "REJECTED")
+
+    "Items received for return"
+    RECEIVED @enum(value: "RECEIVED")
+
+    "Return processed and refund issued"
+    REFUNDED @enum(value: "REFUNDED")
+
+    "Return cancelled"
+    CANCELLED @enum(value: "CANCELLED")
+}
+
+enum ReturnReason {
+    "Product was defective"
+    DEFECTIVE @enum(value: "DEFECTIVE")
+
+    "Wrong item received"
+    WRONG_ITEM @enum(value: "WRONG_ITEM")
+
+    "Item damaged during shipping"
+    DAMAGED @enum(value: "DAMAGED")
+
+    "Item not as described"
+    NOT_AS_DESCRIBED @enum(value: "NOT_AS_DESCRIBED")
+
+    "Changed mind"
+    CHANGED_MIND @enum(value: "CHANGED_MIND")
+
+    "Size/fit issues"
+    SIZE_FIT @enum(value: "SIZE_FIT")
+
+    "Other reason"
+    OTHER @enum(value: "OTHER")
+}
+
+# Input types
+input CreateOrderInput {
+    "Shipping address"
+    shipping_address: AddressInput!
+
+    "Billing address (optional, defaults to shipping)"
+    billing_address: AddressInput
+
+    "Payment method"
+    payment_method: PaymentMethod!
+
+    "Order notes"
+    notes: String
+
+    "Whether billing address same as shipping"
+    billing_same_as_shipping: Boolean = true
+}
+
+input AddressInput {
+    "Full name"
+    full_name: String! @rules(apply: ["required", "string", "max:255"])
+
+    "Phone number"
+    phone: String! @rules(apply: ["required", "string", "max:20"])
+
+    "Address line 1"
+    address_line_1: String! @rules(apply: ["required", "string", "max:255"])
+
+    "Address line 2"
+    address_line_2: String @rules(apply: ["nullable", "string", "max:255"])
+
+    "City"
+    city: String! @rules(apply: ["required", "string", "max:100"])
+
+    "State/Province"
+    state: String! @rules(apply: ["required", "string", "max:100"])
+
+    "Postal code"
+    postal_code: String! @rules(apply: ["required", "string", "max:20"])
+
+    "Country"
+    country: String! @rules(apply: ["required", "string", "max:100"])
+}
+
+input CancelOrderInput {
+    "Order ID to cancel"
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+
+    "Cancellation reason"
+    reason: String @rules(apply: ["nullable", "string", "max:500"])
+}
+
+input CreateReturnInput {
+    "Order ID to return items from"
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+
+    "Return reason"
+    reason: ReturnReason! @rules(apply: ["required"])
+
+    "Items to return"
+    items: [ReturnItemInput!]! @rules(apply: ["required", "array", "min:1"])
+}
+
+input ReturnItemInput {
+    "Order item ID"
+    order_item_id: ID! @rules(apply: ["required", "exists:order_items,id"])
+
+    "Quantity to return"
+    quantity: Int! @rules(apply: ["required", "min:1"])
+}
+
+# Order and Return Queries
+extend type Query {
+    "Get user's orders with pagination"
+    orders(
+        "Filter by status"
+        status: OrderStatus
+        "Date range filter"
+        date_from: DateTime
+        "Date range filter"
+        date_to: DateTime
+    ): [Order!]! @paginate(defaultCount: 10, builder: "App\\GraphQL\\Queries\\OrdersQuery") @guard
+
+    "Get single order by ID"
+    order(
+        "Order ID"
+        id: ID! @rules(apply: ["required", "exists:orders,id"])
+    ): Order @field(resolver: "App\\GraphQL\\Queries\\OrdersQuery@order") @guard
+
+    "Get user's returns with pagination"
+    returns(
+        "Filter by status"
+        status: ReturnStatus
+    ): [ReturnOrder!]! @paginate(defaultCount: 10, builder: "App\\GraphQL\\Queries\\ReturnsQuery") @guard
+
+    "Get single return by ID"
+    returnOrder(
+        "Return ID"
+        id: ID! @rules(apply: ["required", "exists:return_orders,id"])
+    ): ReturnOrder @field(resolver: "App\\GraphQL\\Queries\\ReturnsQuery@returnOrder") @guard
+}
+
+# Order and Return Mutations
+extend type Mutation {
+    "Create new order from cart"
+    createOrder(input: CreateOrderInput! @spread): Order! @field(resolver: "App\\GraphQL\\Mutations\\Orders\\CreateOrderMutation") @guard
+
+    "Cancel an order"
+    cancelOrder(input: CancelOrderInput! @spread): Order! @field(resolver: "App\\GraphQL\\Mutations\\Orders\\CancelOrderMutation") @guard
+
+    "Create return request"
+    createReturn(input: CreateReturnInput! @spread): ReturnOrder! @field(resolver: "App\\GraphQL\\Mutations\\Returns\\CreateReturnMutation") @guard
+
+    "Cancel return request"
+    cancelReturn(
+        "Return ID to cancel"
+        return_id: ID! @rules(apply: ["required", "exists:return_orders,id"])
+    ): ReturnOrder! @field(resolver: "App\\GraphQL\\Mutations\\Returns\\CancelReturnMutation") @guard
+}

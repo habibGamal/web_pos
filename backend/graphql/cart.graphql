@@ -1,0 +1,174 @@
+# Cart & Wishlist Types and Mutations
+# This file contains all cart and wishlist-related GraphQL types, inputs, and mutations
+
+# Cart type
+type Cart {
+    "Unique identifier"
+    id: ID!
+
+    "User ID this cart belongs to"
+    user_id: ID!
+
+    "Cart session ID for guest users"
+    session_id: String
+
+    "When the cart was created"
+    created_at: DateTime!
+
+    "When the cart was last updated"
+    updated_at: DateTime!
+
+    "Cart items"
+    items: [CartItem!]! @hasMany
+
+    "Cart total price"
+    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartType@totalPrice")
+
+    "Cart total items count"
+    total_items: Int! @field(resolver: "App\\GraphQL\\Types\\CartType@totalItems")
+
+    "Cart total quantity"
+    total_quantity: Int! @field(resolver: "App\\GraphQL\\Types\\CartType@totalQuantity")
+
+    "Whether the cart is empty"
+    is_empty: Boolean! @field(resolver: "App\\GraphQL\\Types\\CartType@isEmpty")
+
+    "Cart owner (if authenticated)"
+    user: User @belongsTo
+}
+
+# Cart Item type
+type CartItem {
+    "Unique identifier"
+    id: ID!
+
+    "Cart ID this item belongs to"
+    cart_id: ID!
+
+    "Product variant ID"
+    product_variant_id: ID!
+
+    "Quantity of this item in cart"
+    quantity: Int!
+
+    "Price per unit at time of adding to cart"
+    unit_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartItemType@unitPrice")
+
+    "When the item was added to cart"
+    created_at: DateTime!
+
+    "When the item was last updated"
+    updated_at: DateTime!
+
+    "Product variant"
+    variant: ProductVariant! @belongsTo(relation: "variant")
+
+    "Product (through variant)"
+    product: Product! @field(resolver: "App\\GraphQL\\Types\\CartItemType@product")
+
+    "Total price for this line item"
+    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartItemType@totalPrice")
+
+    "Whether this item is in stock"
+    is_available: Boolean! @field(resolver: "App\\GraphQL\\Types\\CartItemType@isAvailable")
+
+    "Cart this item belongs to"
+    cart: Cart! @belongsTo
+}
+
+# Wishlist type
+type Wishlist {
+    "Unique identifier"
+    id: ID!
+
+    "User ID this wishlist belongs to"
+    user_id: ID!
+
+    "Product ID in wishlist"
+    product_id: ID!
+
+    "When the item was added to wishlist"
+    created_at: DateTime!
+
+    "Product in wishlist"
+    product: Product! @belongsTo
+
+    "User who owns this wishlist"
+    user: User! @belongsTo
+}
+
+# Input types for cart operations
+input AddToCartInput {
+    "Product variant ID to add"
+    product_variant_id: ID! @rules(apply: ["required", "exists:product_variants,id"])
+
+    "Quantity to add"
+    quantity: Int! @rules(apply: ["required", "min:1", "max:100"])
+}
+
+input UpdateCartItemInput {
+    "Cart item ID to update"
+    cart_item_id: ID! @rules(apply: ["required", "exists:cart_items,id"])
+
+    "New quantity (0 to remove item)"
+    quantity: Int! @rules(apply: ["required", "min:0", "max:100"])
+}
+
+input RemoveFromCartInput {
+    "Cart item ID to remove"
+    cart_item_id: ID! @rules(apply: ["required", "exists:cart_items,id"])
+}
+
+# Input types for wishlist operations
+input AddToWishlistInput {
+    "Product ID to add to wishlist"
+    product_id: ID! @rules(apply: ["required", "exists:products,id"])
+}
+
+input RemoveFromWishlistInput {
+    "Product ID to remove from wishlist"
+    product_id: ID! @rules(apply: ["required", "exists:products,id"])
+}
+
+# Cart and Wishlist Queries
+extend type Query {
+    "Get current user's cart"
+    cart: Cart @field(resolver: "App\\GraphQL\\Queries\\CartQuery") @guard
+
+    "Get current user's wishlist items"
+    wishlist: [Wishlist!]! @field(resolver: "App\\GraphQL\\Queries\\WishlistQuery")
+
+    "Get wishlist items count for current user"
+    wishlistCount: Int! @field(resolver: "App\\GraphQL\\Queries\\WishlistQuery@count")
+}
+
+# Cart and Wishlist Mutations
+extend type Mutation {
+    "Add product variant to cart"
+    addToCart(input: AddToCartInput! @spread): CartItem! @field(resolver: "App\\GraphQL\\Mutations\\Cart\\AddToCartMutation") @guard
+
+    "Update cart item quantity"
+    updateCartItem(input: UpdateCartItemInput! @spread): CartItem @field(resolver: "App\\GraphQL\\Mutations\\Cart\\UpdateCartItemMutation") @guard
+
+    "Remove item from cart"
+    removeFromCart(input: RemoveFromCartInput! @spread): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\Cart\\RemoveFromCartMutation") @guard
+
+    "Clear all items from cart"
+    clearCart: Boolean! @field(resolver: "App\\GraphQL\\Mutations\\Cart\\ClearCartMutation") @guard
+
+    "Add product to wishlist"
+    addToWishlist(input: AddToWishlistInput! @spread): Wishlist! @field(resolver: "App\\GraphQL\\Mutations\\Wishlist\\AddToWishlistMutation") @guard
+
+    "Remove product from wishlist"
+    removeFromWishlist(input: RemoveFromWishlistInput! @spread): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\Wishlist\\RemoveFromWishlistMutation") @guard
+
+    "Move item from wishlist to cart"
+    moveWishlistToCart(
+        "Product ID to move from wishlist to cart"
+        product_id: ID! @rules(apply: ["required", "exists:products,id"])
+        "Product variant ID to add to cart"
+        product_variant_id: ID! @rules(apply: ["required", "exists:product_variants,id"])
+        "Quantity to add to cart"
+        quantity: Int! @rules(apply: ["required", "min:1", "max:100"])
+    ): CartItem! @field(resolver: "App\\GraphQL\\Mutations\\Wishlist\\MoveToCartMutation") @guard
+}

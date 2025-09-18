@@ -37,15 +37,15 @@ class ReturnOrderRequestedNotification extends Notification implements ShouldQue
      */
     public function toMail(object $notifiable): MailMessage
     {
-        $returnItemsDetails = $this->returnOrder->items->map(function ($item) {
-            $variant = $item->order_item->variant ? " ({$item->order_item->variant->name_ar})" : '';
+        $returnItemsDetails = $this->returnOrder->returnItems->map(function ($item) {
+            $variant = $item->orderItem->variant ? " ({$item->orderItem->variant->name_ar})" : '';
 
-            return "• {$item->order_item->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
+            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
                    number_format((float) $item->total_price, 2).' جنيه';
         })->implode("\n");
 
-        $totalItemsCount = $this->returnOrder->items->sum('quantity');
-        $totalRefundAmount = $this->returnOrder->items->sum(function ($item) {
+        $totalItemsCount = $this->returnOrder->returnItems->sum('quantity');
+        $totalRefundAmount = $this->returnOrder->returnItems->sum(function ($item) {
             return (float) $item->total_price;
         });
 
@@ -104,8 +104,8 @@ class ReturnOrderRequestedNotification extends Notification implements ShouldQue
             'customer_email' => $this->returnOrder->order->user->email,
             'return_reason' => $this->returnOrder->reason,
             'return_status' => $this->returnOrder->status->value,
-            'total_items' => $this->returnOrder->items->sum('quantity'),
-            'total_amount' => $this->returnOrder->items->sum(function ($item) {
+            'total_items' => $this->returnOrder->returnItems->sum('quantity'),
+            'total_amount' => $this->returnOrder->returnItems->sum(function ($item) {
                 return (float) $item->total_price;
             }),
             'needs_refund' => $this->returnOrder->order->payment_status->value === 'paid' &&

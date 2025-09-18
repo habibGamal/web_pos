@@ -25,7 +25,7 @@ class ReturnOrderFactory extends Factory
             'user_id' => User::factory(),
             'return_number' => 'RET-'.Str::upper(Str::random(8)),
             'status' => ReturnOrderStatus::REQUESTED,
-            'reason' => $this->faker->paragraph(),
+            'reason' => $this->faker->randomElement(['DEFECTIVE', 'WRONG_ITEM', 'DAMAGED', 'NOT_AS_DESCRIBED', 'CHANGED_MIND', 'SIZE_FIT', 'OTHER']),
             'total_amount' => $this->faker->randomFloat(2, 10, 500),
             'refund_amount' => $this->faker->randomFloat(2, 10, 500),
             'requested_at' => now(),

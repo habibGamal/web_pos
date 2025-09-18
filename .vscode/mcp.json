@@ -1,19 +1,17 @@
 {
-  "servers": {
-    "laravel-boost": {
-      "command": "php",
-      "args": [
-        "artisan",
-        "boost:mcp"
-      ],
-      "cwd": "./backend"
-    },
-    "shadcn": {
-      "command": "npx",
-      "args": [
-        "shadcn@latest",
-        "mcp"
-      ]
+    "servers": {
+        "laravel-boost": {
+            "command": "php",
+            "args": ["artisan", "boost:mcp"],
+            "cwd": "./backend"
+        },
+        "shadcn": {
+            "command": "npx",
+            "args": ["shadcn@latest", "mcp"]
+        },
+        "docs-mcp-server": {
+            "type": "sse",
+            "url": "https://doc-mcp.turbosoftspace.com/mcp"
+        }
     }
-  }
 }

@@ -49,6 +49,9 @@ extend type Product {
     "Product's variants"
     variants: [ProductVariant!]! @hasMany
 
+    "Product's default variant"
+    default_variant: ProductVariant @field(resolver: "App\\GraphQL\\Types\\ProductType@defaultVariant")
+
     "Product's sections"
     sections: [Section!]! @belongsToMany
 }
@@ -88,11 +91,11 @@ type ProductVariant {
     "Variant capacity attribute"
     capacity: String
 
-    "Additional variant attributes (JSON)"
-    additional_attributes: JSON
+    "Additional variant attributes (JSON string)"
+    additional_attributes: String
 
     "Variant attributes combined (computed)"
-    attributes: JSON! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@attributes")
+    attributes: String! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@attributes")
 
     "Whether this is the default variant"
     is_default: Boolean!
@@ -418,5 +421,4 @@ extend type Query {
     ): [String!]! @field(resolver: "App\\GraphQL\\Queries\\SearchQuery@suggestions")
 }
 
-# JSON scalar for variant attributes and other JSON data
-scalar JSON @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\JSON")
+# Using String scalar for variant attributes and other JSON data (stored as JSON strings)

@@ -1,14 +1,11 @@
-// 'use client';
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { ApolloProvider } from '@apollo/client/react';
 import '../globals.css';
-import { useEffect } from 'react';
-import { AuthProvider } from '@/hooks/use-auth';
-import apolloClient, { fetchCsrfCookie } from '@/lib/apollo-client';
 import { getMessages } from 'next-intl/server';
 import Providers from '../providers';
+import Header from '@/components/navigation/Header';
+import Footer from '@/components/Footer';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -27,17 +24,23 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }>) {
-  // useEffect(() => {
-    // fetchCsrfCookie();
-  // }, []);
   const { locale } = await params;
   const messages = await getMessages({ locale });
+  
 
   return (
     <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          <Providers>{children}</Providers>
+          <Providers>
+            <div className="flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1 pb-14 lg:pb-0">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>

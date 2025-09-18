@@ -6,7 +6,7 @@ const config: CodegenConfig = {
   documents: 'src/**/*.{ts,tsx}',
   // documents: ['src/**/*.tsx'],
   ignoreNoDocuments: true, // for better experience with the watcher
-  watch: true,
+  // watch: true,
   generates: {
     './src/gql/': {
       preset: 'client',

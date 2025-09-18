@@ -121,6 +121,187 @@
     "delete": "حذف",
     "edit": "تعديل",
     "view": "عرض",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "home": "الرئيسية",
+    "search": "البحث",
+    "categories": "الفئات",
+    "brands": "العلامات التجارية",
+    "contact": "اتصل بنا",
+    "bestSellers": "الأكثر مبيعاً",
+    "noBrands": "لا توجد علامات تجارية حتى الآن",
+    "noBrandsDescription": "ليس لدينا أي علامات تجارية حتى الآن. تحقق مرة أخرى لاحقاً أو جرب بحثاً مختلفاً.",
+    "noCategories": "لا توجد فئات حتى الآن",
+    "noCategoriesDescription": "ليس لدينا أي فئات حتى الآن. تحقق مرة أخرى لاحقاً.",
+    "wishlist": "قائمة الأمنيات",
+    "cart": "سلة التسوق",
+    "profile": "الملف الشخصي",
+    "myOrders": "طلباتي",
+    "logout": "تسجيل الخروج",
+    "searchProducts": "البحث عن المنتجات",
+    "searchPlaceholder": "ابحث عن المنتجات...",
+    "clear": "مسح",
+    "searching": "جاري البحث...",
+    "suggestions": "اقتراحات",
+    "viewAllResults": "عرض جميع النتائج",
+    "noResultsFound": "لم يتم العثور على نتائج",
+    "searchAnyway": "ابحث على أي حال"
+  },
+  "footer": {
+    "description": "وجهتك الموثوقة للتسوق عبر الإنترنت للمنتجات عالية الجودة.",
+    "quickLinks": "روابط سريعة",
+    "allCategories": "جميع الفئات",
+    "support": "الدعم",
+    "help": "مركز المساعدة",
+    "terms": "الشروط والأحكام",
+    "privacy": "سياسة الخصوصية",
+    "allRightsReserved": "جميع الحقوق محفوظة."
+  },
+  "product": {
+    "products": "المنتجات",
+    "allProducts": "جميع المنتجات",
+    "browseOurCollection": "تصفح مجموعتنا",
+    "filters": "الفلاتر",
+    "clearFilters": "مسح الفلاتر",
+    "sortBy": "ترتيب حسب",
+    "sort": {
+      "featured": "مميز",
+      "newest": "الأحدث",
+      "priceLowToHigh": "السعر: من الأقل للأعلى",
+      "priceHighToLow": "السعر: من الأعلى للأقل",
+      "nameAtoZ": "الاسم: أ إلى ي",
+      "nameZtoA": "الاسم: ي إلى أ"
+    },
+    "search": "بحث",
+    "searchPlaceholder": "البحث في المنتجات...",
+    "categories": "الفئات",
+    "brands": "العلامات التجارية",
+    "priceRange": "نطاق السعر",
+    "productStatus": "حالة المنتج",
+    "featured": "مميز",
+    "onSale": "عرض",
+    "inStockOnly": "متوفر في المخزون فقط",
+    "currency": "جنيه مصري",
+    "categoryLabel": "{name} ({count})",
+    "brandLabel": "{name} ({count})",
+    "addToCart": "أضف إلى السلة",
+    "adding": "جاري الإضافة...",
+    "notFound": "المنتج غير موجود",
+    "notFoundDescription": "المنتج الذي تبحث عنه غير موجود أو تمت إزالته.",
+    "backToProducts": "العودة إلى المنتجات",
+    "outOfStock": "ناقص المنتج",
+    "selectVariant": "اختر النموذج",
+    "quantity": "الكمية",
+    "available": "متاح",
+    "freeShipping": "توصيل مجاني",
+    "warranty": "ضمان",
+    "description": "الوصف",
+    "specifications": "المواصفات",
+    "reviews": "تقييمات",
+    "noDescription": "لا يتوفر وصف لهذا المنتج.",
+    "brand": "العلامة",
+    "category": "الفئة",
+    "sku": "SKU",
+    "noReviews": "لا توجد تقييمات",
+    "relatedProducts": "جميع المنتجات"
+  }
+
+  ,"wishlist": {
+    "error": {
+      "title": "حدث خطأ ما",
+      "dismiss": "اغلاق",
+      "retry": "إعادة المحاولة"
+    },
+    "empty": {
+      "title": "قائمة الأمنيات فارغة",
+      "description": "لم تقم بإضافة أي منتجات إلى قائمة الأمنيات بعد.",
+      "startShopping": "ابدأ التسوق",
+      "viewCart": "عرض السلة"
+    },
+    "backToShopping": "العودة للتسوق",
+    "title": "قائمة الأمنيات",
+    "itemCount": "{count} عنصر",
+    "onSale": "عرض",
+    "outOfStock": "غير متوفر",
+    "updateCart": "تحديث في السلة",
+    "moveToCart": "نقل إلى السلة",
+    "addedOn": "أضيف في {date}",
+    "continueShopping": "متابعة التسوق"
+  },
+
+  "cart": {
+    "error": {
+      "title": "حدث خطأ ما",
+      "dismiss": "اغلاق",
+      "retry": "إعادة المحاولة"
+    },
+    "empty": {
+      "title": "سلة التسوق فارغة",
+      "description": "لم تقم بإضافة أي منتجات إلى سلتك بعد.",
+      "startShopping": "ابدأ التسوق",
+      "viewWishlist": "عرض قائمة الأمنيات"
+    },
+    "backToShopping": "العودة للتسوق",
+    "title": "سلة التسوق",
+    "itemCount": "{count} عنصر ({quantity} كمية)",
+    "clearCart": "مسح السلة",
+    "orderSummary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "shipping": "الشحن",
+    "freeShipping": "مجاني",
+    "total": "الإجمالي",
+    "proceedToCheckout": "المتابعة إلى الدفع",
+    "continueShopping": "متابعة التسوق",
+    "clearConfirm": {
+      "title": "مسح السلة",
+      "message": "هل أنت متأكد أنك تريد مسح السلة؟ لا يمكن التراجع عن هذا الإجراء.",
+      "cancel": "إلغاء",
+      "confirm": "نعم، امسح السلة"
+    }
+    ,
+    "variant": "اختيار",
+    "sku": "SKU",
+    "outOfStock": "غير متوفر"
+  },
+
+  "cartItem": {
+    "outOfStock": "غير متوفر",
+    "variant": "اختيار",
+    "sku": "SKU",
+    "addToWishlist": "أضف إلى قائمة الأمنيات",
+    "removeItem": "إزالة",
+    "sale": "عرض",
+    "limitedStock": "كمية محدودة",
+    "quantity": "الكمية",
+    "lineTotal": "الإجمالي",
+    "stockWarning": "بعض العناصر في سلتك لم تعد متاحة بالكمية المطلوبة."
+  }
+
+  ,"brand": {
+    "sort": {
+      "nameAtoZ": "الاسم: أ إلى ي",
+      "nameZtoA": "الاسم: ي إلى أ",
+      "mostProducts": "أكثر المنتجات",
+      "leastProducts": "أقل المنتجات"
+    },
+    "allBrands": "جميع العلامات",
+    "browseOurBrands": "تصفح على علامتنا",
+    "browseProductsFrom": "المنتجات من {brandName}",
+    "brands": "العلامات",
+    "searchBrands": "ابحث عن العلامات...",
+    "noBrandsFound": "لا توجد علامات",
+    "noBrands": "لا توجد علامات حالياً",
+    "tryDifferentSearch": "جرّب بحثاً مختلفاً أو أزل الفلاتر",
+    "noBrandsDescription": "لم نعد أي علامات بعد. تحقق لاحقًا أو جرّب بحثًا مختلفًا.",
+    "clearSearch": "إلغاء البحث",
+    "products": "المنتجات",
+    "backToBrands": "العودة إلى العلامات"
+  },
+
+  "category": {
+    "notFound": "الفئة غير موجودة",
+    "notFoundDescription": "الفئة التي تبحث عنها لا وجود لها.",
+    "products": "المنتجات",
+    "subcategories": "الفئات الفرعية",
+    "allProducts": "جميع المنتجات"
   }
 }

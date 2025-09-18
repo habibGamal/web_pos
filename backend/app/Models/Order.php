@@ -114,7 +114,7 @@ class Order extends Model
     }
 
     /**
-     * Check if the order can be cancelled
+     * Check if the order can be cancelled.
      */
     public function canBeCancelled(): bool
     {
@@ -122,7 +122,7 @@ class Order extends Model
     }
 
     /**
-     * Check if the return request is pending admin approval
+     * Check if the return request is pending admin approval.
      */
     public function hasReturnPending(): bool
     {
@@ -130,7 +130,7 @@ class Order extends Model
     }
 
     /**
-     * Check if the return has been approved but not yet completed
+     * Check if the return has been approved but not yet completed.
      */
     public function hasReturnApproved(): bool
     {
@@ -138,7 +138,7 @@ class Order extends Model
     }
 
     /**
-     * Check if the return process is completed
+     * Check if the return process is completed.
      */
     public function isReturnCompleted(): bool
     {
@@ -149,7 +149,7 @@ class Order extends Model
     }
 
     /**
-     * Check if the order needs a refund
+     * Check if the order needs a refund.
      */
     public function needsRefund(): bool
     {
@@ -159,7 +159,7 @@ class Order extends Model
     }
 
     /**
-     * Get the needsRefund attribute
+     * Get the needsRefund attribute.
      */
     public function getNeedsRefundAttribute(): bool
     {

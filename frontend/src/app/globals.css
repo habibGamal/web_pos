@@ -129,6 +129,10 @@
   button {
     cursor: pointer;
   }
+
+  .container {
+    @apply mx-auto;
+  }
   
   /* Arabic font support */
   html[dir="rtl"], 

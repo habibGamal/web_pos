@@ -48,6 +48,7 @@ class ReturnOrderService
             return false;
         }
 
+
         // Check if order is delivered
         if ($order->order_status !== OrderStatus::DELIVERED) {
             return false;
@@ -59,10 +60,9 @@ class ReturnOrderService
         }
 
         // Check if already has pending/approved return
-        if ($this->hasActiveReturn($order)) {
-            return false;
-        }
-
+        // if ($this->hasActiveReturn($order)) {
+        //     return false;
+        // }
         return true;
     }
 
@@ -113,6 +113,7 @@ class ReturnOrderService
             }
         }
 
+
         return true;
     }
 
@@ -133,6 +134,8 @@ class ReturnOrderService
             throw new Exception('Some items are not eligible for return.');
         }
 
+
+
         return DB::transaction(function () use ($order, $returnItems, $reason, $user) {
             // Create return order
             $returnOrder = ReturnOrder::create([
@@ -147,6 +150,7 @@ class ReturnOrderService
             ]);
 
             $totalAmount = 0;
+
 
             // Create return items
             foreach ($returnItems as $item) {

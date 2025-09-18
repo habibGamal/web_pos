@@ -121,6 +121,186 @@
     "delete": "Delete",
     "edit": "Edit",
     "view": "View",
-    "close": "Close"
+    "close": "Close",
+    "home": "Home",
+    "search": "Search",
+    "categories": "Categories",
+    "brands": "Brands",
+    "contact": "Contact",
+    "bestSellers": "Best Sellers",
+    "noBrands": "No brands yet",
+    "noBrandsDescription": "We don't have any brands yet. Check back later or try a different search.",
+    "noCategories": "No categories yet",
+    "noCategoriesDescription": "We don't have any categories yet. Check back later.",
+    "wishlist": "Wishlist",
+    "cart": "Cart",
+    "profile": "Profile",
+    "myOrders": "My Orders",
+    "logout": "Logout",
+    "searchProducts": "Search Products",
+    "searchPlaceholder": "Search for products...",
+    "clear": "Clear",
+    "searching": "Searching...",
+    "suggestions": "Suggestions",
+    "viewAllResults": "View all results",
+    "noResultsFound": "No results found",
+    "searchAnyway": "Search anyway"
+  },
+  "footer": {
+    "description": "Your trusted online shopping destination for quality products.",
+    "quickLinks": "Quick Links",
+    "allCategories": "All Categories",
+    "support": "Support",
+    "help": "Help Center",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "allRightsReserved": "All rights reserved."
+  },
+  "product": {
+    "products": "Products",
+    "allProducts": "All Products",
+    "browseOurCollection": "Browse our collection",
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "sortBy": "Sort by",
+    "sort": {
+      "featured": "Featured",
+      "newest": "Newest",
+      "priceLowToHigh": "Price: Low to High",
+      "priceHighToLow": "Price: High to Low",
+      "nameAtoZ": "Name: A to Z",
+      "nameZtoA": "Name: Z to A"
+    },
+    "search": "Search",
+    "searchPlaceholder": "Search products...",
+    "categories": "Categories",
+    "brands": "Brands",
+    "priceRange": "Price Range",
+    "productStatus": "Product Status",
+    "onSale": "On Sale",
+    "inStockOnly": "In Stock Only",
+    "currency": "EGP",
+    "categoryLabel": "{name} ({count})",
+    "brandLabel": "{name} ({count})",
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "notFound": "Product not found",
+    "notFoundDescription": "The product you are looking for does not exist or has been removed.",
+    "backToProducts": "Back to products",
+    "outOfStock": "Out of stock",
+    "selectVariant": "Select variant",
+    "quantity": "Quantity",
+    "available": "available",
+    "freeShipping": "Free shipping",
+    "warranty": "Warranty",
+    "description": "Description",
+    "specifications": "Specifications",
+    "reviews": "Reviews",
+    "noDescription": "No description available for this product.",
+    "brand": "Brand",
+    "category": "Category",
+    "sku": "SKU",
+    "noReviews": "No reviews yet",
+    "relatedProducts": "Related Products"
+  }
+
+  ,"wishlist": {
+    "error": {
+      "title": "Something went wrong",
+      "dismiss": "Dismiss",
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "Your wishlist is empty",
+      "description": "You haven't added any products to your wishlist yet.",
+      "startShopping": "Start shopping",
+      "viewCart": "View cart"
+    },
+    "backToShopping": "Back to shopping",
+    "title": "Wishlist",
+    "itemCount": "{count} items",
+    "onSale": "On Sale",
+    "outOfStock": "Out of stock",
+    "updateCart": "Update in cart",
+    "moveToCart": "Move to cart",
+    "addedOn": "Added on {date}",
+    "continueShopping": "Continue shopping"
+  },
+
+  "cart": {
+    "error": {
+      "title": "Something went wrong",
+      "dismiss": "Dismiss",
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "You haven't added any products to your cart yet.",
+      "startShopping": "Start shopping",
+      "viewWishlist": "View wishlist"
+    },
+    "backToShopping": "Back to shopping",
+    "title": "Cart",
+    "itemCount": "{count} items ({quantity} qty)",
+    "clearCart": "Clear cart",
+    "orderSummary": "Order summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "freeShipping": "Free",
+    "total": "Total",
+    "proceedToCheckout": "Proceed to checkout",
+    "continueShopping": "Continue shopping",
+    "clearConfirm": {
+      "title": "Clear cart",
+      "message": "Are you sure you want to clear your cart? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Yes, clear cart"
+    }
+    ,
+    "variant": "Variant",
+    "sku": "SKU",
+    "outOfStock": "Out of stock"
+  },
+
+  "cartItem": {
+    "outOfStock": "Out of stock",
+    "variant": "Variant",
+    "sku": "SKU",
+    "addToWishlist": "Add to wishlist",
+    "removeItem": "Remove",
+    "sale": "Sale",
+    "limitedStock": "Limited stock",
+    "quantity": "Quantity",
+    "lineTotal": "Line total",
+    "stockWarning": "Some items in your cart are no longer available in the requested quantity."
+  }
+
+  ,"brand": {
+    "sort": {
+      "nameAtoZ": "Name: A to Z",
+      "nameZtoA": "Name: Z to A",
+      "mostProducts": "Most products",
+      "leastProducts": "Least products"
+    },
+    "allBrands": "All Brands",
+    "browseOurBrands": "Browse our brands",
+    "browseProductsFrom": "Products from {brandName}",
+    "brands": "Brands",
+    "searchBrands": "Search brands...",
+    "noBrandsFound": "No brands found",
+    "noBrands": "No brands yet",
+    "tryDifferentSearch": "Try a different search or clear filters",
+    "noBrandsDescription": "We don't have any brands yet. Check back later or try a different search.",
+    "clearSearch": "Clear search",
+    "products": "products",
+    "backToBrands": "Back to brands"
+  },
+
+  "category": {
+    "notFound": "Category not found",
+    "notFoundDescription": "The category you are looking for does not exist.",
+    "products": "products",
+    "subcategories": "Subcategories",
+    "allProducts": "All products"
   }
 }

@@ -55,9 +55,9 @@
 - [x] T007 [P] Create base GraphQL schema in backend/graphql/schema.graphql
 - [x] T008 [P] Create authentication types schema in backend/graphql/auth.graphql
 - [x] T009 [P] Create product catalog types schema in backend/graphql/products.graphql
-- [ ] T010 [P] Create cart & wishlist types schema in backend/graphql/cart.graphql
-- [ ] T011 [P] Create order management types schema in backend/graphql/orders.graphql
-- [ ] T012 [P] Create return management types schema in backend/graphql/returns.graphql
+- [x] T010 [P] Create cart & wishlist types schema in backend/graphql/cart.graphql
+- [x] T011 [P] Create order management types schema in backend/graphql/orders.graphql
+- [x] T012 [P] Create return management types schema in backend/graphql/returns.graphql
 - [ ] T013 [P] Create payment types schema in backend/graphql/payments.graphql
 - [ ] T014 [P] Create promotion types schema in backend/graphql/promotions.graphql
 
@@ -96,8 +96,8 @@
 ### GraphQL Types and Scalars
 - [ ] T035 [P] Implement base scalars and interfaces in backend/app/GraphQL/Scalars/
 - [x] T036 [P] Implement User type and resolvers in backend/app/GraphQL/Types/UserType.php
-- [ ] T037 [P] Implement Product types in backend/app/GraphQL/Types/ProductType.php
-- [ ] T038 [P] Implement Category types in backend/app/GraphQL/Types/CategoryType.php
+- [x] T037 [P] Implement Product types in backend/app/GraphQL/Types/ProductType.php
+- [x] T038 [P] Implement Category types in backend/app/GraphQL/Types/CategoryType.php
 - [ ] T039 [P] Implement Order types in backend/app/GraphQL/Types/OrderType.php
 - [ ] T040 [P] Implement Cart types in backend/app/GraphQL/Types/CartType.php
 
@@ -138,10 +138,10 @@
 - [ ] T062 [P] Configure Tailwind CSS and shadcn/ui theme in frontend/src/lib/utils.ts
 
 ### Shared Types & Hooks
-- [ ] T063 Generate TypeScript types from GraphQL schema in frontend/src/types/graphql.ts
+- [x] T063 Generate TypeScript types from GraphQL schema in frontend/src/types/graphql.ts
 - [x] T064 [P] Create authentication hooks in frontend/src/hooks/use-auth.ts
-- [ ] T065 [P] Create cart management hooks in frontend/src/hooks/use-cart.ts
-- [ ] T066 [P] Create wishlist hooks in frontend/src/hooks/use-wishlist.ts
+- [x] T065 [P] Create cart management hooks in frontend/src/hooks/use-cart.ts
+- [x] T066 [P] Create wishlist hooks in frontend/src/hooks/use-wishlist.ts
 
 ### Authentication Pages
 - [x] T067 [P] Implement login page in frontend/src/app/auth/login/page.tsx
@@ -153,17 +153,17 @@
 
 ### Core E-commerce Pages
 - [ ] T073 Implement homepage with sections in frontend/src/app/page.tsx
-- [ ] T074 [P] Implement product listing page in frontend/src/app/products/page.tsx
-- [ ] T075 [P] Implement product detail page in frontend/src/app/products/[id]/page.tsx
-- [ ] T076 [P] Implement category pages in frontend/src/app/categories/[slug]/page.tsx
-- [ ] T077 [P] Implement brand pages in frontend/src/app/brands/page.tsx
-- [ ] T078 [P] Implement section pages in frontend/src/app/sections/[id]/page.tsx
+- [x] T074 [P] Implement product listing page in frontend/src/app/products/page.tsx
+- [x] T075 [P] Implement product detail page in frontend/src/app/products/[id]/page.tsx
+- [x] T076 [P] Implement category pages in frontend/src/app/categories/[slug]/page.tsx
+- [x] T077 [P] Implement brand pages in frontend/src/app/brands/page.tsx
+- [x] T078 [P] Implement section pages in frontend/src/app/sections/[id]/page.tsx
 
 ### Shopping & Checkout Pages
 - [ ] T079 [P] Implement cart page in frontend/src/app/cart/page.tsx
 - [ ] T080 [P] Implement wishlist page in frontend/src/app/wishlist/page.tsx
 - [ ] T081 Implement checkout page in frontend/src/app/checkout/page.tsx
-- [ ] T082 [P] Implement search results page in frontend/src/app/search/page.tsx
+- [x] T082 [P] Implement search results page in frontend/src/app/search/page.tsx
 
 ### Order Management Pages
 - [ ] T083 [P] Implement orders list page in frontend/src/app/orders/page.tsx
