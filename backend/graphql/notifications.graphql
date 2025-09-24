@@ -1,0 +1,86 @@
+"Notification model base type"
+type Notification {
+    "Unique notification ID."
+    id: ID!
+
+    "Notification type (class name)."
+    type: String!
+
+    "Notification data as JSON string."
+    data: String! @field(resolver: "App\\GraphQL\\Types\\NotificationType@data")
+
+    "When the notification was read."
+    read_at: DateTime
+
+    "When the notification was created."
+    created_at: DateTime!
+
+    "When the notification was last updated."
+    updated_at: DateTime!
+}
+
+"Notification input for sending notifications"
+input NotificationInput {
+    "Notification title."
+    title: String!
+
+    "Notification message."
+    message: String!
+
+    "Notification type (info, success, warning, error)."
+    type: NotificationType = INFO
+
+    "Action URL for the notification."
+    action_url: String
+
+    "Action label for the notification."
+    action_label: String
+
+    "Additional metadata as JSON string."
+    metadata: String
+}
+
+"Notification type enum"
+enum NotificationType {
+    INFO @enum(value: "info")
+    SUCCESS @enum(value: "success")
+    WARNING @enum(value: "warning")
+    ERROR @enum(value: "error")
+}
+
+extend type Query {
+    "Get user's notifications with pagination."
+    notifications(
+        "Filter by read status."
+        unread_only: Boolean = false
+    ): [Notification!]! @paginate(builder: "App\\GraphQL\\Queries\\NotificationQuery@index", defaultCount: 10) @guard
+
+    "Get count of unread notifications."
+    unreadNotificationsCount: Int! @field(resolver: "App\\GraphQL\\Queries\\NotificationQuery@unreadCount") @guard
+}
+
+extend type Mutation {
+    "Send a notification to a user."
+    sendNotification(
+        "User ID to send notification to."
+        user_id: ID!
+
+        "Notification data."
+        notification: NotificationInput!
+    ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\NotificationMutation@send") @guard
+
+    "Mark a notification as read."
+    markNotificationAsRead(
+        "Notification ID."
+        id: ID!
+    ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\NotificationMutation@markAsRead") @guard
+
+    "Mark all notifications as read."
+    markAllNotificationsAsRead: Boolean! @field(resolver: "App\\GraphQL\\Mutations\\NotificationMutation@markAllAsRead") @guard
+
+    "Delete a notification."
+    deleteNotification(
+        "Notification ID."
+        id: ID!
+    ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\NotificationMutation@delete") @guard
+}

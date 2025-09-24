@@ -51,6 +51,12 @@ type Documents = {
     "\n  mutation AddToWishlist($input: AddToWishlistInput!) {\n    addToWishlist(input: $input) {\n      id\n      user_id\n      product_id\n      created_at\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n        category {\n          id\n          name\n        }\n        brand {\n          id\n          name\n        }\n        default_variant {\n          id\n          name\n          sku\n          price\n          sale_price\n          quantity\n          is_active\n          is_default\n        }\n      }\n    }\n  }\n": typeof types.AddToWishlistDocument,
     "\n  mutation RemoveFromWishlist($input: RemoveFromWishlistInput!) {\n    removeFromWishlist(input: $input)\n  }\n": typeof types.RemoveFromWishlistDocument,
     "\n  mutation MoveWishlistToCart(\n    $product_id: ID!\n    $product_variant_id: ID!\n    $quantity: Int!\n  ) {\n    moveWishlistToCart(\n      product_id: $product_id\n      product_variant_id: $product_variant_id\n      quantity: $quantity\n    ) {\n      id\n      cart_id\n      product_variant_id\n      quantity\n      unit_price\n      total_price\n      is_available\n      variant {\n        id\n        name\n        sku\n        price\n        sale_price\n        quantity\n        is_active\n        is_default\n      }\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n      }\n    }\n  }\n": typeof types.MoveWishlistToCartDocument,
+    "\n  query GetNotifications($first: Int = 10, $page: Int = 1, $unread_only: Boolean = false) {\n    notifications(first: $first, page: $page, unread_only: $unread_only) {\n      data {\n        id\n        type\n        data\n        read_at\n        created_at\n        updated_at\n      }\n      paginatorInfo {\n        count\n        currentPage\n        firstItem\n        hasMorePages\n        lastItem\n        lastPage\n        perPage\n        total\n      }\n    }\n  }\n": typeof types.GetNotificationsDocument,
+    "\n  query GetUnreadNotificationsCount {\n    unreadNotificationsCount\n  }\n": typeof types.GetUnreadNotificationsCountDocument,
+    "\n  mutation MarkNotificationAsRead($id: ID!) {\n    markNotificationAsRead(id: $id)\n  }\n": typeof types.MarkNotificationAsReadDocument,
+    "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead\n  }\n": typeof types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation DeleteNotification($id: ID!) {\n    deleteNotification(id: $id)\n  }\n": typeof types.DeleteNotificationDocument,
+    "\n  mutation SendNotification($user_id: ID!, $notification: NotificationInput!) {\n    sendNotification(user_id: $user_id, notification: $notification)\n  }\n": typeof types.SendNotificationDocument,
 };
 const documents: Documents = {
     "\n  fragment UserFields on User {\n    id\n    name\n    email\n    email_verified\n    phone\n    locale\n    is_admin\n    avatar\n    full_name\n    initials\n    has_social_accounts\n    linked_providers {\n      provider\n      provider_id\n    }\n  }\n": types.UserFieldsFragmentDoc,
@@ -90,6 +96,12 @@ const documents: Documents = {
     "\n  mutation AddToWishlist($input: AddToWishlistInput!) {\n    addToWishlist(input: $input) {\n      id\n      user_id\n      product_id\n      created_at\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n        category {\n          id\n          name\n        }\n        brand {\n          id\n          name\n        }\n        default_variant {\n          id\n          name\n          sku\n          price\n          sale_price\n          quantity\n          is_active\n          is_default\n        }\n      }\n    }\n  }\n": types.AddToWishlistDocument,
     "\n  mutation RemoveFromWishlist($input: RemoveFromWishlistInput!) {\n    removeFromWishlist(input: $input)\n  }\n": types.RemoveFromWishlistDocument,
     "\n  mutation MoveWishlistToCart(\n    $product_id: ID!\n    $product_variant_id: ID!\n    $quantity: Int!\n  ) {\n    moveWishlistToCart(\n      product_id: $product_id\n      product_variant_id: $product_variant_id\n      quantity: $quantity\n    ) {\n      id\n      cart_id\n      product_variant_id\n      quantity\n      unit_price\n      total_price\n      is_available\n      variant {\n        id\n        name\n        sku\n        price\n        sale_price\n        quantity\n        is_active\n        is_default\n      }\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n      }\n    }\n  }\n": types.MoveWishlistToCartDocument,
+    "\n  query GetNotifications($first: Int = 10, $page: Int = 1, $unread_only: Boolean = false) {\n    notifications(first: $first, page: $page, unread_only: $unread_only) {\n      data {\n        id\n        type\n        data\n        read_at\n        created_at\n        updated_at\n      }\n      paginatorInfo {\n        count\n        currentPage\n        firstItem\n        hasMorePages\n        lastItem\n        lastPage\n        perPage\n        total\n      }\n    }\n  }\n": types.GetNotificationsDocument,
+    "\n  query GetUnreadNotificationsCount {\n    unreadNotificationsCount\n  }\n": types.GetUnreadNotificationsCountDocument,
+    "\n  mutation MarkNotificationAsRead($id: ID!) {\n    markNotificationAsRead(id: $id)\n  }\n": types.MarkNotificationAsReadDocument,
+    "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead\n  }\n": types.MarkAllNotificationsAsReadDocument,
+    "\n  mutation DeleteNotification($id: ID!) {\n    deleteNotification(id: $id)\n  }\n": types.DeleteNotificationDocument,
+    "\n  mutation SendNotification($user_id: ID!, $notification: NotificationInput!) {\n    sendNotification(user_id: $user_id, notification: $notification)\n  }\n": types.SendNotificationDocument,
 };
 
 /**
@@ -254,6 +266,30 @@ export function graphql(source: "\n  mutation RemoveFromWishlist($input: RemoveF
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation MoveWishlistToCart(\n    $product_id: ID!\n    $product_variant_id: ID!\n    $quantity: Int!\n  ) {\n    moveWishlistToCart(\n      product_id: $product_id\n      product_variant_id: $product_variant_id\n      quantity: $quantity\n    ) {\n      id\n      cart_id\n      product_variant_id\n      quantity\n      unit_price\n      total_price\n      is_available\n      variant {\n        id\n        name\n        sku\n        price\n        sale_price\n        quantity\n        is_active\n        is_default\n      }\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation MoveWishlistToCart(\n    $product_id: ID!\n    $product_variant_id: ID!\n    $quantity: Int!\n  ) {\n    moveWishlistToCart(\n      product_id: $product_id\n      product_variant_id: $product_variant_id\n      quantity: $quantity\n    ) {\n      id\n      cart_id\n      product_variant_id\n      quantity\n      unit_price\n      total_price\n      is_available\n      variant {\n        id\n        name\n        sku\n        price\n        sale_price\n        quantity\n        is_active\n        is_default\n      }\n      product {\n        id\n        name\n        slug\n        price\n        sale_price\n        effective_price\n        featured_image\n        is_active\n        is_in_stock\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetNotifications($first: Int = 10, $page: Int = 1, $unread_only: Boolean = false) {\n    notifications(first: $first, page: $page, unread_only: $unread_only) {\n      data {\n        id\n        type\n        data\n        read_at\n        created_at\n        updated_at\n      }\n      paginatorInfo {\n        count\n        currentPage\n        firstItem\n        hasMorePages\n        lastItem\n        lastPage\n        perPage\n        total\n      }\n    }\n  }\n"): (typeof documents)["\n  query GetNotifications($first: Int = 10, $page: Int = 1, $unread_only: Boolean = false) {\n    notifications(first: $first, page: $page, unread_only: $unread_only) {\n      data {\n        id\n        type\n        data\n        read_at\n        created_at\n        updated_at\n      }\n      paginatorInfo {\n        count\n        currentPage\n        firstItem\n        hasMorePages\n        lastItem\n        lastPage\n        perPage\n        total\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query GetUnreadNotificationsCount {\n    unreadNotificationsCount\n  }\n"): (typeof documents)["\n  query GetUnreadNotificationsCount {\n    unreadNotificationsCount\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation MarkNotificationAsRead($id: ID!) {\n    markNotificationAsRead(id: $id)\n  }\n"): (typeof documents)["\n  mutation MarkNotificationAsRead($id: ID!) {\n    markNotificationAsRead(id: $id)\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead\n  }\n"): (typeof documents)["\n  mutation MarkAllNotificationsAsRead {\n    markAllNotificationsAsRead\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation DeleteNotification($id: ID!) {\n    deleteNotification(id: $id)\n  }\n"): (typeof documents)["\n  mutation DeleteNotification($id: ID!) {\n    deleteNotification(id: $id)\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation SendNotification($user_id: ID!, $notification: NotificationInput!) {\n    sendNotification(user_id: $user_id, notification: $notification)\n  }\n"): (typeof documents)["\n  mutation SendNotification($user_id: ID!, $notification: NotificationInput!) {\n    sendNotification(user_id: $user_id, notification: $notification)\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

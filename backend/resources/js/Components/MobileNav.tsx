@@ -37,7 +37,7 @@ export default function MobileNav({ brands, categories }: MobileNavProps) {
                 side={isRtl ? "left" : "right"}
                 className="w-[300px]"
             >
-                <div className="flex flex-col gap-6 py-6 h-full overflow-y-auto">
+                <div className="flex flex-col gap-6 py-6 h-full overflow-y-auto ">
                     <div className="flex items-center justify-between">
                         <Link href="/" className="flex items-center">
                             <ApplicationLogo className="h-8 w-auto  rounded-xl" />

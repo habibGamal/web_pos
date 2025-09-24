@@ -143,6 +143,8 @@
     "searching": "Searching...",
     "suggestions": "Suggestions",
     "viewAllResults": "View all results",
+  "viewAll": "View all",
+  "loadMore": "Load more",
     "noResultsFound": "No results found",
     "searchAnyway": "Search anyway"
   },
@@ -186,6 +188,8 @@
     "adding": "Adding...",
     "notFound": "Product not found",
     "notFoundDescription": "The product you are looking for does not exist or has been removed.",
+    "noProductsFound": "No products found",
+    "noProductsDescription": "We couldn't find any products. Try adjusting your filters or check back later.",
     "backToProducts": "Back to products",
     "outOfStock": "Out of stock",
     "selectVariant": "Select variant",
@@ -302,5 +306,50 @@
     "products": "products",
     "subcategories": "Subcategories",
     "allProducts": "All products"
+  }
+  ,
+  "home": {
+    "hero": {
+      "badge": "Featured",
+      "title": "Shop the best products, delivered fast",
+      "description": "Discover top brands and the latest products at unbeatable prices.",
+      "shopNow": "Shop Now",
+      "exploreCategories": "Explore Categories",
+      "imageAlt": "People shopping in a store"
+    },
+    "stats": {
+      "products": "Products",
+      "brands": "Brands",
+      "customers": "Happy customers"
+    },
+    "categories": {
+      "title": "Shop by Category",
+      "description": "Explore our most popular categories and find what you need.",
+      "viewAll": "View all categories"
+    },
+    "featured": {
+      "title": "Featured Products",
+      "description": "Hand-picked products that our customers love."
+    },
+    "sale": {
+      "title": "On Sale",
+      "description": "Grab the best deals before they're gone."
+    },
+    "brands": {
+      "title": "Popular Brands",
+      "description": "Explore top brands we carry.",
+      "viewAll": "View all brands"
+    },
+    "latest": {
+      "title": "Latest Arrivals",
+      "description": "New products added recently."
+    },
+    "newsletter": {
+      "title": "Join our Newsletter",
+      "description": "Get exclusive offers and updates directly to your inbox.",
+      "placeholder": "Enter your email",
+      "subscribe": "Subscribe",
+      "privacy": "We respect your privacy. Read our privacy policy."
+    }
   }
 }

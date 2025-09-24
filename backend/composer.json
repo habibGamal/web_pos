@@ -24,6 +24,7 @@
         "laravel-notification-channels/webpush": "^9.0",
         "laravel/framework": "^11.9",
         "laravel/pail": "^1.2",
+        "laravel/reverb": "^1.6",
         "laravel/sanctum": "^4.0",
         "laravel/scout": "^10.15",
         "laravel/socialite": "^5.21",
@@ -31,6 +32,7 @@
         "mll-lab/laravel-graphiql": "^4.0",
         "nuwave/lighthouse": "*",
         "pusher/pusher-php-server": "*",
+        "spatie/laravel-glide": "^3.8",
         "teamtnt/laravel-scout-tntsearch-driver": "^15.0",
         "tightenco/ziggy": "^2.0",
         "timokoerber/laravel-one-time-operations": "^1.4"

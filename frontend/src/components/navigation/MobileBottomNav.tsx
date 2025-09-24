@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Heart, Home, Search, ShoppingCart } from "lucide-react";
+import { NotificationPanel } from "@/components/notifications/notification-panel";
 import { useI18n } from "@/hooks/use-i18n";
+import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "next-intl";
 
 interface MobileBottomNavProps {
@@ -13,6 +15,7 @@ interface MobileBottomNavProps {
 
 export default function MobileBottomNav({ cartItemsCount = 0, onSearchClick }: MobileBottomNavProps) {
   const { locale } = useI18n();
+  const { user } = useAuth();
   const t = useTranslations('common');
   
   return (
@@ -34,6 +37,13 @@ export default function MobileBottomNav({ cartItemsCount = 0, onSearchClick }: M
         >
           <Search className="h-5 w-5" />
         </Button>
+
+        {/* Notifications Button - Only for authenticated users */}
+        {user ? (
+          <NotificationPanel />
+        ) : (
+          <div className="w-10"></div> // Spacer when not authenticated
+        )}
 
         {/* Wishlist Button */}
         <Button variant="ghost" size="icon" asChild aria-label={t('wishlist') || 'Wishlist'}>

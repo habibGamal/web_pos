@@ -11,6 +11,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Heart, Search, ShoppingCart, User } from "lucide-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { NotificationPanel } from "@/components/notifications/notification-panel";
 import { useI18n } from "@/hooks/use-i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "next-intl";
@@ -52,6 +53,13 @@ export default function UserActions({ cartItemsCount = 0, onSearchClick }: UserA
         >
             <Search className="h-5 w-5" />
         </Button>
+
+        {/* Notifications Button - Only for authenticated users */}
+        {user && (
+            <div className="hidden sm:flex">
+                <NotificationPanel />
+            </div>
+        )}
 
         {/* Wishlist Button */}
         <Button

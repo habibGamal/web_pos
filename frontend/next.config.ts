@@ -6,19 +6,10 @@ const withNextIntl = createNextIntlPlugin();
 const nextConfig: NextConfig = {
   trailingSlash: false,
   images: {
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8000',
-        pathname: '/storage/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '/**',
-      },
-    ],
+    loader: 'custom',
+    loaderFile: './src/lib/imageLoader.ts',
+    // Remove remotePatterns when using custom loader as they're not needed
+    // All image requests will go through our custom loader
   },
 };
 

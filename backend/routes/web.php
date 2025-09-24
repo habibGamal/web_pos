@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Api\ImageController;
 use App\Http\Controllers\BrandController;
+use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\OrderController;
@@ -145,6 +147,11 @@ Route::prefix('api')->group(function () {
     Route::get('/settings', [App\Http\Controllers\Api\SettingsController::class, 'index']);
     Route::get('/settings/group/{group}', [App\Http\Controllers\Api\SettingsController::class, 'byGroup']);
     Route::get('/settings/{key}', [App\Http\Controllers\Api\SettingsController::class, 'show']);
+
+    Route::get('/img/{path}', [ImageController::class, 'show'])
+     ->where('path', '.*');
 });
+
+Broadcast::routes();
 
 require __DIR__.'/auth.php';

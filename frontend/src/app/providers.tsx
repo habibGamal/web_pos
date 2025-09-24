@@ -7,6 +7,13 @@ import apolloClient, { fetchCsrfCookie } from '@/lib/apollo-client';
 import { useEffect } from 'react';
 import { CartProvider } from '@/hooks/use-cart';
 import { WishlistProvider } from '@/hooks/use-wishlist';
+import { useInitializeRealTimeNotifications } from '@/hooks/use-realtime-notifications';
+import { Toaster } from '@/components/ui/sonner';
+
+function NotificationInitializer() {
+  useInitializeRealTimeNotifications();
+  return null;
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -16,7 +23,11 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     <ApolloProvider client={apolloClient}>
       <AuthProvider>
         <WishlistProvider>
-        <CartProvider>{children}</CartProvider>
+          <CartProvider>
+            <NotificationInitializer />
+            {children}
+            <Toaster position="top-right" />
+          </CartProvider>
         </WishlistProvider>
       </AuthProvider>
     </ApolloProvider>

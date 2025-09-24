@@ -311,12 +311,18 @@ export type Mutation = {
   createReturn: ReturnOrder;
   /** Delete user account */
   deleteAccount: SuccessPayload;
+  /** Delete a notification. */
+  deleteNotification: Scalars['Boolean']['output'];
   /** Request password reset */
   forgotPassword: PasswordResetPayload;
   /** Login with email and password */
   login: AuthPayload;
   /** Logout the authenticated user */
   logout: SuccessPayload;
+  /** Mark all notifications as read. */
+  markAllNotificationsAsRead: Scalars['Boolean']['output'];
+  /** Mark a notification as read. */
+  markNotificationAsRead: Scalars['Boolean']['output'];
   /** Move item from wishlist to cart */
   moveWishlistToCart: CartItem;
   /** Refresh authentication token */
@@ -331,6 +337,8 @@ export type Mutation = {
   resendVerification: SuccessPayload;
   /** Reset password with token */
   resetPassword: SuccessPayload;
+  /** Send a notification to a user. */
+  sendNotification: Scalars['Boolean']['output'];
   /** Login with social provider */
   socialLogin: AuthPayload;
   /** Update cart item quantity */
@@ -377,6 +385,11 @@ export type MutationCreateReturnArgs = {
 };
 
 
+export type MutationDeleteNotificationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationForgotPasswordArgs = {
   input: ForgotPasswordInput;
 };
@@ -384,6 +397,11 @@ export type MutationForgotPasswordArgs = {
 
 export type MutationLoginArgs = {
   input: LoginInput;
+};
+
+
+export type MutationMarkNotificationAsReadArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -419,6 +437,12 @@ export type MutationResetPasswordArgs = {
 };
 
 
+export type MutationSendNotificationArgs = {
+  notification: NotificationInput;
+  user_id: Scalars['ID']['input'];
+};
+
+
 export type MutationSocialLoginArgs = {
   input: SocialLoginInput;
 };
@@ -437,6 +461,55 @@ export type MutationUpdateProfileArgs = {
 export type MutationVerifyEmailArgs = {
   input: VerifyEmailInput;
 };
+
+/** Notification model base type */
+export type Notification = {
+  __typename: 'Notification';
+  /** When the notification was created. */
+  created_at: Scalars['DateTime']['output'];
+  /** Notification data as JSON string. */
+  data: Scalars['String']['output'];
+  /** Unique notification ID. */
+  id: Scalars['ID']['output'];
+  /** When the notification was read. */
+  read_at: Maybe<Scalars['DateTime']['output']>;
+  /** Notification type (class name). */
+  type: Scalars['String']['output'];
+  /** When the notification was last updated. */
+  updated_at: Scalars['DateTime']['output'];
+};
+
+/** Notification input for sending notifications */
+export type NotificationInput = {
+  /** Action label for the notification. */
+  action_label?: InputMaybe<Scalars['String']['input']>;
+  /** Action URL for the notification. */
+  action_url?: InputMaybe<Scalars['String']['input']>;
+  /** Notification message. */
+  message: Scalars['String']['input'];
+  /** Additional metadata as JSON string. */
+  metadata?: InputMaybe<Scalars['String']['input']>;
+  /** Notification title. */
+  title: Scalars['String']['input'];
+  /** Notification type (info, success, warning, error). */
+  type?: InputMaybe<NotificationType>;
+};
+
+/** A paginated list of Notification items. */
+export type NotificationPaginator = {
+  __typename: 'NotificationPaginator';
+  /** A list of Notification items. */
+  data: Array<Notification>;
+  /** Pagination information about the list of items. */
+  paginatorInfo: PaginatorInfo;
+};
+
+/** Notification type enum */
+export type NotificationType =
+  | 'ERROR'
+  | 'INFO'
+  | 'SUCCESS'
+  | 'WARNING';
 
 export type Order = {
   __typename: 'Order';
@@ -851,6 +924,8 @@ export type Query = {
   checkEmailAvailability: Scalars['Boolean']['output'];
   /** Get current authenticated user */
   me: Maybe<User>;
+  /** Get user's notifications with pagination. */
+  notifications: NotificationPaginator;
   /** Get single order by ID */
   order: Maybe<Order>;
   /** Get user's orders with pagination */
@@ -873,6 +948,8 @@ export type Query = {
   section: Maybe<Section>;
   /** Get all sections */
   sections: Array<Section>;
+  /** Get count of unread notifications. */
+  unreadNotificationsCount: Scalars['Int']['output'];
   /** Find a single user by an identifying attribute. */
   user: Maybe<User>;
   /** List multiple users. */
@@ -925,6 +1002,14 @@ export type QueryCategoryBySlugArgs = {
 /** Indicates what fields are available at the top level of a query operation. */
 export type QueryCheckEmailAvailabilityArgs = {
   email: Scalars['String']['input'];
+};
+
+
+/** Indicates what fields are available at the top level of a query operation. */
+export type QueryNotificationsArgs = {
+  first?: Scalars['Int']['input'];
+  page?: InputMaybe<Scalars['Int']['input']>;
+  unread_only?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -1624,6 +1709,47 @@ export type MoveWishlistToCartMutationVariables = Exact<{
 
 export type MoveWishlistToCartMutation = { moveWishlistToCart: { __typename: 'CartItem', id: string, cart_id: string, product_variant_id: string, quantity: number, unit_price: number, total_price: number, is_available: boolean, variant: { __typename: 'ProductVariant', id: string, name: string, sku: string, price: number | null, sale_price: number | null, quantity: number, is_active: boolean, is_default: boolean }, product: { __typename: 'Product', id: string, name: string, slug: string, price: number, sale_price: number | null, effective_price: number, featured_image: string | null, is_active: boolean, is_in_stock: boolean } } };
 
+export type GetNotificationsQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  unread_only?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type GetNotificationsQuery = { notifications: { __typename: 'NotificationPaginator', data: Array<{ __typename: 'Notification', id: string, type: string, data: string, read_at: string | null, created_at: string, updated_at: string }>, paginatorInfo: { __typename: 'PaginatorInfo', count: number, currentPage: number, firstItem: number | null, hasMorePages: boolean, lastItem: number | null, lastPage: number, perPage: number, total: number } } };
+
+export type GetUnreadNotificationsCountQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUnreadNotificationsCountQuery = { unreadNotificationsCount: number };
+
+export type MarkNotificationAsReadMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type MarkNotificationAsReadMutation = { markNotificationAsRead: boolean };
+
+export type MarkAllNotificationsAsReadMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MarkAllNotificationsAsReadMutation = { markAllNotificationsAsRead: boolean };
+
+export type DeleteNotificationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteNotificationMutation = { deleteNotification: boolean };
+
+export type SendNotificationMutationVariables = Exact<{
+  user_id: Scalars['ID']['input'];
+  notification: NotificationInput;
+}>;
+
+
+export type SendNotificationMutation = { sendNotification: boolean };
+
 export const UserFieldsFragmentDoc = {"kind":"Document","definitions":[{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}},{"kind":"Field","name":{"kind":"Name","value":"is_admin"}},{"kind":"Field","name":{"kind":"Name","value":"avatar"}},{"kind":"Field","name":{"kind":"Name","value":"full_name"}},{"kind":"Field","name":{"kind":"Name","value":"initials"}},{"kind":"Field","name":{"kind":"Name","value":"has_social_accounts"}},{"kind":"Field","name":{"kind":"Name","value":"linked_providers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"provider_id"}}]}}]}}]} as unknown as DocumentNode<UserFieldsFragment, unknown>;
 export const MeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"Me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserFields"}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}},{"kind":"Field","name":{"kind":"Name","value":"is_admin"}},{"kind":"Field","name":{"kind":"Name","value":"avatar"}},{"kind":"Field","name":{"kind":"Name","value":"full_name"}},{"kind":"Field","name":{"kind":"Name","value":"initials"}},{"kind":"Field","name":{"kind":"Name","value":"has_social_accounts"}},{"kind":"Field","name":{"kind":"Name","value":"linked_providers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"provider_id"}}]}}]}}]} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const LoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Login"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"LoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"access_token"}},{"kind":"Field","name":{"kind":"Name","value":"token_type"}},{"kind":"Field","name":{"kind":"Name","value":"expires_in"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"FragmentSpread","name":{"kind":"Name","value":"UserFields"}}]}}]}}]}},{"kind":"FragmentDefinition","name":{"kind":"Name","value":"UserFields"},"typeCondition":{"kind":"NamedType","name":{"kind":"Name","value":"User"}},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"email_verified"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"locale"}},{"kind":"Field","name":{"kind":"Name","value":"is_admin"}},{"kind":"Field","name":{"kind":"Name","value":"avatar"}},{"kind":"Field","name":{"kind":"Name","value":"full_name"}},{"kind":"Field","name":{"kind":"Name","value":"initials"}},{"kind":"Field","name":{"kind":"Name","value":"has_social_accounts"}},{"kind":"Field","name":{"kind":"Name","value":"linked_providers"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"provider"}},{"kind":"Field","name":{"kind":"Name","value":"provider_id"}}]}}]}}]} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
@@ -1661,3 +1787,9 @@ export const GetWishlistCountDocument = {"kind":"Document","definitions":[{"kind
 export const AddToWishlistDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddToWishlist"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AddToWishlistInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"addToWishlist"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"user_id"}},{"kind":"Field","name":{"kind":"Name","value":"product_id"}},{"kind":"Field","name":{"kind":"Name","value":"created_at"}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"sale_price"}},{"kind":"Field","name":{"kind":"Name","value":"effective_price"}},{"kind":"Field","name":{"kind":"Name","value":"featured_image"}},{"kind":"Field","name":{"kind":"Name","value":"is_active"}},{"kind":"Field","name":{"kind":"Name","value":"is_in_stock"}},{"kind":"Field","name":{"kind":"Name","value":"category"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"brand"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"default_variant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"sale_price"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"is_active"}},{"kind":"Field","name":{"kind":"Name","value":"is_default"}}]}}]}}]}}]}}]} as unknown as DocumentNode<AddToWishlistMutation, AddToWishlistMutationVariables>;
 export const RemoveFromWishlistDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveFromWishlist"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"RemoveFromWishlistInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"removeFromWishlist"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}]}]}}]} as unknown as DocumentNode<RemoveFromWishlistMutation, RemoveFromWishlistMutationVariables>;
 export const MoveWishlistToCartDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MoveWishlistToCart"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"product_id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"product_variant_id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"quantity"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"moveWishlistToCart"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"product_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"product_id"}}},{"kind":"Argument","name":{"kind":"Name","value":"product_variant_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"product_variant_id"}}},{"kind":"Argument","name":{"kind":"Name","value":"quantity"},"value":{"kind":"Variable","name":{"kind":"Name","value":"quantity"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"cart_id"}},{"kind":"Field","name":{"kind":"Name","value":"product_variant_id"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"unit_price"}},{"kind":"Field","name":{"kind":"Name","value":"total_price"}},{"kind":"Field","name":{"kind":"Name","value":"is_available"}},{"kind":"Field","name":{"kind":"Name","value":"variant"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"sku"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"sale_price"}},{"kind":"Field","name":{"kind":"Name","value":"quantity"}},{"kind":"Field","name":{"kind":"Name","value":"is_active"}},{"kind":"Field","name":{"kind":"Name","value":"is_default"}}]}},{"kind":"Field","name":{"kind":"Name","value":"product"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"slug"}},{"kind":"Field","name":{"kind":"Name","value":"price"}},{"kind":"Field","name":{"kind":"Name","value":"sale_price"}},{"kind":"Field","name":{"kind":"Name","value":"effective_price"}},{"kind":"Field","name":{"kind":"Name","value":"featured_image"}},{"kind":"Field","name":{"kind":"Name","value":"is_active"}},{"kind":"Field","name":{"kind":"Name","value":"is_in_stock"}}]}}]}}]}}]} as unknown as DocumentNode<MoveWishlistToCartMutation, MoveWishlistToCartMutationVariables>;
+export const GetNotificationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetNotifications"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"first"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"10"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"page"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Int"}},"defaultValue":{"kind":"IntValue","value":"1"}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"unread_only"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"Boolean"}},"defaultValue":{"kind":"BooleanValue","value":false}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notifications"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"first"},"value":{"kind":"Variable","name":{"kind":"Name","value":"first"}}},{"kind":"Argument","name":{"kind":"Name","value":"page"},"value":{"kind":"Variable","name":{"kind":"Name","value":"page"}}},{"kind":"Argument","name":{"kind":"Name","value":"unread_only"},"value":{"kind":"Variable","name":{"kind":"Name","value":"unread_only"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"data"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"type"}},{"kind":"Field","name":{"kind":"Name","value":"data"}},{"kind":"Field","name":{"kind":"Name","value":"read_at"}},{"kind":"Field","name":{"kind":"Name","value":"created_at"}},{"kind":"Field","name":{"kind":"Name","value":"updated_at"}}]}},{"kind":"Field","name":{"kind":"Name","value":"paginatorInfo"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"count"}},{"kind":"Field","name":{"kind":"Name","value":"currentPage"}},{"kind":"Field","name":{"kind":"Name","value":"firstItem"}},{"kind":"Field","name":{"kind":"Name","value":"hasMorePages"}},{"kind":"Field","name":{"kind":"Name","value":"lastItem"}},{"kind":"Field","name":{"kind":"Name","value":"lastPage"}},{"kind":"Field","name":{"kind":"Name","value":"perPage"}},{"kind":"Field","name":{"kind":"Name","value":"total"}}]}}]}}]}}]} as unknown as DocumentNode<GetNotificationsQuery, GetNotificationsQueryVariables>;
+export const GetUnreadNotificationsCountDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUnreadNotificationsCount"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"unreadNotificationsCount"}}]}}]} as unknown as DocumentNode<GetUnreadNotificationsCountQuery, GetUnreadNotificationsCountQueryVariables>;
+export const MarkNotificationAsReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MarkNotificationAsRead"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markNotificationAsRead"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<MarkNotificationAsReadMutation, MarkNotificationAsReadMutationVariables>;
+export const MarkAllNotificationsAsReadDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"MarkAllNotificationsAsRead"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"markAllNotificationsAsRead"}}]}}]} as unknown as DocumentNode<MarkAllNotificationsAsReadMutation, MarkAllNotificationsAsReadMutationVariables>;
+export const DeleteNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"deleteNotification"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
+export const SendNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SendNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"user_id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"notification"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NotificationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"sendNotification"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"user_id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"user_id"}}},{"kind":"Argument","name":{"kind":"Name","value":"notification"},"value":{"kind":"Variable","name":{"kind":"Name","value":"notification"}}}]}]}}]} as unknown as DocumentNode<SendNotificationMutation, SendNotificationMutationVariables>;

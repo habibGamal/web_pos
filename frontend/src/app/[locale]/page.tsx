@@ -139,11 +139,11 @@ export default function HomePage() {
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               {t('home.categories.description')}
-            </p>
+            </p>and its nested components or provided missing keys
           </div>
 
           {categoriesLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-8">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-square bg-gray-200 rounded-2xl mb-4"></div>
