@@ -15,11 +15,12 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie','webhooks/*','/graphql', 'broadcasting/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'webhooks/*', 'graphql', 'broadcasting/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000'],
+    // 'allowed_origins' => ['http://localhost:3000','http://192.168.1.31:3000'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 

@@ -40,8 +40,8 @@ class ReturnOrderRequestedNotification extends Notification implements ShouldQue
         $returnItemsDetails = $this->returnOrder->returnItems->map(function ($item) {
             $variant = $item->orderItem->variant ? " ({$item->orderItem->variant->name_ar})" : '';
 
-            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
-                   number_format((float) $item->total_price, 2).' جنيه';
+            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: " .
+                   number_format((float) $item->total_price, 2) . ' جنيه';
         })->implode("\n");
 
         $totalItemsCount = $this->returnOrder->returnItems->sum('quantity');
@@ -50,21 +50,21 @@ class ReturnOrderRequestedNotification extends Notification implements ShouldQue
         });
 
         $message = (new MailMessage)
-            ->subject('طلب إرجاع جديد - رقم الطلب #'.$this->returnOrder->order_id)
-            ->greeting('مرحباً إدارة '.config('app.name'))
+            ->subject('طلب إرجاع جديد - رقم الطلب #' . $this->returnOrder->order_id)
+            ->greeting('مرحباً إدارة ' . config('app.name'))
             ->line('تم إستلام طلب إرجاع جديد من أحد العملاء.')
             ->line('')
             ->line('**تفاصيل طلب الإرجاع:**')
-            ->line('• رقم الإرجاع: #'.$this->returnOrder->id)
-            ->line('• رقم الطلب الأصلي: #'.$this->returnOrder->order_id)
-            ->line('• اسم العميل: '.$this->returnOrder->order->user->name)
-            ->line('• بريد العميل الإلكتروني: '.$this->returnOrder->order->user->email)
-            ->line('• رقم هاتف العميل: '.($this->returnOrder->order->user->phone ?? 'غير محدد'))
-            ->line('• تاريخ الطلب الأصلي: '.$this->returnOrder->order->created_at->format('Y-m-d H:i:s'))
-            ->line('• تاريخ طلب الإرجاع: '.$this->returnOrder->created_at->format('Y-m-d H:i:s'))
-            ->line('• حالة الإرجاع: '.$this->returnOrder->status->getLabel())
-            ->line('• عدد العناصر المطلوب إرجاعها: '.$totalItemsCount)
-            ->line('• قيمة الإرجاع المقدرة: '.number_format($totalRefundAmount, 2).' جنيه')
+            ->line('• رقم الإرجاع: #' . $this->returnOrder->id)
+            ->line('• رقم الطلب الأصلي: #' . $this->returnOrder->order_id)
+            ->line('• اسم العميل: ' . $this->returnOrder->order->user->name)
+            ->line('• بريد العميل الإلكتروني: ' . $this->returnOrder->order->user->email)
+            ->line('• رقم هاتف العميل: ' . ($this->returnOrder->order->user->phone ?? 'غير محدد'))
+            ->line('• تاريخ الطلب الأصلي: ' . $this->returnOrder->order->created_at->format('Y-m-d H:i:s'))
+            ->line('• تاريخ طلب الإرجاع: ' . $this->returnOrder->created_at->format('Y-m-d H:i:s'))
+            ->line('• حالة الإرجاع: ' . $this->returnOrder->status->getLabel())
+            ->line('• عدد العناصر المطلوب إرجاعها: ' . $totalItemsCount)
+            ->line('• قيمة الإرجاع المقدرة: ' . number_format($totalRefundAmount, 2) . ' جنيه')
             ->line('')
             ->line('**سبب الإرجاع:**')
             ->line($this->returnOrder->reason)
@@ -85,7 +85,7 @@ class ReturnOrderRequestedNotification extends Notification implements ShouldQue
             ->line('')
             ->line('يرجى مراجعة طلب الإرجاع واتخاذ القرار المناسب (الموافقة أو الرفض) في أقرب وقت ممكن.')
             ->line('يمكنك التواصل مع العميل مباشرة إذا كنت بحاجة لمزيد من التفاصيل.')
-            ->salutation('مع أطيب التحيات,'."\n".'نظام '.config('app.name'));
+            ->salutation('مع أطيب التحيات,' . "\n" . 'نظام ' . config('app.name'));
 
         return $message;
     }

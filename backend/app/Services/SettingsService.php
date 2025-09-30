@@ -8,17 +8,17 @@ use Illuminate\Support\Facades\Cache;
 class SettingsService
 {
     /**
-     * Cache key for settings
+     * Cache key for settings.
      */
     private const CACHE_KEY = 'app_settings';
 
     /**
-     * Cache duration in seconds (1 hour)
+     * Cache duration in seconds (1 hour).
      */
     private const CACHE_DURATION = 3600;
 
     /**
-     * Get all settings grouped by group
+     * Get all settings grouped by group.
      */
     public static function all(): array
     {
@@ -37,16 +37,17 @@ class SettingsService
     }
 
     /**
-     * Get a specific setting value
+     * Get a specific setting value.
      */
     public static function get(string $key, $default = null)
     {
         $allSettings = self::getAllFlat();
+
         return $allSettings[$key] ?? $default;
     }
 
     /**
-     * Get all settings as a flat array
+     * Get all settings as a flat array.
      */
     public static function getAllFlat(): array
     {
@@ -56,7 +57,7 @@ class SettingsService
     }
 
     /**
-     * Get settings by group
+     * Get settings by group.
      */
     public static function getByGroup(string $group): array
     {
@@ -72,7 +73,7 @@ class SettingsService
     }
 
     /**
-     * Set a setting value
+     * Set a setting value.
      */
     public static function set(string $key, $value): bool
     {
@@ -86,7 +87,7 @@ class SettingsService
     }
 
     /**
-     * Update multiple settings at once
+     * Update multiple settings at once.
      */
     public static function setMultiple(array $settings): bool
     {
@@ -109,7 +110,7 @@ class SettingsService
     }
 
     /**
-     * Clear settings cache
+     * Clear settings cache.
      */
     public static function clearCache(): void
     {
@@ -124,7 +125,7 @@ class SettingsService
     }
 
     /**
-     * Get site configuration for frontend
+     * Get site configuration for frontend.
      */
     public static function getSiteConfig(): array
     {
@@ -145,7 +146,7 @@ class SettingsService
     }
 
     /**
-     * Check if maintenance mode is enabled
+     * Check if maintenance mode is enabled.
      */
     public static function isMaintenanceMode(): bool
     {
@@ -153,16 +154,17 @@ class SettingsService
     }
 
     /**
-     * Get social media links
+     * Get social media links.
      */
     public static function getSocialLinks(): array
     {
         $links = self::get('social_links', []);
+
         return is_array($links) ? $links : [];
     }
 
     /**
-     * Get analytics configuration
+     * Get analytics configuration.
      */
     public static function getAnalyticsConfig(): array
     {

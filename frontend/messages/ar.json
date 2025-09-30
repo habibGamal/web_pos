@@ -146,7 +146,10 @@
   "viewAll": "عرض الكل",
   "loadMore": "عرض المزيد",
     "noResultsFound": "لم يتم العثور على نتائج",
-    "searchAnyway": "ابحث على أي حال"
+    "searchAnyway": "ابحث على أي حال",
+    "products": "المنتجات",
+    "currency": "جنيه مصري",
+    "currencyCode": "EGP"
   },
   "footer": {
     "description": "وجهتك الموثوقة للتسوق عبر الإنترنت للمنتجات عالية الجودة.",
@@ -159,6 +162,7 @@
     "allRightsReserved": "جميع الحقوق محفوظة."
   },
   "product": {
+    "featured": "مميز",
     "products": "المنتجات",
     "allProducts": "جميع المنتجات",
     "browseOurCollection": "تصفح مجموعتنا",
@@ -179,7 +183,6 @@
     "brands": "العلامات التجارية",
     "priceRange": "نطاق السعر",
     "productStatus": "حالة المنتج",
-    "featured": "مميز",
     "onSale": "عرض",
     "inStockOnly": "متوفر في المخزون فقط",
     "currency": "جنيه مصري",
@@ -351,6 +354,111 @@
       "placeholder": "أدخل بريدك",
       "subscribe": "الانضمام",
       "privacy": "نحترم خصوصك. اقرأ سياستنا."
+    }
+  },
+  "order": {
+    "error": {
+      "title": "خطأ في تحميل الطلب",
+      "notFound": "الطلب غير موجود أو تم رفض الوصول.",
+      "retry": "حاول مرة أخرى"
+    },
+    "backToOrders": "العودة إلى الطلبات",
+    "refresh": "تحديث",
+    "orderItems": "عناصر الطلب",
+    "variant": "النوع",
+    "sku": "SKU",
+    "quantity": "الكمية",
+    "returnableQty": "قابل للإرجاع: {qty}",
+    "returns": "المرتجعات",
+    "refundAmount": "مبلغ الاسترداد: {amount}",
+    "orderSummary": "ملخص الطلب",
+    "subtotal": "المجموع الفرعي",
+    "shipping": "الشحن",
+    "discount": "الخصم",
+    "total": "الإجمالي",
+    "shippingInfo": "معلومات الشحن",
+    "shippingAddress": "عنوان الشحن",
+    "trackingNumber": "رقم التتبع",
+    "estimatedDelivery": "التسليم المتوقع",
+    "deliveredOn": "تم التسليم في",
+    "paymentInfo": "معلومات الدفع",
+    "paymentStatus": "حالة الدفع",
+    "totalAmount": "المبلغ الإجمالي",
+    "orderDate": "تاريخ الطلب",
+    "orderNotes": "ملاحظات الطلب",
+    "placedOn": "تم الطلب في"
+  },
+  "orders": {
+    "error": {
+      "title": "خطأ في تحميل الطلبات",
+      "retry": "حاول مرة أخرى"
+    },
+    "backToHome": "العودة للرئيسية",
+    "title": "طلباتي",
+    "subtitle": "لديك {count} طلبات",
+    "refresh": "تحديث",
+    "filters": "الفلاتر",
+    "filterOrders": "تصفية الطلبات",
+    "filter": {
+      "status": "الحالة",
+      "allStatuses": "جميع الحالات",
+      "dateFrom": "من تاريخ",
+      "dateTo": "إلى تاريخ",
+      "apply": "تطبيق الفلاتر",
+      "clear": "مسح الفلاتر"
+    },
+    "empty": {
+      "title": "لا توجد طلبات بعد",
+      "description": "لم تقم بإجراء أي طلبات بعد. ابدأ التسوق لرؤية طلباتك هنا.",
+      "startShopping": "ابدأ التسوق"
+    },
+    "status": {
+      "pending": "في الانتظار",
+      "confirmed": "مؤكد",
+      "processing": "قيد المعالجة",
+      "shipped": "تم الشحن",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغي",
+      "refunded": "مسترد"
+    },
+    "payment": {
+      "pending": "في الانتظار",
+      "paid": "مدفوع",
+      "failed": "فشل",
+      "cancelled": "ملغي",
+      "refunded": "مسترد",
+      "partially_refunded": "مسترد جزئياً"
+    },
+    "itemCount": "{count} عناصر",
+    "shippingTo": "الشحن إلى",
+    "notes": "ملاحظات",
+    "viewDetails": "عرض التفاصيل",
+    "cancel": "إلغاء الطلب",
+    "requestReturn": "طلب إرجاع",
+    "orderItems": "عناصر الطلب",
+    "quantity": "الكمية",
+    "andMoreItems": "و {count} عناصر أخرى",
+    "pagination": {
+      "showing": "عرض {from} إلى {to} من {total} طلبات",
+      "previous": "السابق",
+      "next": "التالي"
+    }
+  },
+  "returns": {
+    "status": {
+      "requested": "مطلوب",
+      "approved": "معتمد",
+      "rejected": "مرفوض",
+      "received": "مستلم",
+      "refunded": "مسترد",
+      "cancelled": "ملغي"
+    },
+    "reason": {
+      "defective": "منتج معيب",
+      "wrong_item": "عنصر خاطئ",
+      "not_as_described": "غير مطابق للوصف",
+      "changed_mind": "تغيير الرأي",
+      "other": "أخرى"
     }
   }
 }

@@ -24,7 +24,7 @@ final class ForgotPasswordMutation
         // Send password reset link
         $status = Password::sendResetLink(
             ['email' => $email],
-            function ($user, $token) use ($callbackUrl) {
+            function ($user, $token) {
                 // If callback URL is provided, we can customize the email
                 // For now, we'll use Laravel's default email template
                 $user->sendPasswordResetNotification($token);

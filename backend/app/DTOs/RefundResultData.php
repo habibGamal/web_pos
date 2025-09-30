@@ -29,7 +29,7 @@ class RefundResultData
     ) {}
 
     /**
-     * Create a successful refund result from API response
+     * Create a successful refund result from API response.
      */
     public static function success(array $responseData): self
     {
@@ -59,7 +59,7 @@ class RefundResultData
     }
 
     /**
-     * Create a failed refund result from API response
+     * Create a failed refund result from API response.
      */
     public static function failure(array $responseData): self
     {
@@ -82,7 +82,7 @@ class RefundResultData
     }
 
     /**
-     * Create a failure result from exception
+     * Create a failure result from exception.
      */
     public static function exception(string $message): self
     {
@@ -93,7 +93,7 @@ class RefundResultData
     }
 
     /**
-     * Convert to array format for backward compatibility
+     * Convert to array format for backward compatibility.
      */
     public function toArray(): array
     {

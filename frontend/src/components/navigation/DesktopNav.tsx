@@ -14,7 +14,7 @@ import { FolderX, ShoppingBag } from "lucide-react";
 import { useI18n } from "@/hooks/use-i18n";
 import { useSettings } from "@/hooks/use-settings";
 import EmptyState from "@/components/ui/empty-state";
-import { Image } from "@/components/ui/Image";
+import { BrandImageWithFallback } from "@/components/ImageWithFallback";
 
 interface Brand {
   id: string;
@@ -72,16 +72,16 @@ export default function DesktopNav({ brands, categories }: DesktopNavProps) {
                                                     href={`/search?brands[]=${brand.id}`}
                                                     className="flex items-center gap-2 select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                                                 >
-                                                    <Image
-                                                        src={brand.display_image}
-                                                        alt={getLocalizedField(
-                                                            brand,
-                                                            "name"
-                                                        )}
-                                                        className="rounded-md w-[30px] h-[30px] object-contain object-center"
-                                                        width={30}
-                                                        height={30}
-                                                    />
+                                                    <div className="relative w-[30px] h-[30px] rounded-md overflow-hidden">
+                                                        <BrandImageWithFallback
+                                                            src={brand.display_image}
+                                                            alt={getLocalizedField(
+                                                                brand,
+                                                                "name"
+                                                            )}
+                                                            className="object-contain object-center"
+                                                        />
+                                                    </div>
                                                     <div className="text-sm font-medium leading-none">
                                                         {getLocalizedField(
                                                             brand,

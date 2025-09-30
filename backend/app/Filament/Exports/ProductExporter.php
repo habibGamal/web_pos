@@ -38,18 +38,21 @@ class ProductExporter extends Exporter
             ExportColumn::make('images')
                 ->label('الصور')
                 ->formatStateUsing(function ($state): string {
-                    if (!$state) return '';
+                    if (! $state) {
+                        return '';
+                    }
+
                     return is_array($state) ? implode(',', $state) : (string) $state;
                 }),
             ExportColumn::make('is_default')
                 ->label('افتراضي')
-                ->formatStateUsing(fn(bool $state) => $state ? 'نعم' : 'لا'),
+                ->formatStateUsing(fn (bool $state) => $state ? 'نعم' : 'لا'),
             ExportColumn::make('is_active')
                 ->label('نشط')
-                ->formatStateUsing(fn(bool $state) => $state ? 'نعم' : 'لا'),
+                ->formatStateUsing(fn (bool $state) => $state ? 'نعم' : 'لا'),
             ExportColumn::make('additional_attributes')
                 ->label('خصائص إضافية')
-                ->formatStateUsing(fn($state): string => $state ? json_encode($state, JSON_UNESCAPED_UNICODE) : ''),
+                ->formatStateUsing(fn ($state): string => $state ? json_encode($state, JSON_UNESCAPED_UNICODE) : ''),
             ExportColumn::make('created_at')->label('تاريخ الإنشاء'),
             ExportColumn::make('updated_at')->label('تاريخ التحديث'),
         ];

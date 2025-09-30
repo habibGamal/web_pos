@@ -2,27 +2,24 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Actions\Orders\ApproveReturnAction;
+use App\Actions\Orders\CancelOrderAction;
+use App\Actions\Orders\CompleteReturnAction;
+use App\Actions\Orders\MarkOrderAsDeliveredAction;
+use App\Actions\Orders\MarkOrderAsShippedAction;
+use App\Actions\Orders\ProcessRefundAction;
+use App\Actions\Orders\RejectReturnAction;
 use App\Enums\OrderStatus;
-use App\Enums\PaymentStatus;
 use App\Enums\ReturnStatus;
 use App\Filament\Resources\OrderResource;
 use Filament\Actions\Action;
 use Filament\Forms;
-use Filament\Infolists\Infolist;
-use Filament\Resources\Pages\ViewRecord;
 use Filament\Notifications\Notification;
-use App\Actions\Orders\MarkOrderAsShippedAction;
-use App\Actions\Orders\MarkOrderAsDeliveredAction;
-use App\Actions\Orders\CancelOrderAction;
-use App\Actions\Orders\ApproveReturnAction;
-use App\Actions\Orders\RejectReturnAction;
-use App\Actions\Orders\CompleteReturnAction;
-use App\Actions\Orders\ProcessRefundAction;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrder extends ViewRecord
 {
     protected static string $resource = OrderResource::class;
-
 
     protected function getHeaderActions(): array
     {
@@ -73,7 +70,7 @@ class ViewOrder extends ViewRecord
                 ->label('إلغاء الطلب')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
-                ->visible(fn ($record) => !in_array($record->order_status, [OrderStatus::CANCELLED, OrderStatus::DELIVERED]))
+                ->visible(fn ($record) => ! in_array($record->order_status, [OrderStatus::CANCELLED, OrderStatus::DELIVERED]))
                 ->requiresConfirmation()
                 ->modalHeading('إلغاء الطلب')
                 ->modalDescription('هل أنت متأكد من إلغاء هذا الطلب؟ سيتم إرجاع البضائع للمخزون.')

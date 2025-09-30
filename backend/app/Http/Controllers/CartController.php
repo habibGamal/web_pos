@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Models\Product;
 use App\Services\CartItemResolverService;
 use App\Services\CartService;
-use App\Models\Product;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class CartController extends Controller
 {
@@ -22,7 +22,7 @@ class CartController extends Controller
     }
 
     /**
-     * Display the cart page
+     * Display the cart page.
      *
      * @return \Inertia\Response
      */
@@ -37,9 +37,8 @@ class CartController extends Controller
     }
 
     /**
-     * Add a product to the cart
+     * Add a product to the cart.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function addItem(Request $request)
@@ -56,7 +55,6 @@ class CartController extends Controller
             $validated['product_variant_id'] ?? null
         );
 
-
         $this->cartService->addToCart(
             $cartItem,
             $validated['quantity']
@@ -71,23 +69,22 @@ class CartController extends Controller
     }
 
     /**
-     * Update cart item quantity
+     * Update cart item quantity.
      *
-     * @param Request $request
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateItem(Request $request, CartItem $cartItem)
     {
         $validated = $request->validate([
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1',
         ]);
 
         // Validate that the cart item belongs to the current user's cart
         if ($cartItem->cart->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access to cart item'
+                'message' => 'Unauthorized access to cart item',
             ], 403);
         }
 
@@ -105,9 +102,9 @@ class CartController extends Controller
     }
 
     /**
-     * Remove a cart item
+     * Remove a cart item.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
     public function removeItem(CartItem $cartItem)
@@ -116,7 +113,7 @@ class CartController extends Controller
         if ($cartItem->cart->user_id !== Auth::id()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Unauthorized access to cart item'
+                'message' => 'Unauthorized access to cart item',
             ], 403);
         }
 
@@ -130,7 +127,7 @@ class CartController extends Controller
     }
 
     /**
-     * Clear all items from the cart
+     * Clear all items from the cart.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -146,7 +143,7 @@ class CartController extends Controller
     }
 
     /**
-     * Get cart summary data for navigation or other components
+     * Get cart summary data for navigation or other components.
      *
      * @return \Illuminate\Http\JsonResponse
      */

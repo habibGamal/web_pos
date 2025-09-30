@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Heart, ShoppingCart, Share2, Star, Truck, Shield, ArrowLeft, Minus, Plus } from 'lucide-react';
-import Image from 'next/image';
+import { ProductImageWithFallback } from '@/components/ImageWithFallback';
 import Link from 'next/link';
 import { ProductGrid } from '@/components/ProductGrid';
 import { cn } from '@/lib/utils';
@@ -190,10 +190,9 @@ export default function ProductDetailPage() {
         <div className="space-y-4">
           {/* Main Image */}
           <div className="aspect-square relative overflow-hidden rounded-lg bg-gray-50">
-            <Image
+            <ProductImageWithFallback
               src={resolveImageSrc(currentImages[selectedImageIndex])}
               alt={product.name}
-              fill
               className="object-cover"
               priority
             />
@@ -233,10 +232,9 @@ export default function ProductDetailPage() {
                       : "border-gray-200 hover:border-gray-300"
                   )}
                 >
-                  <Image
+                  <ProductImageWithFallback
                     src={image}
                     alt={`${product.name} ${index + 1}`}
-                    fill
                     className="object-cover"
                   />
                 </button>

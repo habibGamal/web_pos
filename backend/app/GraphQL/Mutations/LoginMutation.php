@@ -5,24 +5,25 @@ declare(strict_types=1);
 namespace App\GraphQL\Mutations;
 
 use App\Models\User;
+use App\Traits\ManagesPushTokens;
+use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Auth\Events\Login;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class LoginMutation
 {
+    use ManagesPushTokens;
+
     /**
      * Handle the login mutation.
      *
      * @param  mixed  $rootValue
      * @param  array<string, mixed>  $args
-     * @param  GraphQLContext  $context
-     * @param  ResolveInfo  $resolveInfo
      * @return array<string, mixed>
+     *
      * @throws ValidationException
      */
     public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): array
@@ -30,6 +31,7 @@ class LoginMutation
         $email = $args['email'];
         $password = $args['password'];
         $remember = $args['remember'] ?? false;
+        $expoPushToken = $args['expo_push_token'] ?? null;
 
         // Rate limiting check
         $this->checkRateLimit($email, $context);
@@ -38,7 +40,7 @@ class LoginMutation
         $user = User::where('email', $email)->first();
 
         // Validate credentials
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (! $user || ! Hash::check($password, $user->password)) {
             // Record the failed attempt for rate limiting
             RateLimiter::hit($this->throttleKey($email, $context));
 
@@ -48,7 +50,7 @@ class LoginMutation
         }
 
         // Check if email is verified
-        if (!$user->email_verified_at) {
+        if (! $user->email_verified_at) {
             // Record the failed attempt for rate limiting
             RateLimiter::hit($this->throttleKey($email, $context));
 
@@ -64,6 +66,11 @@ class LoginMutation
         $tokenName = 'auth_token_' . now()->timestamp;
         $token = $user->createToken($tokenName, ['*'], now()->addDays(30));
 
+        // Store push token if provided
+        if ($expoPushToken) {
+            $this->storePushToken($token->plainTextToken, $expoPushToken);
+        }
+
         // Fire login event
         event(new Login('sanctum', $user, $remember));
 
@@ -78,9 +85,6 @@ class LoginMutation
     /**
      * Check rate limiting for login attempts.
      *
-     * @param  string  $email
-     * @param  GraphQLContext  $context
-     * @return void
      * @throws ValidationException
      */
     private function checkRateLimit(string $email, GraphQLContext $context): void
@@ -103,10 +107,6 @@ class LoginMutation
 
     /**
      * Generate the throttle key for rate limiting.
-     *
-     * @param  string  $email
-     * @param  GraphQLContext  $context
-     * @return string
      */
     private function throttleKey(string $email, GraphQLContext $context): string
     {

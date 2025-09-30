@@ -6,52 +6,55 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
-import { LoginInput } from '@/gql/graphql';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Lock, Facebook, Chrome } from 'lucide-react';
+import { Lock, Facebook, Chrome } from 'lucide-react';
+import { QuickAuthForm } from '@/components/auth/auth-form-template';
+import { CurrentPasswordField } from '@/components/auth/password-fields';
+import { AuthFormActions } from '@/components/auth/auth-form-buttons';
+import { FormField, CheckboxFormField } from '@/components/ui/form-field';
 import { useRequireGuest } from '@/hooks/use-auth';
+import { useFormServerErrorHandler } from '@/hooks/use-form-server-error-handler';
 import { useTranslations } from 'next-intl';
+import type { LoginInput } from '@/gql/graphql';
 
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading, error, clearError } = useRequireGuest();
+  const { handleServerError } = useFormServerErrorHandler<LoginFormData>();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations();
 
-  // Validation schema with translations
+  // Validation schema with proper translations
   const loginSchema = z.object({
-    email: z.string().email(t('validation.email')),
+    email: z.string().min(1, t('validation.required')).email(t('validation.email')),
     password: z.string().min(8, t('validation.invalidPassword')),
     remember: z.boolean().optional(),
   });
 
   type LoginFormData = z.infer<typeof loginSchema>;
 
-  // Get redirect URL from query params
+  // Get redirect URL from query params with fallback
   const redirectTo = searchParams.get('redirect') || '/dashboard';
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-    setValue,
-  } = useForm<LoginFormData>({
+  const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    mode: 'onBlur', // Validate on blur for better UX
     defaultValues: {
       email: '',
       password: '',
       remember: false,
     },
   });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+    watch,
+    setValue,
+    setError,
+  } = form;
 
   // Clear errors when component mounts
   useEffect(() => {
@@ -75,139 +78,141 @@ export default function LoginPage() {
 
       // Redirect on successful login
       router.replace(redirectTo);
-    } catch (error) {
-      // Error is handled by the auth hook
-      console.error('Login failed:', error);
+    } catch (submitError) {
+      // Use centralized error handler for validation errors
+      handleServerError(submitError, setError);
+
+      // Log for debugging
+      console.error('Login failed:', submitError);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Handle social login (placeholder for future implementation)
+  const handleSocialLogin = (provider: 'google' | 'facebook') => {
+    // TODO: Implement social login
+    console.log(`Social login with ${provider} - not implemented yet`);
+  };
+
   return (
-    <Card className='w-full max-w-md bg-white/95 backdrop-blur-sm border-white/20 shadow-xl'>
-      <CardHeader className='space-y-1 text-center'>
-        <div className='mx-auto h-12 w-12 bg-primary rounded-lg flex items-center justify-center mb-4'>
-          <Lock className='w-8 h-8 text-primary-foreground' />
-        </div>
-        <CardTitle className='text-3xl font-extrabold text-gray-900'>
-          {t('auth.login.title')}
-        </CardTitle>
-        <CardDescription className='text-gray-600'>
-          {t('auth.login.noAccount')}{' '}
-          <Link
-            href='/auth/register'
-            className='font-medium text-primary hover:text-primary/80 transition-colors'
-          >
-            {t('auth.login.signUp')}
-          </Link>
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className='space-y-6'>
-        {/* Social Login Options */}
-        <div className='grid grid-cols-2 gap-3'>
-          <Button
-            type='button'
-            variant='outline'
-            className='w-full border-gray-300 hover:bg-gray-50 flex items-center rtl:flex-row-reverse'
-          >
-            <Chrome className='h-4 w-4 rtl:ml-2 ltr:mr-2' />
-            {t('auth.login.google')}
-          </Button>
-          <Button
-            type='button'
-            variant='outline'
-            className='w-full border-gray-300 hover:bg-gray-50 flex items-center rtl:flex-row-reverse'
-          >
-            <Facebook className='h-4 w-4 rtl:ml-2 ltr:mr-2' />
-            {t('auth.login.facebook')}
-          </Button>
-        </div>
-
-        <div className='relative'>
-          <Separator className='my-4' />
-          <div className='absolute inset-0 flex items-center justify-center'>
-            <span className='bg-white px-2 text-sm text-gray-500'>
-              {t('auth.login.continueWith')}
-            </span>
-          </div>
-        </div>
-
-        {error && (
-          <Alert variant='destructive'>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='email'>{t('auth.login.email')}</Label>
-            <Input
-              {...register('email')}
-              id='email'
-              type='email'
-              autoComplete='email'
-              placeholder={t('auth.login.email')}
-              className={errors.email ? 'border-red-300 focus-visible:ring-red-200' : ''}
-            />
-            {errors.email && <p className='text-sm text-red-600'>{errors.email.message}</p>}
-          </div>
-
-          <div className='space-y-2'>
-            <Label htmlFor='password'>{t('auth.login.password')}</Label>
-            <Input
-              {...register('password')}
-              id='password'
-              type='password'
-              autoComplete='current-password'
-              placeholder={t('auth.login.password')}
-              className={errors.password ? 'border-red-300 focus-visible:ring-red-200' : ''}
-            />
-            {errors.password && <p className='text-sm text-red-600'>{errors.password.message}</p>}
-          </div>
-
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center space-x-2 rtl:space-x-reverse'>
-              <Checkbox
-                id='remember'
-                checked={watch('remember')}
-                onCheckedChange={(checked) => setValue('remember', Boolean(checked))}
-              />
-              <Label htmlFor='remember' className='text-sm font-normal text-gray-900'>
-                {t('auth.login.rememberMe')}
-              </Label>
-            </div>
-
+    <QuickAuthForm
+      config={{
+        icon: Lock,
+        title: t('auth.login.title'),
+        description: (
+          <>
+            {t('auth.login.noAccount')}{' '}
             <Link
-              href='/auth/forgot-password'
-              className='text-sm font-medium text-primary hover:text-primary/80 transition-colors rtl:mr-auto ltr:ml-auto'
+              href="/auth/register"
+              className="font-medium text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
             >
-              {t('auth.login.forgotPassword')}
+              {t('auth.login.signUp')}
             </Link>
-          </div>
+          </>
+        ),
+      }}
+      form={{
+        instance: form,
+        onSubmit,
+        error,
+      }}
+      fallback={{
+        title: t('auth.login.errorBoundary.title'),
+        description: t('auth.login.errorBoundary.description'),
+        buttonText: t('auth.login.errorBoundary.retry'),
+        buttonHref: '/auth/login',
+      }}
+    >
+      {/* Social Login Options */}
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center rtl:flex-row-reverse"
+          onClick={() => handleSocialLogin('google')}
+          aria-label={`${t('auth.login.continueWith')} Google`}
+        >
+          <Chrome className="h-4 w-4 rtl:ml-2 ltr:mr-2" aria-hidden="true" />
+          {t('auth.login.google')}
+        </button>
+        <button
+          type="button"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center rtl:flex-row-reverse"
+          onClick={() => handleSocialLogin('facebook')}
+          aria-label={`${t('auth.login.continueWith')} Facebook`}
+        >
+          <Facebook className="h-4 w-4 rtl:ml-2 ltr:mr-2" aria-hidden="true" />
+          {t('auth.login.facebook')}
+        </button>
+      </div>
 
-          <Button type='submit' disabled={isSubmitting || isLoading} className='w-full'>
-            {isSubmitting ? (
-              <>
-                <Loader2 className='w-4 h-4 animate-spin rtl:ml-2 ltr:mr-2' />
-                {t('auth.login.signingIn')}
-              </>
-            ) : (
-              t('auth.login.signIn')
-            )}
-          </Button>
-        </form>
-
-        {/* Support Link */}
-        <div className='text-center pt-4'>
-          <Link
-            href='/support'
-            className='text-xs text-gray-500 hover:text-primary transition-colors'
-          >
-            {t('auth.login.support')}
-          </Link>
+      <div className="relative">
+        <Separator className="my-4" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="bg-white px-2 text-sm text-gray-500">
+            {t('auth.login.continueWith')}
+          </span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Email Field */}
+      <FormField
+        name="email"
+        label={t('auth.login.email')}
+        type="email"
+        placeholder={t('auth.login.email')}
+        autoComplete="email"
+        register={register}
+        error={errors.email}
+        required
+      />
+
+      {/* Password Field */}
+      <CurrentPasswordField
+        register={register}
+        error={errors.password}
+        label={t('auth.login.password')}
+        placeholder={t('auth.login.password')}
+      />
+
+      {/* Remember Me & Forgot Password */}
+      <div className="flex items-center justify-between">
+        <CheckboxFormField
+          name="remember"
+          label={t('auth.login.rememberMe')}
+          checked={watch('remember') ?? false}
+          onCheckedChange={(checked) => setValue('remember', Boolean(checked))}
+        />
+
+        <Link
+          href="/auth/forgot-password"
+          className="text-sm font-medium text-primary hover:text-primary/80 transition-colors underline-offset-4 hover:underline"
+        >
+          {t('auth.login.forgotPassword')}
+        </Link>
+      </div>
+
+      <AuthFormActions
+        submitText={t('auth.login.signIn')}
+        isSubmitting={isSubmitting || isLoading}
+        loadingText={t('auth.login.signingIn')}
+        links={[
+          {
+            href: '/auth/forgot-password',
+            text: t('auth.login.forgotPassword'),
+          },
+        ]}
+      />
+
+      {/* Support Link */}
+      <div className="text-center pt-4">
+        <Link
+          href="/support"
+          className="text-xs text-gray-500 hover:text-primary transition-colors underline-offset-4 hover:underline"
+        >
+          {t('auth.login.support')}
+        </Link>
+      </div>
+    </QuickAuthForm>
   );
 }

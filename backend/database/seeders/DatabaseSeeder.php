@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             GovSeeder::class,
             AreaSeeder::class,
-            ShippingCostSeeder::class,
             // SectionSeeder::class,
             AnnouncementSeeder::class,
             HeroSlideSeeder::class,
@@ -24,7 +23,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CategorySeeder::class,
             BrandSeeder::class,
+            AttributeSeeder::class,
             ProductSeeder::class,
+            OrderSeeder::class,
         ]);
     }
 }

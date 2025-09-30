@@ -57,7 +57,7 @@ class ReturnOrder extends Model
 
         static::creating(function ($returnOrder) {
             if (! $returnOrder->return_number) {
-                $returnOrder->return_number = 'RET-'.Str::upper(Str::random(8));
+                $returnOrder->return_number = 'RET-' . Str::upper(Str::random(8));
             }
             if (! $returnOrder->requested_at) {
                 $returnOrder->requested_at = now();
@@ -127,7 +127,7 @@ class ReturnOrder extends Model
     public static function generateReturnNumber(): string
     {
         do {
-            $returnNumber = 'RET-'.Str::upper(Str::random(8));
+            $returnNumber = 'RET-' . Str::upper(Str::random(8));
         } while (static::where('return_number', $returnNumber)->exists());
 
         return $returnNumber;

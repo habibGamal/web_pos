@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace App\GraphQL\Mutations;
 
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use App\Traits\ManagesPushTokens;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 final class RegisterMutation
 {
+    use ManagesPushTokens;
+
     /**
      * Register a new user and return authentication payload.
      *
@@ -54,6 +56,11 @@ final class RegisterMutation
 
         // Create API token for the user
         $token = $user->createToken('auth-token');
+
+        // Store push token if provided
+        if (! empty($input['expo_push_token'])) {
+            $this->storePushToken($token->plainTextToken, $input['expo_push_token']);
+        }
 
         // Debug: Verify token belongs to correct user
         if (app()->environment('testing')) {

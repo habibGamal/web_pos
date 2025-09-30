@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\GraphQL\Mutations;
 
 use App\Models\User;
+use App\Traits\ManagesPushTokens;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -13,6 +14,8 @@ use Laravel\Socialite\Facades\Socialite;
 
 final class SocialLoginMutation
 {
+    use ManagesPushTokens;
+
     /**
      * Authenticate user via social provider.
      *
@@ -25,6 +28,7 @@ final class SocialLoginMutation
         $accessToken = $args['access_token'];
         $providerId = $args['provider_id'] ?? null;
         $locale = $args['locale'] ?? 'en';
+        $expoPushToken = $args['expo_push_token'] ?? null;
 
         try {
             // Get user info from social provider
@@ -33,7 +37,7 @@ final class SocialLoginMutation
             // Use provider_id from args if provided, otherwise use the one from social user
             $providerUserId = $providerId ?? $socialUser->getId();
 
-            if (!$providerUserId) {
+            if (! $providerUserId) {
                 throw ValidationException::withMessages([
                     'provider_id' => ['Unable to get user ID from social provider.'],
                 ]);
@@ -79,10 +83,15 @@ final class SocialLoginMutation
             }
 
             // Generate API token
-            $token = $user->createToken('auth-token')->plainTextToken;
+            $token = $user->createToken('auth-token');
+
+            // Store push token if provided
+            if ($expoPushToken) {
+                $this->storePushToken($token->plainTextToken, $expoPushToken);
+            }
 
             return [
-                'access_token' => $token,
+                'access_token' => $token->plainTextToken,
                 'token_type' => 'Bearer',
                 'expires_in' => 31536000, // 1 year in seconds
                 'user' => $user,

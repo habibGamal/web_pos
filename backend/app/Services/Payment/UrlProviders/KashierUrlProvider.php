@@ -7,12 +7,12 @@ use App\Models\Order;
 
 /**
  * Kashier-specific URL provider
- * Follows Single Responsibility Principle - only handles Kashier URLs
+ * Follows Single Responsibility Principle - only handles Kashier URLs.
  */
 class KashierUrlProvider implements PaymentUrlProviderInterface
 {
     /**
-     * Get the redirect URL for successful payments
+     * Get the redirect URL for successful payments.
      */
     public function getSuccessRedirectUrl(Order $order): string
     {
@@ -20,7 +20,7 @@ class KashierUrlProvider implements PaymentUrlProviderInterface
     }
 
     /**
-     * Get the redirect URL for failed payments
+     * Get the redirect URL for failed payments.
      */
     public function getFailureRedirectUrl(Order $order): string
     {
@@ -28,10 +28,10 @@ class KashierUrlProvider implements PaymentUrlProviderInterface
     }
 
     /**
-     * Get the webhook URL for server notifications from Kashier
+     * Get the webhook URL for server notifications from Kashier.
      */
     public function getWebhookUrl(): string
     {
-        return config('app.url').'/webhooks/kashier';
+        return config('app.url') . '/webhooks/kashier';
     }
 }

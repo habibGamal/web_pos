@@ -2,10 +2,9 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Arr;
 use Carbon\CarbonInterface;
 use Filament\Actions\Exports\Jobs\ExportCsv as BaseExportCsv;
-
+use Illuminate\Support\Arr;
 
 class ExporterCsv extends BaseExportCsv
 {
@@ -15,7 +14,6 @@ class ExporterCsv extends BaseExportCsv
     {
         return null;
     }
-
 
     protected function handleExceptions(array $exceptions): void
     {

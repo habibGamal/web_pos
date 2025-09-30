@@ -15,6 +15,7 @@ class ProductType
     public function name(Product $product): string
     {
         $locale = app()->getLocale();
+
         return $locale === 'ar' ? $product->name_ar : $product->name_en;
     }
 
@@ -24,20 +25,8 @@ class ProductType
     public function description(Product $product): ?string
     {
         $locale = app()->getLocale();
+
         return $locale === 'ar' ? $product->description_ar : $product->description_en;
-    }
-
-    /**
-     * Get the cost price (admin only).
-     */
-    public function costPrice(Product $product): ?float
-    {
-        // Only show cost price to admin users
-        if (!Auth::check() || !Auth::user()->is_admin) {
-            return null;
-        }
-
-        return $product->cost_price ? (float) $product->cost_price : null;
     }
 
     /**
@@ -72,6 +61,7 @@ class ProductType
         if ($product->sale_price && $product->sale_price > 0) {
             return floatval($product->sale_price);
         }
+
         return floatval($product->price);
     }
 
@@ -80,11 +70,12 @@ class ProductType
      */
     public function discountPercentage(Product $product): ?float
     {
-        if (!$product->sale_price || $product->sale_price <= 0 || $product->price <= 0) {
+        if (! $product->sale_price || $product->sale_price <= 0 || $product->price <= 0) {
             return null;
         }
 
         $discount = (($product->price - $product->sale_price) / $product->price) * 100;
+
         return round($discount, 2);
     }
 
@@ -101,21 +92,13 @@ class ProductType
      */
     public function isInWishlist(Product $product): ?bool
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return null;
         }
 
         return $product->wishlists()
             ->where('user_id', Auth::id())
             ->exists();
-    }
-
-    /**
-     * Get the product's SEO-friendly URL.
-     */
-    public function url(Product $product): string
-    {
-        return "/products/{$product->slug}";
     }
 
     /**

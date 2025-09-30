@@ -2,10 +2,9 @@
 
 namespace App\Jobs;
 
-use Illuminate\Support\Arr;
 use Carbon\CarbonInterface;
 use Filament\Actions\Imports\Jobs\ImportCsv as BaseImportCsv;
-
+use Illuminate\Support\Arr;
 
 class ImportCsv extends BaseImportCsv
 {
@@ -15,7 +14,6 @@ class ImportCsv extends BaseImportCsv
     {
         return null;
     }
-
 
     protected function handleExceptions(array $exceptions): void
     {

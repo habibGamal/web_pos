@@ -24,24 +24,24 @@ class CustomersInsightsOverview extends BaseWidget
 
         // Customer acquisition rate
         $newCustomers = \App\Models\User::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate))
             ->count();
 
         $acquisitionRate = round($newCustomers / $periodDays, 1);
 
         // Customer retention rate (customers who made multiple orders)
         $repeatCustomers = \App\Models\User::query()
-            ->whereHas('orders', function($query) use ($startDate, $endDate) {
-                $query->when($startDate, fn($q) => $q->where('created_at', '>=', $startDate))
-                      ->when($endDate, fn($q) => $q->where('created_at', '<=', $endDate));
+            ->whereHas('orders', function ($query) use ($startDate, $endDate) {
+                $query->when($startDate, fn ($q) => $q->where('created_at', '>=', $startDate))
+                    ->when($endDate, fn ($q) => $q->where('created_at', '<=', $endDate));
             }, '>=', 2)
             ->count();
 
         $activeCustomers = \App\Models\User::query()
-            ->whereHas('orders', function($query) use ($startDate, $endDate) {
-                $query->when($startDate, fn($q) => $q->where('created_at', '>=', $startDate))
-                      ->when($endDate, fn($q) => $q->where('created_at', '<=', $endDate));
+            ->whereHas('orders', function ($query) use ($startDate, $endDate) {
+                $query->when($startDate, fn ($q) => $q->where('created_at', '>=', $startDate))
+                    ->when($endDate, fn ($q) => $q->where('created_at', '<=', $endDate));
             })
             ->count();
 
@@ -49,8 +49,8 @@ class CustomersInsightsOverview extends BaseWidget
 
         // Average time between orders (simplified calculation)
         $ordersByUser = \App\Models\Order::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate))
             ->selectRaw('user_id, COUNT(*) as order_count, DATEDIFF(MAX(created_at), MIN(created_at)) as days_span')
             ->groupBy('user_id')
             ->having('order_count', '>', 1)
@@ -58,7 +58,7 @@ class CustomersInsightsOverview extends BaseWidget
 
         $avgTimeBetweenOrders = 0;
         if ($ordersByUser->count() > 0) {
-            $totalAvgDays = $ordersByUser->sum(function($user) {
+            $totalAvgDays = $ordersByUser->sum(function ($user) {
                 return $user->order_count > 1 ? $user->days_span / ($user->order_count - 1) : 0;
             });
             $avgTimeBetweenOrders = $totalAvgDays / $ordersByUser->count();
@@ -69,8 +69,8 @@ class CustomersInsightsOverview extends BaseWidget
             ->leftJoin('addresses', 'orders.shipping_address_id', '=', 'addresses.id')
             ->leftJoin('areas', 'addresses.area_id', '=', 'areas.id')
             ->leftJoin('govs', 'areas.gov_id', '=', 'govs.id')
-            ->when($startDate, fn($query) => $query->where('orders.created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('orders.created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('orders.created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('orders.created_at', '<=', $endDate))
             ->whereNotNull('govs.id')
             ->selectRaw('govs.name_ar, COUNT(DISTINCT orders.user_id) as customer_count')
             ->groupBy('govs.id', 'govs.name_ar')
@@ -79,14 +79,14 @@ class CustomersInsightsOverview extends BaseWidget
 
         // Customer satisfaction (based on delivered orders vs returns)
         $deliveredOrders = \App\Models\Order::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate))
             ->where('order_status', \App\Enums\OrderStatus::DELIVERED)
             ->count();
 
         $returnedOrders = \App\Models\Order::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate))
             ->whereNotNull('return_status')
             ->count();
 

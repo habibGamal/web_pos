@@ -66,4 +66,20 @@ class OrderItem extends Model
     {
         return $this->hasMany(ReturnOrderItem::class);
     }
+
+    /**
+     * Get return items for this order item.
+     */
+    public function returnItems(): HasMany
+    {
+        return $this->hasMany(ReturnOrderItem::class);
+    }
+
+    /**
+     * Get the total price attribute (alias for subtotal).
+     */
+    public function getTotalPriceAttribute(): float
+    {
+        return (float) $this->subtotal;
+    }
 }

@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use League\Glide\Responses\PsrResponseFactory;
-use League\Glide\ServerFactory;
 use Spatie\Glide\GlideImage;
 
 class ImageController extends Controller
@@ -24,8 +21,6 @@ class ImageController extends Controller
         $generagedImgPath = GlideImage::create(storage_path('app/public/' . $path))
             ->modify(request()->all())
             ->save($outFilePath);
-
-
 
         return response()->file($generagedImgPath);
     }

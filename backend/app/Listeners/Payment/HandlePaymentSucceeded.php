@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Listener for payment success events
- * Follows Single Responsibility Principle
+ * Follows Single Responsibility Principle.
  */
 class HandlePaymentSucceeded
 {
@@ -17,7 +17,7 @@ class HandlePaymentSucceeded
     ) {}
 
     /**
-     * Handle the event
+     * Handle the event.
      */
     public function handle(PaymentSucceeded $event): void
     {

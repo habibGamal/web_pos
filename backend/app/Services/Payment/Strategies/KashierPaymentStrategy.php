@@ -8,7 +8,7 @@ use App\Models\Order;
 
 /**
  * Strategy for Kashier payment processing
- * Follows Strategy Pattern and Single Responsibility Principle
+ * Follows Strategy Pattern and Single Responsibility Principle.
  */
 class KashierPaymentStrategy extends AbstractOnlinePaymentStrategy
 {
@@ -18,7 +18,7 @@ class KashierPaymentStrategy extends AbstractOnlinePaymentStrategy
     }
 
     /**
-     * Check if this strategy can handle the given order
+     * Check if this strategy can handle the given order.
      */
     public function canHandle(Order $order): bool
     {
@@ -27,7 +27,7 @@ class KashierPaymentStrategy extends AbstractOnlinePaymentStrategy
     }
 
     /**
-     * Get the payment method identifier this strategy handles
+     * Get the payment method identifier this strategy handles.
      */
     public function getPaymentMethod(): string
     {
@@ -36,7 +36,7 @@ class KashierPaymentStrategy extends AbstractOnlinePaymentStrategy
 
     /**
      * Get the payment method enum this strategy handles
-     * Note: This strategy handles both CREDIT_CARD and WALLET
+     * Note: This strategy handles both CREDIT_CARD and WALLET.
      */
     protected function getPaymentMethodEnum(): PaymentMethod
     {
@@ -45,7 +45,7 @@ class KashierPaymentStrategy extends AbstractOnlinePaymentStrategy
     }
 
     /**
-     * Override validateOrder to handle multiple payment methods
+     * Override validateOrder to handle multiple payment methods.
      */
     protected function validateOrder(Order $order): void
     {

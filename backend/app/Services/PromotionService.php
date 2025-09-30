@@ -2,23 +2,22 @@
 
 namespace App\Services;
 
+use App\Enums\PromotionConditionType;
+use App\Enums\PromotionRewardType;
+use App\Enums\PromotionType;
 use App\Models\Cart;
-use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Promotion;
 use App\Models\PromotionUsage;
-use App\Enums\PromotionType;
-use App\Enums\PromotionConditionType;
-use App\Enums\PromotionRewardType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class PromotionService
 {
     /**
-     * Validate and apply a promotion code to a cart
+     * Validate and apply a promotion code to a cart.
      *
-     * @param string $code The promotion code to validate
+     * @param  string  $code  The promotion code to validate
      * @return array|null [discount amount, promotion] if valid, null if invalid
      */
     public function validatePromotionCode(string $code): ?array
@@ -35,7 +34,7 @@ class PromotionService
             })
             ->with(['conditions', 'rewards'])
             ->first();
-        if (!$promotion) {
+        if (! $promotion) {
             return null;
         }
 
@@ -46,12 +45,12 @@ class PromotionService
 
         // Get current user's cart
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 
         $cart = $user->cart;
-        if (!$cart || $cart->items->isEmpty()) {
+        if (! $cart || $cart->items->isEmpty()) {
             return null;
         }
 
@@ -69,16 +68,11 @@ class PromotionService
             return null;
         }
 
-
         return [$discountAmount, $promotion];
     }
 
     /**
-     * Calculate the discount amount for a promotion applied to a cart
-     *
-     * @param Promotion $promotion
-     * @param Cart $cart
-     * @return float
+     * Calculate the discount amount for a promotion applied to a cart.
      */
     public function calculateDiscountAmount(Promotion $promotion, Cart $cart): float
     {
@@ -91,7 +85,7 @@ class PromotionService
         }
 
         // Check if conditions are met
-        if (!$this->checkPromotionConditions($promotion, $cart)) {
+        if (! $this->checkPromotionConditions($promotion, $cart)) {
             return 0;
         }
         switch ($promotion->type) {
@@ -114,11 +108,7 @@ class PromotionService
     }
 
     /**
-     * Check if the promotion conditions are met
-     *
-     * @param Promotion $promotion
-     * @param Cart $cart
-     * @return bool
+     * Check if the promotion conditions are met.
      */
     protected function checkPromotionConditions(Promotion $promotion, Cart $cart): bool
     {
@@ -148,8 +138,7 @@ class PromotionService
                     break;
             }
 
-
-            if (!$conditionMet) {
+            if (! $conditionMet) {
                 return false;
             }
         }
@@ -158,11 +147,7 @@ class PromotionService
     }
 
     /**
-     * Check if product conditions are met
-     *
-     * @param Collection $conditions
-     * @param Cart $cart
-     * @return bool
+     * Check if product conditions are met.
      */
     protected function checkProductConditions(Collection $conditions, Cart $cart): bool
     {
@@ -170,7 +155,7 @@ class PromotionService
         $cartItemsByProduct = $cart->items->groupBy('product_id');
 
         foreach ($conditions as $condition) {
-            if (!isset($cartItemsByProduct[$condition->entity_id])) {
+            if (! isset($cartItemsByProduct[$condition->entity_id])) {
                 return false;
             }
 
@@ -185,11 +170,7 @@ class PromotionService
     }
 
     /**
-     * Check if category conditions are met
-     *
-     * @param Collection $conditions
-     * @param Cart $cart
-     * @return bool
+     * Check if category conditions are met.
      */
     protected function checkCategoryConditions(Collection $conditions, Cart $cart): bool
     {
@@ -198,7 +179,7 @@ class PromotionService
         $cartProductsByCategoryId = $cartProducts->groupBy('category_id');
 
         foreach ($conditions as $condition) {
-            if (!isset($cartProductsByCategoryId[$condition->entity_id])) {
+            if (! isset($cartProductsByCategoryId[$condition->entity_id])) {
                 return false;
             }
 
@@ -220,11 +201,7 @@ class PromotionService
     }
 
     /**
-     * Check if brand conditions are met
-     *
-     * @param Collection $conditions
-     * @param Cart $cart
-     * @return bool
+     * Check if brand conditions are met.
      */
     protected function checkBrandConditions(Collection $conditions, Cart $cart): bool
     {
@@ -233,7 +210,7 @@ class PromotionService
         $cartProductsByBrandId = $cartProducts->groupBy('brand_id');
 
         foreach ($conditions as $condition) {
-            if (!isset($cartProductsByBrandId[$condition->entity_id])) {
+            if (! isset($cartProductsByBrandId[$condition->entity_id])) {
                 return false;
             }
 
@@ -255,15 +232,12 @@ class PromotionService
     }
 
     /**
-     * Check if customer conditions are met
-     *
-     * @param Collection $conditions
-     * @return bool
+     * Check if customer conditions are met.
      */
     protected function checkCustomerConditions(Collection $conditions): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
@@ -277,11 +251,7 @@ class PromotionService
     }
 
     /**
-     * Calculate the discount for Buy X Get Y promotions
-     *
-     * @param Promotion $promotion
-     * @param Cart $cart
-     * @return float
+     * Calculate the discount for Buy X Get Y promotions.
      */
     protected function calculateBuyXGetYDiscount(Promotion $promotion, Cart $cart): float
     {
@@ -311,11 +281,9 @@ class PromotionService
     }
 
     /**
-     * Calculate discount for a product reward
+     * Calculate discount for a product reward.
      *
-     * @param object $reward
-     * @param Cart $cart
-     * @return float
+     * @param  object  $reward
      */
     protected function calculateProductRewardDiscount($reward, Cart $cart): float
     {
@@ -342,11 +310,9 @@ class PromotionService
     }
 
     /**
-     * Calculate discount for a category reward
+     * Calculate discount for a category reward.
      *
-     * @param object $reward
-     * @param Cart $cart
-     * @return float
+     * @param  object  $reward
      */
     protected function calculateCategoryRewardDiscount($reward, Cart $cart): float
     {
@@ -368,12 +334,14 @@ class PromotionService
             if ($item->variant && $item->variant->price) {
                 $price = $item->variant->sale_price ?? $item->variant->price;
             }
+
             return $price;
         });
 
         foreach ($sortedItems as $item) {
-            if ($remainingQuantity <= 0)
+            if ($remainingQuantity <= 0) {
                 break;
+            }
 
             $productPrice = $item->product->sale_price ?? $item->product->price;
             if ($item->variant && $item->variant->price) {
@@ -389,11 +357,9 @@ class PromotionService
     }
 
     /**
-     * Calculate discount for a brand reward
+     * Calculate discount for a brand reward.
      *
-     * @param object $reward
-     * @param Cart $cart
-     * @return float
+     * @param  object  $reward
      */
     protected function calculateBrandRewardDiscount($reward, Cart $cart): float
     {
@@ -415,12 +381,14 @@ class PromotionService
             if ($item->variant && $item->variant->price) {
                 $price = $item->variant->sale_price ?? $item->variant->price;
             }
+
             return $price;
         });
 
         foreach ($sortedItems as $item) {
-            if ($remainingQuantity <= 0)
+            if ($remainingQuantity <= 0) {
                 break;
+            }
 
             $productPrice = $item->product->sale_price ?? $item->product->price;
             if ($item->variant && $item->variant->price) {
@@ -436,12 +404,7 @@ class PromotionService
     }
 
     /**
-     * Record a promotion usage for an order
-     *
-     * @param Order $order
-     * @param Promotion $promotion
-     * @param float $discountAmount
-     * @return PromotionUsage
+     * Record a promotion usage for an order.
      */
     public function recordPromotionUsage(Order $order, Promotion $promotion, float $discountAmount): PromotionUsage
     {
@@ -458,10 +421,7 @@ class PromotionService
     }
 
     /**
-     * Get eligible promotions for a cart
-     *
-     * @param Cart $cart
-     * @return Collection
+     * Get eligible promotions for a cart.
      */
     public function getEligiblePromotions(Cart $cart): Collection
     {
@@ -480,14 +440,14 @@ class PromotionService
 
         return $promotions->filter(function ($promotion) use ($cart) {
             $discountAmount = $this->calculateDiscountAmount($promotion, $cart);
+
             return $discountAmount > 0;
         });
     }
 
     /**
-     * Apply the best automatic promotion to a cart
+     * Apply the best automatic promotion to a cart.
      *
-     * @param Cart $cart
      * @return array|null [discount amount, promotion] if applied, null if none applicable
      */
     public function applyBestAutomaticPromotion(Cart $cart): ?array

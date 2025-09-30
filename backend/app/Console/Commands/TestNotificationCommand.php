@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\User;
 use App\Notifications\GeneralNotification;
+use App\Notifications\TestPushNotification;
 use Illuminate\Console\Command;
 
 class TestNotificationCommand extends Command
@@ -29,17 +30,19 @@ class TestNotificationCommand extends Command
     {
         $userId = $this->argument('user_id');
 
-        if (!$userId) {
+        if (! $userId) {
             // Get the first user if no user ID provided
             $user = User::first();
-            if (!$user) {
+            if (! $user) {
                 $this->error('No users found in the database.');
+
                 return 1;
             }
         } else {
             $user = User::find($userId);
-            if (!$user) {
+            if (! $user) {
                 $this->error("User with ID {$userId} not found.");
+
                 return 1;
             }
         }
@@ -49,8 +52,9 @@ class TestNotificationCommand extends Command
         $message = $this->option('message');
 
         // Validate type
-        if (!in_array($type, ['info', 'success', 'warning', 'error'])) {
+        if (! in_array($type, ['info', 'success', 'warning', 'error'])) {
             $this->error('Invalid notification type. Must be one of: info, success, warning, error');
+
             return 1;
         }
 
@@ -63,10 +67,16 @@ class TestNotificationCommand extends Command
             actionLabel: 'View Dashboard'
         );
 
+        $mobileAppnotification = new TestPushNotification(
+            title: $title,
+            body: $message
+        );
+
         try {
             $user->notify($notification);
+            $user->notify($mobileAppnotification);
 
-            $this->info("✅ Test notification sent successfully!");
+            $this->info('✅ Test notification sent successfully!');
             $this->line("User: {$user->name} ({$user->email})");
             $this->line("Type: {$type}");
             $this->line("Title: {$title}");
@@ -75,6 +85,7 @@ class TestNotificationCommand extends Command
             return 0;
         } catch (\Exception $e) {
             $this->error("Failed to send notification: {$e->getMessage()}");
+
             return 1;
         }
     }

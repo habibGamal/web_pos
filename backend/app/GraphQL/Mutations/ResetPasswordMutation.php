@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\GraphQL\Mutations;
 
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 final class ResetPasswordMutation
 {

@@ -24,7 +24,7 @@ export default function NotificationsPage() {
   const { notifications: allNotifications, loading: allLoading, refetch: refetchAll } = useNotifications({ first: 50 });
   const { notifications: unreadNotifications, loading: unreadLoading, refetch: refetchUnread } = useUnreadNotifications();
   const { markAllAsRead } = useNotificationActions();
-  const { unreadCount } = useNotificationBadge();
+  const { count: unreadCount } = useNotificationBadge();
 
   const notifications = activeTab === 'all' ? allNotifications : unreadNotifications;
   const loading = activeTab === 'all' ? allLoading : unreadLoading;

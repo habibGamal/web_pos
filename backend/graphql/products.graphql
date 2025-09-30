@@ -1,32 +1,52 @@
 # Product Catalog Types and Queries
 # This file contains all product catalog-related GraphQL types, inputs, and queries
 
-# Enhanced Product type
-extend type Product {
+# Product type
+type Product {
+    "Unique primary key."
+    id: ID!
+
+    "Product price."
+    price: Float!
+
+    "Product slug for URL generation."
+    slug: String!
+
+    "Whether the product is active."
+    is_active: Boolean!
+
+    "When the product was created."
+    created_at: DateTime!
+
+    "When the product was last updated."
+    updated_at: DateTime!
+
+    "Product category."
+    category: Category! @belongsTo
+
+    "Product brand."
+    brand: Brand! @belongsTo
 
     "Product's name in current locale"
-    name: String! @field(resolver: "App\\GraphQL\\Types\\ProductType@name")
+    name: String! @localized
 
     "Product's description in current locale"
-    description: String @field(resolver: "App\\GraphQL\\Types\\ProductType@description")
+    description: String @localized
 
     "Product's sale price (if on sale)"
     sale_price: Float
-
-    "Product's cost price (admin only)"
-    cost_price: Float @field(resolver: "App\\GraphQL\\Types\\ProductType@costPrice")
 
     "Whether the product is featured"
     is_featured: Boolean!
 
     "Whether the product is in stock"
-    is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductType@isInStock")
+    is_in_stock: Boolean!
 
     "Product's featured image URL"
-    featured_image: String @field(resolver: "App\\GraphQL\\Types\\ProductType@featuredImage")
+    featured_image: String
 
     "Product's image gallery URLs"
-    images: [String!]! @field(resolver: "App\\GraphQL\\Types\\ProductType@images")
+    images: [String!]!
 
     "Product's effective price (considers sale price)"
     effective_price: Float! @field(resolver: "App\\GraphQL\\Types\\ProductType@effectivePrice")
@@ -40,17 +60,14 @@ extend type Product {
     "Whether the user has this product in wishlist"
     is_in_wishlist: Boolean @field(resolver: "App\\GraphQL\\Types\\ProductType@isInWishlist")
 
-    "Product's SEO-friendly URL"
-    url: String! @field(resolver: "App\\GraphQL\\Types\\ProductType@url")
-
     "Product's total stock across all variants"
-    stock: Int! @field(resolver: "App\\GraphQL\\Types\\ProductType@stock")
+    stock: Int!
 
     "Product's variants"
     variants: [ProductVariant!]! @hasMany
 
     "Product's default variant"
-    default_variant: ProductVariant @field(resolver: "App\\GraphQL\\Types\\ProductType@defaultVariant")
+    default_variant: ProductVariant @method(name: "defaultVariant")
 
     "Product's sections"
     sections: [Section!]! @belongsToMany
@@ -65,13 +82,13 @@ type ProductVariant {
     product_id: ID!
 
     "Variant display name based on attributes"
-    name: String! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@name")
+    name: String! @rename(attribute: "attributes_string")
 
     "Variant SKU"
     sku: String!
 
     "Variant images array"
-    images: [String!]! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@images")
+    images: [String!]!
 
     "Variant stock quantity"
     quantity: Int!
@@ -82,20 +99,8 @@ type ProductVariant {
     "Variant sale price (nullable)"
     sale_price: Float
 
-    "Variant color attribute"
-    color: String
-
-    "Variant size attribute"
-    size: String
-
-    "Variant capacity attribute"
-    capacity: String
-
-    "Additional variant attributes (JSON string)"
-    additional_attributes: String
-
-    "Variant attributes combined (computed)"
-    attributes: String! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@attributes")
+    "Variant attributes as formatted string"
+    attributes_string: String
 
     "Whether this is the default variant"
     is_default: Boolean!
@@ -115,29 +120,29 @@ type ProductVariant {
     "Parent product"
     product: Product! @belongsTo
 
+    "Variant's attribute values"
+    attribute_values: [AttributeValue!]! @belongsToMany(relation: "attributeValues")
+
     "Whether the variant is in stock"
     is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@isInStock")
 
     "Variant's featured image URL"
-    featured_image: String @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@featuredImage")
+    featured_image: String
 }
 
-# Enhanced Category type
-extend type Category {
+# Category type
+type Category {
+    "Unique primary key."
+    id: ID!
+
     "Category slug for URL generation"
     slug: String!
 
     "Category name in current locale"
-    name: String! @field(resolver: "App\\GraphQL\\Types\\CategoryType@name")
-
-    "Category description in current locale"
-    description: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@description")
+    name: String! @localized
 
     "Category's display image with fallback logic"
-    display_image: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@displayImage")
-
-    "Category's image URL with fallback"
-    image_url: String @field(resolver: "App\\GraphQL\\Types\\CategoryType@imageUrl")
+    image: String
 
     "Category's display order"
     display_order: Int!
@@ -148,17 +153,14 @@ extend type Category {
     "Whether the category is active"
     is_active: Boolean!
 
-    "Category's SEO-friendly URL"
-    url: String! @field(resolver: "App\\GraphQL\\Types\\CategoryType@url")
-
     "Number of products in this category"
-    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\CategoryType@productsCount")
+    products_count: Int! @count(relation: "products")
 
     "Number of active products in this category"
-    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\CategoryType@activeProductsCount")
+    active_products_count: Int! @count(relation: "products", scopes: ["active"])
 
     "Whether the category has any products"
-    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\CategoryType@hasProducts")
+    has_products: Boolean! @method(name: "hasProducts")
 
     "Category's parent category"
     parent: Category @belongsTo(relation: "parent")
@@ -168,24 +170,33 @@ extend type Category {
 
     "Category's products"
     products: [Product!]! @hasMany
+
+    "When the category was created."
+    created_at: DateTime!
+
+    "When the category was last updated."
+    updated_at: DateTime!
 }
 
-# Enhanced Brand type
-extend type Brand {
+# Brand type
+type Brand {
+    "Unique primary key."
+    id: ID!
+
+    "When the brand was created."
+    created_at: DateTime!
+
+    "When the brand was last updated."
+    updated_at: DateTime!
+
     "Brand slug for URL generation"
     slug: String!
 
     "Brand name in current locale"
-    name: String! @field(resolver: "App\\GraphQL\\Types\\BrandType@name")
-
-    "Brand description in current locale"
-    description: String @field(resolver: "App\\GraphQL\\Types\\BrandType@description")
+    name: String! @localized
 
     "Brand's display image with fallback logic"
-    display_image: String @field(resolver: "App\\GraphQL\\Types\\BrandType@displayImage")
-
-    "Brand's image URL with fallback"
-    image_url: String @field(resolver: "App\\GraphQL\\Types\\BrandType@imageUrl")
+    image: String
 
     "Brand's display order"
     display_order: Int!
@@ -196,17 +207,14 @@ extend type Brand {
     "Whether the brand is active"
     is_active: Boolean!
 
-    "Brand's SEO-friendly URL"
-    url: String! @field(resolver: "App\\GraphQL\\Types\\BrandType@url")
-
     "Number of products for this brand"
-    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\BrandType@productsCount")
+    products_count: Int! @count(relation: "products")
 
     "Number of active products for this brand"
-    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\BrandType@activeProductsCount")
+    active_products_count: Int! @count(relation: "products", scopes: ["active"])
 
     "Whether the brand has any products"
-    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\BrandType@hasProducts")
+    has_products: Boolean! @method(name: "hasProducts")
 
     "Brand's parent brand"
     parent: Brand @belongsTo(relation: "parent")
@@ -223,14 +231,8 @@ type Section {
     "Unique identifier"
     id: ID!
 
-    "Section title in English"
-    title_en: String!
-
-    "Section title in Arabic"
-    title_ar: String!
-
     "Section title in current locale"
-    title: String! @field(resolver: "App\\GraphQL\\Types\\SectionType@title")
+    title: String! @localized
 
     "Whether the section is active"
     active: Boolean!
@@ -251,16 +253,99 @@ type Section {
     products: [Product!]! @belongsToMany
 
     "Number of products in this section"
-    products_count: Int! @field(resolver: "App\\GraphQL\\Types\\SectionType@productsCount")
+    products_count: Int! @count(relation: "products")
 
     "Number of active products in this section"
-    active_products_count: Int! @field(resolver: "App\\GraphQL\\Types\\SectionType@activeProductsCount")
+    active_products_count: Int! @count(relation: "products", scopes: ["active"])
 
     "Whether the section has any products"
-    has_products: Boolean! @field(resolver: "App\\GraphQL\\Types\\SectionType@hasProducts")
+    has_products: Boolean! @method(name: "hasProducts")
+}
+
+# Attribute type
+type Attribute {
+    "Unique identifier"
+    id: ID!
+
+    "Attribute name in current locale"
+    name: String! @localized
+
+    "Attribute input type"
+    type: AttributeInputType!
+
+    "Attribute description in current locale"
+    description: String @localized
+
+    "Sort order"
+    sort_order: Int!
+
+    "When the attribute was created"
+    created_at: DateTime!
+
+    "When the attribute was last updated"
+    updated_at: DateTime!
+
+    "Attribute values"
+    values: [AttributeValue!]! @hasMany
+}
+
+# Attribute Value type
+type AttributeValue {
+    "Unique identifier"
+    id: ID!
+
+    "Attribute ID this value belongs to"
+    attribute_id: ID!
+
+    "Value identifier"
+    value: String! @localized
+
+    "Color code for color attributes"
+    color_code: String
+
+    "Sort order"
+    sort_order: Int!
+
+    "When the value was created"
+    created_at: DateTime!
+
+    "When the value was last updated"
+    updated_at: DateTime!
+
+    "Parent attribute"
+    attribute: Attribute! @belongsTo
+
+    "Product variants using this value"
+    variants: [ProductVariant!]! @belongsToMany(relation: "variants")
+}
+
+# Variant Attribute Group type
+type VariantAttributeGroup {
+    "Attribute information"
+    attribute: Attribute!
+
+    "Values for this attribute"
+    values: [String!]!
 }
 
 # Enums
+enum AttributeInputType {
+    "Select dropdown"
+    SELECT @enum(value: "select")
+
+    "Text input"
+    TEXT @enum(value: "text")
+
+    "Number input"
+    NUMBER @enum(value: "number")
+
+    "Boolean checkbox"
+    BOOLEAN @enum(value: "boolean")
+
+    "Color picker"
+    COLOR @enum(value: "color")
+}
+
 enum SectionType {
     "Real section with manually selected products"
     REAL @enum(value: "REAL")
@@ -342,13 +427,13 @@ extend type Query {
     product(
         "Product ID"
         id: ID! @rules(apply: ["required", "exists:products,id"])
-    ): Product @find
+    ): Product @first
 
     "Get a single product by slug"
     productBySlug(
         "Product slug"
-        slug: String! @rules(apply: ["required"])
-    ): Product @field(resolver: "App\\GraphQL\\Queries\\ProductsQuery@productBySlug")
+        slug: String! @rules(apply: ["required", "exists:products,slug"]) @where(key: "slug")
+    ): Product @first(scopes: ["active"])
 
     "Get all categories in hierarchical structure"
     categories(
@@ -362,13 +447,13 @@ extend type Query {
     category(
         "Category ID"
         id: ID! @rules(apply: ["required", "exists:categories,id"])
-    ): Category @find
+    ): Category @first
 
     "Get a single category by slug"
     categoryBySlug(
         "Category slug"
         slug: String! @rules(apply: ["required", "exists:categories,slug"])
-    ): Category @field(resolver: "App\\GraphQL\\Queries\\CategoriesQuery@categoryBySlug")
+    ): Category @first @where(key: "slug")
 
     "Get all brands in hierarchical structure"
     brands(
@@ -382,13 +467,13 @@ extend type Query {
     brand(
         "Brand ID"
         id: ID! @rules(apply: ["required", "exists:brands,id"])
-    ): Brand @find
+    ): Brand @first
 
     "Get a single brand by slug"
     brandBySlug(
         "Brand slug"
         slug: String! @rules(apply: ["required", "exists:brands,slug"])
-    ): Brand @field(resolver: "App\\GraphQL\\Queries\\BrandsQuery@brandBySlug")
+    ): Brand @first @where(key: "slug")
 
     "Get all sections"
     sections(
@@ -400,7 +485,7 @@ extend type Query {
     section(
         "Section ID"
         id: ID! @rules(apply: ["required", "exists:sections,id"])
-    ): Section @find
+    ): Section @first
 
     "Search products with text-based search"
     searchProducts(
@@ -419,6 +504,27 @@ extend type Query {
         "Maximum number of suggestions"
         limit: Int = 10
     ): [String!]! @field(resolver: "App\\GraphQL\\Queries\\SearchQuery@suggestions")
+
+    "Get all attributes"
+    attributes: [Attribute!]! @all @orderBy(column: "sort_order")
+
+    "Get a single attribute by ID"
+    attribute(
+        "Attribute ID"
+        id: ID! @rules(apply: ["required", "exists:attributes,id"])
+    ): Attribute @first
+
+    "Get all attribute values"
+    attributeValues(
+        "Filter by attribute ID"
+        attribute_id: ID @where
+    ): [AttributeValue!]! @all @orderBy(column: "sort_order")
+
+    "Get a single attribute value by ID"
+    attributeValue(
+        "Attribute Value ID"
+        id: ID! @rules(apply: ["required", "exists:attribute_values,id"])
+    ): AttributeValue @first
 }
 
 # Using String scalar for variant attributes and other JSON data (stored as JSON strings)

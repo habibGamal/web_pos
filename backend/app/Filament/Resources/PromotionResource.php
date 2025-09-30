@@ -63,16 +63,16 @@ class PromotionResource extends Resource
                                     ->label('القيمة')
                                     ->numeric()
                                     ->prefix(fn (Forms\Get $get) => $get('type') === PromotionType::PERCENTAGE->value ? '%' : 'ج.م')
-                                    ->visible(fn (Forms\Get $get) =>
-                                        in_array($get('type'), [
+                                    ->visible(
+                                        fn (Forms\Get $get) => in_array($get('type'), [
                                             PromotionType::PERCENTAGE->value,
-                                            PromotionType::FIXED->value
+                                            PromotionType::FIXED->value,
                                         ])
                                     )
-                                    ->required(fn (Forms\Get $get) =>
-                                        in_array($get('type'), [
+                                    ->required(
+                                        fn (Forms\Get $get) => in_array($get('type'), [
                                             PromotionType::PERCENTAGE->value,
-                                            PromotionType::FIXED->value
+                                            PromotionType::FIXED->value,
                                         ])
                                     ),
                                 Forms\Components\TextInput::make('min_order_value')
@@ -113,7 +113,7 @@ class PromotionResource extends Resource
                                     ->after('starts_at'),
                             ]),
                     ])
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -135,8 +135,8 @@ class PromotionResource extends Resource
                     ->badge(),
                 Tables\Columns\TextColumn::make('value')
                     ->label('القيمة')
-                    ->formatStateUsing(fn ($state, $record) =>
-                        $record->type === PromotionType::PERCENTAGE->value
+                    ->formatStateUsing(
+                        fn ($state, $record) => $record->type === PromotionType::PERCENTAGE->value
                             ? "{$state}%"
                             : ($record->type === PromotionType::FIXED->value ? "\${$state}" : '-')
                     ),
@@ -179,7 +179,7 @@ class PromotionResource extends Resource
                         ->icon('heroicon-o-power')
                         ->action(function ($records) {
                             foreach ($records as $record) {
-                                $record->update(['is_active' => !$record->is_active]);
+                                $record->update(['is_active' => ! $record->is_active]);
                             }
                         }),
                 ]),

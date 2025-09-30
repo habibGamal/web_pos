@@ -95,7 +95,17 @@ const PRODUCT_BY_ID_QUERY = graphql(/* GraphQL */ `
         effective_price
         is_in_stock
         quantity
-        attributes
+        attributes_string
+        attribute_values {
+          id
+          value
+          color_code
+          attribute {
+            id
+            name
+            type
+          }
+        }
       }
       default_variant {
         id
@@ -143,7 +153,17 @@ const PRODUCT_BY_SLUG_QUERY = graphql(/* GraphQL */ `
         effective_price
         is_in_stock
         quantity
-        attributes
+        attributes_string
+        attribute_values {
+          id
+          value
+          color_code
+          attribute {
+            id
+            name
+            type
+          }
+        }
       }
       default_variant {
         id

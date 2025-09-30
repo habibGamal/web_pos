@@ -10,11 +10,9 @@ const CATEGORIES_QUERY = graphql(/* GraphQL */ `
       id
       name
       slug
-      description
-      display_image
+      image
       display_order
       is_active
-      url
       products_count
       active_products_count
       has_products
@@ -40,11 +38,9 @@ const CATEGORY_BY_ID_QUERY = graphql(/* GraphQL */ `
       id
       name
       slug
-      description
-      display_image
+      image
       display_order
       is_active
-      url
       products_count
       active_products_count
       has_products
@@ -81,11 +77,9 @@ const CATEGORY_BY_SLUG_QUERY = graphql(/* GraphQL */ `
       id
       name
       slug
-      description
-      display_image
+      image
       display_order
       is_active
-      url
       products_count
       active_products_count
       has_products

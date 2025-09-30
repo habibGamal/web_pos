@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Grid, List } from 'lucide-react';
-import Image from 'next/image';
+import { CategoryImageWithFallback, ProductImageWithFallback } from '@/components/ImageWithFallback';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 interface SortOption {
@@ -162,10 +162,9 @@ export default function CategoryPage() {
       {/* Category Header */}
       <div className="mb-8">
         <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-6">
-          <Image
-            src={category.display_image || '/images/placeholder-category.jpg'}
+          <CategoryImageWithFallback
+            src={category.image || '/images/placeholder-category.jpg'}
             alt={category.name}
-            fill
             className="object-cover"
             priority
           />
@@ -174,11 +173,7 @@ export default function CategoryPage() {
               <h1 className="text-4xl md:text-5xl font-bold mb-2">
                 {category.name}
               </h1>
-              {category.description && (
-                <p className="text-lg md:text-xl opacity-90 max-w-2xl">
-                  {category.description}
-                </p>
-              )}
+
               <div className="mt-4">
                 <Badge variant="secondary" className="bg-white/20 text-white">
                   {category.active_products_count} {t('category.products')}
@@ -205,10 +200,9 @@ export default function CategoryPage() {
                 <Card className="transition-all duration-200 hover:shadow-md hover:scale-105">
                   <CardContent className="p-4 text-center">
                     <div className="aspect-square relative mb-3 rounded-lg overflow-hidden bg-gray-50">
-                      <Image
+                      <CategoryImageWithFallback
                         src={'/images/placeholder-category.jpg'}
                         alt={subcategory.name}
-                        fill
                         className="object-cover transition-transform duration-200 group-hover:scale-110"
                       />
                     </div>

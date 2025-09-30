@@ -2,7 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\PaymentStatus;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Illuminate\Support\Carbon;
@@ -13,7 +12,9 @@ class OrdersRevenueChart extends ChartWidget
 
     protected static ?string $heading = 'إيرادات الطلبات';
 
-    protected static ?string $description = 'إجمالي الإيرادات خلال الفترة المحددة';    protected function getData(): array
+    protected static ?string $description = 'إجمالي الإيرادات خلال الفترة المحددة';
+
+    protected function getData(): array
     {
         $startDate = $this->filters['startDate'] ?? now()->subMonth();
         $endDate = $this->filters['endDate'] ?? now();
@@ -35,11 +36,11 @@ class OrdersRevenueChart extends ChartWidget
 
                 $dayRevenue = \App\Models\Order::whereDate('created_at', $date)
                     ->where('payment_status', \App\Enums\PaymentStatus::PAID)
-                    ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+                    ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
                     ->sum('total');
 
                 $dayOrders = \App\Models\Order::whereDate('created_at', $date)
-                    ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+                    ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
                     ->count();
 
                 $revenueData[] = round($dayRevenue, 2);
@@ -58,11 +59,11 @@ class OrdersRevenueChart extends ChartWidget
 
                 $weekRevenue = \App\Models\Order::whereBetween('created_at', [$date, $weekEnd])
                     ->where('payment_status', \App\Enums\PaymentStatus::PAID)
-                    ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+                    ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
                     ->sum('total');
 
                 $weekOrders = \App\Models\Order::whereBetween('created_at', [$date, $weekEnd])
-                    ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+                    ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
                     ->count();
 
                 $revenueData[] = round($weekRevenue, 2);

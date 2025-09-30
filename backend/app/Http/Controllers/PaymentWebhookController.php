@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 /**
  * Simple webhook controller that delegates to the webhook handler
- * Follows Single Responsibility Principle
+ * Follows Single Responsibility Principle.
  */
 class PaymentWebhookController extends Controller
 {
@@ -16,7 +16,7 @@ class PaymentWebhookController extends Controller
     ) {}
 
     /**
-     * Handle payment webhook
+     * Handle payment webhook.
      */
     public function handle(Request $request)
     {

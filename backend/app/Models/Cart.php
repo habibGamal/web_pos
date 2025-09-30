@@ -46,4 +46,20 @@ class Cart extends Model
             return $total + $item->getTotalPrice();
         }, 0);
     }
+
+    /**
+     * Get the total quantity of all items in the cart.
+     */
+    public function getTotalQuantity(): int
+    {
+        return (int) $this->items()->sum('quantity');
+    }
+
+    /**
+     * Check if the cart is empty.
+     */
+    public function getIsEmpty(): bool
+    {
+        return $this->items()->count() === 0;
+    }
 }

@@ -14,6 +14,42 @@
       }
     },
     {
+      "label": "Start Dev Server js",
+      "type": "shell",
+      "command": "cd backend; npm run dev",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Reverb Server",
+      "type": "shell",
+      "command": "cd backend; php artisan reverb:start",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
+      "label": "Run Queue",
+      "type": "shell",
+      "command": "cd backend; php artisan queue:work",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
+    },
+    {
       "label": "Start NPM",
       "type": "shell",
       "command": "cd frontend;npm run dev",

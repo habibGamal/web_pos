@@ -10,7 +10,7 @@ class ReturnPolicyService
     private static ?Collection $settings = null;
 
     /**
-     * Get a return policy setting value
+     * Get a return policy setting value.
      */
     public static function get(string $key, mixed $default = null): mixed
     {
@@ -20,7 +20,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Set a setting value
+     * Set a setting value.
      */
     public static function set(string $key, mixed $value): void
     {
@@ -39,7 +39,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if returns are enabled
+     * Check if returns are enabled.
      */
     public static function returnsEnabled(): bool
     {
@@ -47,7 +47,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get the return window in days
+     * Get the return window in days.
      */
     public static function returnWindowDays(): int
     {
@@ -55,7 +55,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if admin approval is required
+     * Check if admin approval is required.
      */
     public static function requiresAdminApproval(): bool
     {
@@ -63,7 +63,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if unused items are auto-approved
+     * Check if unused items are auto-approved.
      */
     public static function autoApproveUnused(): bool
     {
@@ -71,7 +71,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get allowed return reasons
+     * Get allowed return reasons.
      */
     public static function allowedReturnReasons(): array
     {
@@ -81,7 +81,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get maximum return percentage
+     * Get maximum return percentage.
      */
     public static function maxReturnPercentage(): int
     {
@@ -89,7 +89,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if return fee is required
+     * Check if return fee is required.
      */
     public static function requiresReturnFee(): bool
     {
@@ -97,7 +97,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get return fee amount
+     * Get return fee amount.
      */
     public static function returnFeeAmount(): float
     {
@@ -105,7 +105,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if email notifications are enabled
+     * Check if email notifications are enabled.
      */
     public static function emailNotificationsEnabled(): bool
     {
@@ -113,7 +113,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if SMS notifications are enabled
+     * Check if SMS notifications are enabled.
      */
     public static function smsNotificationsEnabled(): bool
     {
@@ -121,7 +121,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get all return policy settings
+     * Get all return policy settings.
      */
     public static function all(): Collection
     {
@@ -131,7 +131,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Clear cached settings
+     * Clear cached settings.
      */
     public static function clearCache(): void
     {
@@ -139,7 +139,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Load settings from database
+     * Load settings from database.
      */
     private static function loadSettings(): void
     {
@@ -160,7 +160,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Check if an item can be returned based on order date
+     * Check if an item can be returned based on order date.
      */
     public static function canReturn(\DateTime $orderDate): bool
     {
@@ -176,7 +176,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get return deadline for an order
+     * Get return deadline for an order.
      */
     public static function getReturnDeadline(\DateTime $orderDate): \DateTime
     {
@@ -188,7 +188,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Validate return reason
+     * Validate return reason.
      */
     public static function isValidReturnReason(string $reason): bool
     {
@@ -196,7 +196,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get human-readable return reason labels
+     * Get human-readable return reason labels.
      */
     public static function getReturnReasonLabels(): array
     {
@@ -212,7 +212,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get label for a return reason
+     * Get label for a return reason.
      */
     public static function getReturnReasonLabel(string $reason): string
     {
@@ -222,7 +222,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Initialize default return policy settings
+     * Initialize default return policy settings.
      */
     public static function initializeDefaults(): void
     {
@@ -247,7 +247,7 @@ class ReturnPolicyService
     }
 
     /**
-     * Get all public settings for frontend
+     * Get all public settings for frontend.
      */
     public static function getPublicSettings(): array
     {

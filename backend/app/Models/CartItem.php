@@ -81,4 +81,20 @@ class CartItem extends Model
     {
         return $this->quantity * $this->getUnitPrice();
     }
+
+    /**
+     * Get the unit price attribute.
+     */
+    public function getUnitPriceAttribute(): float
+    {
+        return $this->getUnitPrice();
+    }
+
+    /**
+     * Get the total price attribute.
+     */
+    public function getTotalPriceAttribute(): float
+    {
+        return $this->getTotalPrice();
+    }
 }

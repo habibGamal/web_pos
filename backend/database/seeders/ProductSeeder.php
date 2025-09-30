@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Attribute;
+use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -20,6 +22,12 @@ class ProductSeeder extends Seeder
         $categories = Category::all();
         $brands = Brand::all();
 
+        // Get attributes and their values
+        $sizeAttribute = Attribute::where('name_en', 'Size')->first();
+        $colorAttribute = Attribute::where('name_en', 'Color')->first();
+        $materialAttribute = Attribute::where('name_en', 'Material')->first();
+        $capacityAttribute = Attribute::where('name_en', 'Storage Capacity')->first();
+
         // Available product variant images
         $availableImages = [
             'product-variants/01K4JQR3RR1TTRNMPQ4W29NSYY.webp',
@@ -29,7 +37,7 @@ class ProductSeeder extends Seeder
             'product-variants/01K4JRPSBY95K73T11DXK36ARS.webp',
         ];
 
-        // Sample product data
+        // Sample product data with attribute combinations
         $productData = [
             [
                 'name_en' => 'Classic Cotton T-Shirt',
@@ -38,8 +46,11 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'قميص قطني مريح وأنيق مثالي للاستخدام اليومي. مصنوع من القطن الفاخر 100%.',
                 'price' => 49.99,
                 'cost_price' => 25.00,
-                'color' => 'Navy Blue',
-                'size' => 'M',
+                'variants' => [
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'M'], 'quantity' => 25],
+                    ['attributes' => ['Color' => 'black', 'Size' => 'L'], 'quantity' => 20],
+                    ['attributes' => ['Color' => 'white', 'Size' => 'S'], 'quantity' => 15],
+                ],
             ],
             [
                 'name_en' => 'Denim Jacket',
@@ -49,8 +60,11 @@ class ProductSeeder extends Seeder
                 'price' => 89.99,
                 'sale_price' => 69.99,
                 'cost_price' => 45.00,
-                'color' => 'Dark Blue',
-                'size' => 'L',
+                'variants' => [
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'L'], 'quantity' => 12],
+                    ['attributes' => ['Color' => 'black', 'Size' => 'M'], 'quantity' => 18],
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'XL'], 'quantity' => 8],
+                ],
             ],
             [
                 'name_en' => 'Casual Sneakers',
@@ -59,8 +73,11 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'حذاء رياضي كاجوال مريح مناسب للأنشطة اليومية. خفيف الوزن ومسامي.',
                 'price' => 79.99,
                 'cost_price' => 40.00,
-                'color' => 'White',
-                'size' => '42',
+                'variants' => [
+                    ['attributes' => ['Color' => 'white', 'Size' => '42'], 'quantity' => 30],
+                    ['attributes' => ['Color' => 'black', 'Size' => '43'], 'quantity' => 25],
+                    ['attributes' => ['Color' => 'blue', 'Size' => '41'], 'quantity' => 20],
+                ],
             ],
             [
                 'name_en' => 'Elegant Dress',
@@ -70,8 +87,11 @@ class ProductSeeder extends Seeder
                 'price' => 129.99,
                 'sale_price' => 99.99,
                 'cost_price' => 65.00,
-                'color' => 'Black',
-                'size' => 'S',
+                'variants' => [
+                    ['attributes' => ['Color' => 'black', 'Size' => 'S'], 'quantity' => 10],
+                    ['attributes' => ['Color' => 'red', 'Size' => 'M'], 'quantity' => 15],
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'L'], 'quantity' => 12],
+                ],
             ],
             [
                 'name_en' => 'Sports Hoodie',
@@ -80,8 +100,11 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'هودي رياضي مريح مثالي للتمارين أو الاستخدام العادي. ناعم ودافئ.',
                 'price' => 59.99,
                 'cost_price' => 30.00,
-                'color' => 'Gray',
-                'size' => 'XL',
+                'variants' => [
+                    ['attributes' => ['Color' => 'black', 'Size' => 'XL'], 'quantity' => 22],
+                    ['attributes' => ['Color' => 'green', 'Size' => 'L'], 'quantity' => 18],
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'M'], 'quantity' => 16],
+                ],
             ],
             [
                 'name_en' => 'Leather Wallet',
@@ -90,8 +113,10 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'محفظة جلدية فاخرة مع عدة أقسام. أنيقة وعملية.',
                 'price' => 39.99,
                 'cost_price' => 20.00,
-                'color' => 'Brown',
-                'size' => null,
+                'variants' => [
+                    ['attributes' => ['Color' => 'black'], 'quantity' => 35],
+                    ['attributes' => ['Color' => 'blue'], 'quantity' => 28],
+                ],
             ],
             [
                 'name_en' => 'Wireless Headphones',
@@ -101,8 +126,11 @@ class ProductSeeder extends Seeder
                 'price' => 149.99,
                 'sale_price' => 119.99,
                 'cost_price' => 75.00,
-                'color' => 'Black',
-                'capacity' => '32GB',
+                'variants' => [
+                    ['attributes' => ['Color' => 'black', 'Storage Capacity' => '32GB'], 'quantity' => 15],
+                    ['attributes' => ['Color' => 'white', 'Storage Capacity' => '64GB'], 'quantity' => 12],
+                    ['attributes' => ['Color' => 'blue', 'Storage Capacity' => '128GB'], 'quantity' => 8],
+                ],
             ],
             [
                 'name_en' => 'Summer Shorts',
@@ -111,8 +139,11 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'شورت صيفي خفيف ومريح. مثالي للطقس الحار.',
                 'price' => 34.99,
                 'cost_price' => 18.00,
-                'color' => 'Khaki',
-                'size' => 'M',
+                'variants' => [
+                    ['attributes' => ['Color' => 'blue', 'Size' => 'M'], 'quantity' => 40],
+                    ['attributes' => ['Color' => 'black', 'Size' => 'L'], 'quantity' => 35],
+                    ['attributes' => ['Color' => 'green', 'Size' => 'S'], 'quantity' => 30],
+                ],
             ],
             [
                 'name_en' => 'Smart Watch',
@@ -121,8 +152,11 @@ class ProductSeeder extends Seeder
                 'description_ar' => 'ساعة ذكية متقدمة مع ميزات مراقبة الصحة. ابق متصلاً وبصحة جيدة.',
                 'price' => 199.99,
                 'cost_price' => 100.00,
-                'color' => 'Silver',
-                'capacity' => '64GB',
+                'variants' => [
+                    ['attributes' => ['Color' => 'black', 'Storage Capacity' => '64GB'], 'quantity' => 10],
+                    ['attributes' => ['Color' => 'white', 'Storage Capacity' => '128GB'], 'quantity' => 8],
+                    ['attributes' => ['Color' => 'blue', 'Storage Capacity' => '256GB'], 'quantity' => 6],
+                ],
             ],
             [
                 'name_en' => 'Backpack',
@@ -132,16 +166,16 @@ class ProductSeeder extends Seeder
                 'price' => 69.99,
                 'sale_price' => 54.99,
                 'cost_price' => 35.00,
-                'color' => 'Navy Blue',
-                'size' => null,
+                'variants' => [
+                    ['attributes' => ['Color' => 'blue'], 'quantity' => 20],
+                    ['attributes' => ['Color' => 'black'], 'quantity' => 25],
+                    ['attributes' => ['Color' => 'green'], 'quantity' => 15],
+                ],
             ],
         ];
 
-        // Create 10 products with one variant each
-        for ($i = 0; $i < 10; $i++) {
-            $data = $productData[$i];
-            $imageIndex = $i % count($availableImages);
-
+        // Create products with variants
+        foreach ($productData as $index => $data) {
             // Create the product
             $product = Product::create([
                 'name_en' => $data['name_en'],
@@ -155,24 +189,51 @@ class ProductSeeder extends Seeder
                 'category_id' => $categories->random()->id,
                 'brand_id' => $brands->random()->id,
                 'is_active' => true,
-                'is_featured' => $i < 3, // Make first 3 products featured
+                'is_featured' => $index < 3, // Make first 3 products featured
             ]);
 
-            // Create one variant for each product
-            ProductVariant::create([
-                'product_id' => $product->id,
-                'sku' => 'SKU-' . strtoupper(Str::random(8)) . '-' . $product->id,
-                'images' => [$availableImages[$imageIndex]], // Use one image per variant
-                'quantity' => rand(5, 50),
-                'price' => null, // Use product price
-                'sale_price' => null, // Use product sale price
-                'color' => $data['color'] ?? null,
-                'size' => $data['size'] ?? null,
-                'capacity' => $data['capacity'] ?? null,
-                'additional_attributes' => null,
-                'is_default' => true,
-                'is_active' => true,
-            ]);
+            // Create variants for this product
+            foreach ($data['variants'] as $variantIndex => $variantData) {
+                $variant = ProductVariant::create([
+                    'product_id' => $product->id,
+                    'sku' => 'SKU-' . strtoupper(Str::random(8)) . '-' . $product->id . '-' . ($variantIndex + 1),
+                    'images' => [$availableImages[$index % count($availableImages)]], // Use one image per variant
+                    'quantity' => $variantData['quantity'],
+                    'price' => null, // Use product price
+                    'sale_price' => null, // Use product sale price
+                    'is_default' => $variantIndex === 0, // First variant is default
+                    'is_active' => true,
+                ]);
+
+                // Attach attribute values to the variant
+                $attributeValueIds = [];
+                foreach ($variantData['attributes'] as $attributeName => $value) {
+                    $attribute = match ($attributeName) {
+                        'Size' => $sizeAttribute,
+                        'Color' => $colorAttribute,
+                        'Material' => $materialAttribute,
+                        'Storage Capacity' => $capacityAttribute,
+                        default => null,
+                    };
+
+                    if ($attribute) {
+                        $attributeValue = AttributeValue::where('attribute_id', $attribute->id)
+                            ->where(function ($query) use ($value) {
+                                $query->where('value', $value)
+                                    ->orWhere('value_en', $value)
+                                    ->orWhere('value_ar', $value);
+                            })
+                            ->first();
+
+                        if ($attributeValue) {
+                            $attributeValueIds[] = $attributeValue->id;
+                        }
+                    }
+                }
+
+                // Attach attribute values to variant
+                $variant->attributeValues()->attach($attributeValueIds);
+            }
         }
     }
 }

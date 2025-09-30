@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Setting extends Model
 {
@@ -29,7 +29,7 @@ class Setting extends Model
     ];
 
     /**
-     * Get the value cast to appropriate type
+     * Get the value cast to appropriate type.
      */
     protected function value(): Attribute
     {
@@ -54,16 +54,17 @@ class Setting extends Model
     }
 
     /**
-     * Get setting by key
+     * Get setting by key.
      */
     public static function getValue(string $key, $default = null)
     {
         $setting = static::where('key', $key)->first();
+
         return $setting ? $setting->value : $default;
     }
 
     /**
-     * Set setting value
+     * Set setting value.
      */
     public static function setValue(string $key, $value): bool
     {
@@ -71,6 +72,7 @@ class Setting extends Model
 
         if ($setting) {
             $setting->update(['value' => $value]);
+
             return true;
         }
 
@@ -78,7 +80,7 @@ class Setting extends Model
     }
 
     /**
-     * Get settings by group
+     * Get settings by group.
      */
     public static function getByGroup(string $group): array
     {
@@ -92,25 +94,27 @@ class Setting extends Model
     }
 
     /**
-     * Get localized label
+     * Get localized label.
      */
     public function getLocalizedLabel(): string
     {
         $locale = app()->getLocale();
+
         return $this->{"label_{$locale}"} ?? $this->label_en;
     }
 
     /**
-     * Get localized description
+     * Get localized description.
      */
     public function getLocalizedDescription(): ?string
     {
         $locale = app()->getLocale();
+
         return $this->{"description_{$locale}"} ?? $this->description_en;
     }
 
     /**
-     * Scope to filter by group
+     * Scope to filter by group.
      */
     public function scopeByGroup($query, string $group)
     {
@@ -118,10 +122,34 @@ class Setting extends Model
     }
 
     /**
-     * Scope to order by display order
+     * Scope to order by display order.
      */
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order')->orderBy('label_en');
+    }
+
+    /**
+     * Get product placeholder image URL.
+     */
+    public static function getProductPlaceholderImage(): ?string
+    {
+        return static::getValue('product_placeholder_image');
+    }
+
+    /**
+     * Get brand placeholder image URL.
+     */
+    public static function getBrandPlaceholderImage(): ?string
+    {
+        return static::getValue('brand_placeholder_image');
+    }
+
+    /**
+     * Get category placeholder image URL.
+     */
+    public static function getCategoryPlaceholderImage(): ?string
+    {
+        return static::getValue('category_placeholder_image');
     }
 }

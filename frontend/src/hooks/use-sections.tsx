@@ -10,8 +10,6 @@ const SECTIONS_QUERY = graphql(/* GraphQL */ `
     sections(active: $active) {
       id
       title
-      title_en
-      title_ar
       active
       sort_order
       section_type
@@ -52,8 +50,6 @@ const SECTION_BY_ID_QUERY = graphql(/* GraphQL */ `
     section(id: $id) {
       id
       title
-      title_en
-      title_ar
       active
       sort_order
       section_type

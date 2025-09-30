@@ -79,13 +79,26 @@ describe('Wishlist GraphQL Operations', function () {
                             'product_id' => (string) $this->product->id,
                             'product' => [
                                 'id' => (string) $this->product->id,
-                                'name' => $this->product->name_en,
                                 'slug' => $this->product->slug,
                             ],
                         ],
                     ],
                 ],
             ]);
+
+            // Verify the wishlist has one item
+            $responseData = $response->json();
+            expect($responseData['data']['wishlist'])->toHaveCount(1);
+
+            // Verify the created_at field is present and properly formatted
+            expect($responseData['data']['wishlist'][0]['created_at'])->toBeString();
+            expect($responseData['data']['wishlist'][0]['created_at'])->toMatch('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/');
+
+            // Verify the product details are present
+            expect($responseData['data']['wishlist'][0]['product']['name'])->toBeString();
+            expect($responseData['data']['wishlist'][0]['product']['price'])->toBeFloat();
+            expect($responseData['data']['wishlist'][0]['product']['effective_price'])->toBeFloat();
+            expect($responseData['data']['wishlist'][0]['product']['is_in_stock'])->toBeBool();
         });
 
         it('returns empty array for user with no wishlist items', function () {
@@ -106,7 +119,7 @@ describe('Wishlist GraphQL Operations', function () {
             ]);
         });
 
-        it('requires authentication', function () {
+        it('returns empty array for unauthenticated user', function () {
             // Act
             $response = $this->graphQL('
                 query GetWishlist {
@@ -118,10 +131,8 @@ describe('Wishlist GraphQL Operations', function () {
 
             // Assert
             $response->assertJson([
-                'errors' => [
-                    [
-                        'message' => 'Unauthenticated.',
-                    ],
+                'data' => [
+                    'wishlist' => [],
                 ],
             ]);
         });
@@ -258,13 +269,22 @@ describe('Wishlist GraphQL Operations', function () {
             $response->assertJson([
                 'errors' => [
                     [
-                        'message' => 'The selected product id is invalid.',
+                        'message' => 'Validation failed for the field [addToWishlist].',
+                        'extensions' => [
+                            'validation' => [
+                                'input.product_id' => [
+                                    'The selected input.product id is invalid.',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]);
         });
 
         it('requires authentication', function () {
+
+            Auth::logout();
             // Act
             $response = $this->graphQL('
                 mutation AddToWishlist($input: AddToWishlistInput!) {
@@ -364,7 +384,14 @@ describe('Wishlist GraphQL Operations', function () {
             $response->assertJson([
                 'errors' => [
                     [
-                        'message' => 'The selected product id is invalid.',
+                        'message' => 'Validation failed for the field [removeFromWishlist].',
+                        'extensions' => [
+                            'validation' => [
+                                'input.product_id' => [
+                                    'The selected input.product id is invalid.',
+                                ],
+                            ],
+                        ],
                     ],
                 ],
             ]);

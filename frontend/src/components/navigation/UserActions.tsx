@@ -15,6 +15,7 @@ import { NotificationPanel } from "@/components/notifications/notification-panel
 import { useI18n } from "@/hooks/use-i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 
 interface UserActionsProps {
   cartItemsCount?: number;
@@ -25,12 +26,13 @@ export default function UserActions({ cartItemsCount = 0, onSearchClick }: UserA
   const { t } = useI18n();
   const { user, logout } = useAuth();
   const tCommon = useTranslations('common');
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
       await logout();
       // Redirect to home page after logout
-      window.location.href = '/';
+      router.replace('/');
     } catch (error) {
       console.error('Logout error:', error);
     }
@@ -56,9 +58,9 @@ export default function UserActions({ cartItemsCount = 0, onSearchClick }: UserA
 
         {/* Notifications Button - Only for authenticated users */}
         {user && (
-            <div className="hidden sm:flex">
+            // <div className="hidden sm:flex">
                 <NotificationPanel />
-            </div>
+            // </div>
         )}
 
         {/* Wishlist Button */}
@@ -79,7 +81,6 @@ export default function UserActions({ cartItemsCount = 0, onSearchClick }: UserA
                 <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="rounded-full">
                         <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar || ''} alt={user.name || 'User'} />
                             <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
                         </Avatar>
                     </Button>
@@ -98,7 +99,7 @@ export default function UserActions({ cartItemsCount = 0, onSearchClick }: UserA
             </DropdownMenu>
         ) : (
             <Button variant="ghost" size="icon" asChild>
-                <Link href="/login">
+                <Link href="/auth/login">
                     <User className="h-5 w-5" />
                 </Link>
             </Button>

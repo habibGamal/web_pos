@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Models\Section;
-use App\Models\Product;
-use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
+use App\Models\Section;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
 
@@ -177,8 +177,6 @@ describe('Sections GraphQL Queries', function () {
         });
     });
 
-
-
     describe('Section Product Counts', function () {
         it('correctly counts active and inactive products', function () {
             // Arrange
@@ -233,11 +231,11 @@ describe('Sections GraphQL Queries', function () {
 
     describe('Section Types', function () {
         it('supports all section types', function () {
-            // Arrange
-            $realSection = Section::factory()->create(['section_type' => 'REAL']);
-            $recommendationSection = Section::factory()->create(['section_type' => 'RECOMMENDATION']);
-            $trendingSection = Section::factory()->create(['section_type' => 'TRENDING']);
-            $newArrivalsSection = Section::factory()->create(['section_type' => 'NEW_ARRIVALS']);
+            // Arrange - create active sections to ensure they're returned by the GraphQL query
+            $realSection = Section::factory()->create(['section_type' => 'REAL', 'active' => true]);
+            $recommendationSection = Section::factory()->create(['section_type' => 'RECOMMENDATION', 'active' => true]);
+            $trendingSection = Section::factory()->create(['section_type' => 'TRENDING', 'active' => true]);
+            $newArrivalsSection = Section::factory()->create(['section_type' => 'NEW_ARRIVALS', 'active' => true]);
 
             // Act
             $response = $this->graphQL('

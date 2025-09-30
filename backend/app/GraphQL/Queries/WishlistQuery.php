@@ -17,11 +17,15 @@ class WishlistQuery
     /**
      * Get the current user's wishlist items.
      */
-    public function __invoke($root, array $args, GraphQLContext $context): array
+    public function __invoke($root, array $args, GraphQLContext $context)
     {
         $user = Auth::user();
 
-        return $this->wishlistService->getUserList($user)->toArray();
+        if (! $user) {
+            return [];
+        }
+
+        return $this->wishlistService->getUserList($user);
     }
 
     /**

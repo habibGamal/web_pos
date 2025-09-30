@@ -2,28 +2,26 @@
 
 namespace App\GraphQL\Mutations;
 
+use GraphQL\Type\Definition\ResolveInfo;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use GraphQL\Type\Definition\ResolveInfo;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 
 class ChangePasswordMutation
 {
     /**
-     * Change password for authenticated user
+     * Change password for authenticated user.
      *
      * @param  mixed  $rootValue
      * @param  array<string, mixed>  $args
-     * @param  GraphQLContext  $context
-     * @param  ResolveInfo  $resolveInfo
      * @return array<string, mixed>
      */
     public function __invoke($rootValue, array $args, GraphQLContext $context, ResolveInfo $resolveInfo): array
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             throw new \Illuminate\Auth\AuthenticationException('Unauthenticated.');
         }
 
@@ -31,7 +29,7 @@ class ChangePasswordMutation
         $newPassword = $args['password'];
 
         // Verify current password
-        if (!Hash::check($currentPassword, $user->password)) {
+        if (! Hash::check($currentPassword, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => ['Current password is incorrect.'],
             ]);
@@ -44,7 +42,7 @@ class ChangePasswordMutation
 
         return [
             'success' => true,
-            'message' => 'Password changed successfully'
+            'message' => 'Password changed successfully',
         ];
     }
 }

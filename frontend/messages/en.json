@@ -146,7 +146,10 @@
   "viewAll": "View all",
   "loadMore": "Load more",
     "noResultsFound": "No results found",
-    "searchAnyway": "Search anyway"
+    "searchAnyway": "Search anyway",
+    "products": "Products",
+    "currency": "USD",
+    "currencyCode": "USD"
   },
   "footer": {
     "description": "Your trusted online shopping destination for quality products.",
@@ -159,6 +162,7 @@
     "allRightsReserved": "All rights reserved."
   },
   "product": {
+    "featured": "Featured",
     "products": "Products",
     "allProducts": "All Products",
     "browseOurCollection": "Browse our collection",
@@ -350,6 +354,111 @@
       "placeholder": "Enter your email",
       "subscribe": "Subscribe",
       "privacy": "We respect your privacy. Read our privacy policy."
+    }
+  },
+  "order": {
+    "error": {
+      "title": "Error Loading Order",
+      "notFound": "Order not found or access denied.",
+      "retry": "Try Again"
+    },
+    "backToOrders": "Back to Orders",
+    "refresh": "Refresh",
+    "orderItems": "Order Items",
+    "variant": "Variant",
+    "sku": "SKU",
+    "quantity": "Quantity",
+    "returnableQty": "Returnable: {qty}",
+    "returns": "Returns",
+    "refundAmount": "Refund Amount: {amount}",
+    "orderSummary": "Order Summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "discount": "Discount",
+    "total": "Total",
+    "shippingInfo": "Shipping Information",
+    "shippingAddress": "Shipping Address",
+    "trackingNumber": "Tracking Number",
+    "estimatedDelivery": "Estimated Delivery",
+    "deliveredOn": "Delivered on",
+    "paymentInfo": "Payment Information",
+    "paymentStatus": "Payment Status",
+    "totalAmount": "Total Amount",
+    "orderDate": "Order Date",
+    "orderNotes": "Order Notes",
+    "placedOn": "Placed on"
+  },
+  "orders": {
+    "error": {
+      "title": "Error Loading Orders",
+      "retry": "Try Again"
+    },
+    "backToHome": "Back to Home",
+    "title": "My Orders",
+    "subtitle": "You have {count} orders",
+    "refresh": "Refresh",
+    "filters": "Filters",
+    "filterOrders": "Filter Orders",
+    "filter": {
+      "status": "Status",
+      "allStatuses": "All Statuses",
+      "dateFrom": "Date From",
+      "dateTo": "Date To",
+      "apply": "Apply Filters",
+      "clear": "Clear Filters"
+    },
+    "empty": {
+      "title": "No orders yet",
+      "description": "You haven't placed any orders yet. Start shopping to see your orders here.",
+      "startShopping": "Start Shopping"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded"
+    },
+    "payment": {
+      "pending": "Pending",
+      "paid": "Paid",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "refunded": "Refunded",
+      "partially_refunded": "Partially Refunded"
+    },
+    "itemCount": "{count} items",
+    "shippingTo": "Shipping to",
+    "notes": "Notes",
+    "viewDetails": "View Details",
+    "cancel": "Cancel Order",
+    "requestReturn": "Request Return",
+    "orderItems": "Order Items",
+    "quantity": "Quantity",
+    "andMoreItems": "and {count} more items",
+    "pagination": {
+      "showing": "Showing {from} to {to} of {total} orders",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "returns": {
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "received": "Received",
+      "refunded": "Refunded",
+      "cancelled": "Cancelled"
+    },
+    "reason": {
+      "defective": "Defective Product",
+      "wrong_item": "Wrong Item",
+      "not_as_described": "Not as Described",
+      "changed_mind": "Changed Mind",
+      "other": "Other"
     }
   }
 }

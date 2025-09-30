@@ -22,7 +22,7 @@ class RefundService
     }
 
     /**
-     * Process refund for an order
+     * Process refund for an order.
      *
      * @throws Exception
      */
@@ -32,7 +32,7 @@ class RefundService
     }
 
     /**
-     * Process partial refund for an order with specific amount
+     * Process partial refund for an order with specific amount.
      *
      * @throws Exception
      */
@@ -72,7 +72,7 @@ class RefundService
     }
 
     /**
-     * Process refund through online payment gateway
+     * Process refund through online payment gateway.
      *
      * @throws Exception
      */
@@ -111,7 +111,7 @@ class RefundService
 
                 return true;
             } else {
-                throw new Exception('Payment refund failed: '.($refundResult->messageEn ?? 'Unknown error'));
+                throw new Exception('Payment refund failed: ' . ($refundResult->messageEn ?? 'Unknown error'));
             }
         } catch (Exception $e) {
             Log::error('Payment refund failed', [
@@ -125,7 +125,7 @@ class RefundService
     }
 
     /**
-     * Check if refund is possible for an order
+     * Check if refund is possible for an order.
      */
     public function canProcessRefund(Order $order): bool
     {
@@ -148,7 +148,7 @@ class RefundService
     }
 
     /**
-     * Get the maximum refundable amount for an order
+     * Get the maximum refundable amount for an order.
      */
     public function getMaxRefundableAmount(Order $order): float
     {
@@ -162,7 +162,7 @@ class RefundService
     }
 
     /**
-     * Calculate refund amount for specific return items
+     * Calculate refund amount for specific return items.
      */
     public function calculateRefundAmountForItems(array $returnItems): float
     {

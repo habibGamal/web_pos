@@ -3,8 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class TakeDatabaseSnapshot extends Command
 {
@@ -31,7 +29,7 @@ class TakeDatabaseSnapshot extends Command
         $databaseName = env('DB_DATABASE');
         $fileName = 'snapshot_' . date('Y_m_d_H_i_s') . '.sql';
         $directoryPath = public_path('sqlfiles');
-        if (!file_exists($directoryPath)) {
+        if (! file_exists($directoryPath)) {
             mkdir($directoryPath, 0755, true);
         }
         $filePath = $directoryPath . '/' . $fileName;

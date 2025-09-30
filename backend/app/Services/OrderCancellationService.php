@@ -3,19 +3,16 @@
 namespace App\Services;
 
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Models\Order;
 use App\Models\User;
 use App\Notifications\OrderCancellationNotification;
-use App\Services\InventoryManagementService;
-use App\Services\RefundService;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Exception;
 
 class OrderCancellationService
 {
@@ -24,30 +21,26 @@ class OrderCancellationService
 
     /**
      * Create a new service instance.
-     *
-     * @param InventoryManagementService $inventoryService
-     * @param RefundService $refundService
      */
     public function __construct(InventoryManagementService $inventoryService, RefundService $refundService)
     {
         $this->inventoryService = $inventoryService;
         $this->refundService = $refundService;
-    }    /**
-         * Cancel an order and handle all related operations
-         *
-         * @param int $orderId
-         * @param string|null $reason
-         * @return Order
-         * @throws ModelNotFoundException If the order doesn't exist
-         * @throws Exception If the order cannot be cancelled
-         */
+    }
+
+    /**
+     * Cancel an order and handle all related operations.
+     *
+     * @throws ModelNotFoundException If the order doesn't exist
+     * @throws Exception If the order cannot be cancelled
+     */
     public function cancelOrder(int $orderId, ?string $reason = null): Order
     {
         return DB::transaction(function () use ($orderId, $reason) {
             $order = Order::findOrFail($orderId);
 
             // Check if the order can be cancelled
-            if (!$order->canBeCancelled()) {
+            if (! $order->canBeCancelled()) {
                 throw new Exception('Only orders in processing status can be cancelled');
             }
 
@@ -76,10 +69,7 @@ class OrderCancellationService
     }
 
     /**
-     * Check if an order needs refund processing
-     *
-     * @param Order $order
-     * @return bool
+     * Check if an order needs refund processing.
      */
     public function needsRefund(Order $order): bool
     {
@@ -87,15 +77,13 @@ class OrderCancellationService
     }
 
     /**
-     * Process refund for a cancelled order (admin action)
+     * Process refund for a cancelled order (admin action).
      *
-     * @param Order $order
-     * @return Order
      * @throws Exception If refund cannot be processed
      */
     public function processRefund(Order $order): Order
     {
-        if (!$this->needsRefund($order)) {
+        if (! $this->needsRefund($order)) {
             throw new Exception('This order does not require a refund');
         }
 
@@ -103,7 +91,7 @@ class OrderCancellationService
             // Process the actual refund through the RefundService
             $refundSuccess = $this->refundService->processRefund($order);
 
-            if (!$refundSuccess) {
+            if (! $refundSuccess) {
                 throw new Exception('Refund processing failed');
             }
 
@@ -122,10 +110,7 @@ class OrderCancellationService
     }
 
     /**
-     * Send cancellation notifications to user and admin
-     *
-     * @param Order $order
-     * @return void
+     * Send cancellation notifications to user and admin.
      */
     protected function sendCancellationNotifications(Order $order): void
     {
@@ -156,16 +141,17 @@ class OrderCancellationService
     }
 
     /**
-     * Get authenticated user or throw exception
+     * Get authenticated user or throw exception.
      *
      * @return mixed The authenticated user
+     *
      * @throws Exception If user is not authenticated
      */
     protected function getAuthenticatedUser()
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             throw new Exception('User must be authenticated to perform this action');
         }
 

@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Listener for payment failure events
- * Follows Single Responsibility Principle
+ * Follows Single Responsibility Principle.
  */
 class HandlePaymentFailed
 {
     /**
-     * Handle the event
+     * Handle the event.
      */
     public function handle(PaymentFailed $event): void
     {

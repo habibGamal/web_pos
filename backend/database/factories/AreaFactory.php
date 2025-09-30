@@ -29,6 +29,7 @@ class AreaFactory extends Factory
             'name_en' => fake()->streetName(),
             'name_ar' => fake()->streetName() . ' (عربي)',
             'gov_id' => Gov::factory(),
+            'shipping_cost' => fake()->randomFloat(2, 10, 100),
         ];
     }
 }

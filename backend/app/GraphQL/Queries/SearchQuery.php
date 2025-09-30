@@ -14,7 +14,7 @@ class SearchQuery
     /**
      * Search products with text-based search.
      */
-    public function __invoke($root, array $args, GraphQLContext $context): array
+    public function __invoke($root, array $args, GraphQLContext $context): Builder
     {
         $searchQuery = $args['query'];
 
@@ -24,66 +24,26 @@ class SearchQuery
             ->where('is_active', true);
 
         // Apply text search
-        $this->applyTextSearch($query, $searchQuery);
+        $hasCustomOrdering = isset($args['orderBy']);
+        $this->applyTextSearch($query, $searchQuery, $hasCustomOrdering);
 
         // Apply additional filters
         if (isset($args['filters'])) {
             $this->applySearchFilters($query, $args['filters']);
         }
 
-        // Apply ordering
-        if (isset($args['orderBy'])) {
+        // Apply ordering - this must come AFTER all other query modifications
+        if ($hasCustomOrdering) {
+            // Clear any existing ordering that might have been applied
+            $query->reorder();
             $this->applyOrdering($query, $args['orderBy']);
         } else {
             // Default ordering for search results: relevance, then featured, then newest
             $query->orderByDesc('is_featured')
-                  ->orderByDesc('created_at');
+                ->orderByDesc('created_at');
         }
 
-        // Get pagination parameters
-        $first = $args['first'] ?? 12;
-        $after = $args['after'] ?? null;
-
-        // Calculate offset from cursor
-        $offset = 0;
-        if ($after) {
-            $offset = (int) base64_decode($after) + 1;
-        }
-
-        // Get total count
-        $totalCount = $query->count();
-
-        // Get paginated results
-        $products = $query->offset($offset)->limit($first)->get();
-
-        // Calculate pagination info
-        $hasNextPage = ($offset + $first) < $totalCount;
-        $hasPreviousPage = $offset > 0;
-
-        // Create edges
-        $edges = [];
-        foreach ($products as $index => $product) {
-            $cursor = base64_encode((string) ($offset + $index));
-            $edges[] = [
-                'node' => $product,
-                'cursor' => $cursor,
-            ];
-        }
-
-        // Get start and end cursors
-        $startCursor = !empty($edges) ? $edges[0]['cursor'] : null;
-        $endCursor = !empty($edges) ? $edges[count($edges) - 1]['cursor'] : null;
-
-        return [
-            'edges' => $edges,
-            'pageInfo' => [
-                'hasNextPage' => $hasNextPage,
-                'hasPreviousPage' => $hasPreviousPage,
-                'startCursor' => $startCursor,
-                'endCursor' => $endCursor,
-            ],
-            'totalCount' => $totalCount,
-        ];
+        return $query;
     }
 
     /**
@@ -99,7 +59,7 @@ class SearchQuery
             ->where('is_active', true)
             ->where(function ($q) use ($query) {
                 $q->where('name_en', 'like', "%{$query}%")
-                  ->orWhere('name_ar', 'like', "%{$query}%");
+                    ->orWhere('name_ar', 'like', "%{$query}%");
             })
             ->orderByDesc('is_featured')
             ->limit($limit)
@@ -121,7 +81,7 @@ class SearchQuery
     /**
      * Apply text-based search to the query.
      */
-    private function applyTextSearch(Builder $query, string $searchTerm): void
+    private function applyTextSearch(Builder $query, string $searchTerm, bool $hasCustomOrdering = false): void
     {
         // Check if the model uses Laravel Scout for full-text search
         if (in_array(Searchable::class, class_uses(Product::class))) {
@@ -132,6 +92,10 @@ class SearchQuery
 
             if ($productIds->isNotEmpty()) {
                 $query->whereIn('id', $productIds);
+                // Preserve Scout relevance order when no explicit ordering is provided
+                if (! $hasCustomOrdering) {
+                    $query->orderByRaw('FIELD(id, ' . $productIds->implode(',') . ')');
+                }
             } else {
                 // If no Scout results, fall back to LIKE search
                 $this->applyLikeSearch($query, $searchTerm);
@@ -149,17 +113,17 @@ class SearchQuery
     {
         $query->where(function ($q) use ($searchTerm) {
             $q->where('name_en', 'like', "%{$searchTerm}%")
-              ->orWhere('name_ar', 'like', "%{$searchTerm}%")
-              ->orWhere('description_en', 'like', "%{$searchTerm}%")
-              ->orWhere('description_ar', 'like', "%{$searchTerm}%")
-              ->orWhereHas('category', function ($categoryQuery) use ($searchTerm) {
-                  $categoryQuery->where('name_en', 'like', "%{$searchTerm}%")
-                               ->orWhere('name_ar', 'like', "%{$searchTerm}%");
-              })
-              ->orWhereHas('brand', function ($brandQuery) use ($searchTerm) {
-                  $brandQuery->where('name_en', 'like', "%{$searchTerm}%")
-                            ->orWhere('name_ar', 'like', "%{$searchTerm}%");
-              });
+                ->orWhere('name_ar', 'like', "%{$searchTerm}%")
+                ->orWhere('description_en', 'like', "%{$searchTerm}%")
+                ->orWhere('description_ar', 'like', "%{$searchTerm}%")
+                ->orWhereHas('category', function ($categoryQuery) use ($searchTerm) {
+                    $categoryQuery->where('name_en', 'like', "%{$searchTerm}%")
+                        ->orWhere('name_ar', 'like', "%{$searchTerm}%");
+                })
+                ->orWhereHas('brand', function ($brandQuery) use ($searchTerm) {
+                    $brandQuery->where('name_en', 'like', "%{$searchTerm}%")
+                        ->orWhere('name_ar', 'like', "%{$searchTerm}%");
+                });
         });
     }
 
@@ -179,10 +143,10 @@ class SearchQuery
         if (isset($filters['min_price'])) {
             $query->where(function ($q) use ($filters) {
                 $q->where('price', '>=', $filters['min_price'])
-                  ->orWhere(function ($subQ) use ($filters) {
-                      $subQ->whereNotNull('sale_price')
-                           ->where('sale_price', '>=', $filters['min_price']);
-                  });
+                    ->orWhere(function ($subQ) use ($filters) {
+                        $subQ->whereNotNull('sale_price')
+                            ->where('sale_price', '>=', $filters['min_price']);
+                    });
             });
         }
 
@@ -190,10 +154,10 @@ class SearchQuery
             $query->where(function ($q) use ($filters) {
                 $q->where(function ($subQ) use ($filters) {
                     $subQ->whereNotNull('sale_price')
-                         ->where('sale_price', '<=', $filters['max_price']);
+                        ->where('sale_price', '<=', $filters['max_price']);
                 })->orWhere(function ($subQ) use ($filters) {
                     $subQ->whereNull('sale_price')
-                         ->where('price', '<=', $filters['max_price']);
+                        ->where('price', '<=', $filters['max_price']);
                 });
             });
         }
@@ -204,7 +168,7 @@ class SearchQuery
 
         if (isset($filters['is_on_sale']) && $filters['is_on_sale']) {
             $query->whereNotNull('sale_price')
-                  ->whereColumn('sale_price', '<', 'price');
+                ->whereColumn('sale_price', '<', 'price');
         }
 
         if (isset($filters['in_stock_only']) && $filters['in_stock_only']) {
@@ -230,7 +194,7 @@ class SearchQuery
      */
     private function getColumnName(string $column): string
     {
-        return match($column) {
+        return match ($column) {
             'ID' => 'id',
             'NAME_EN' => 'name_en',
             'NAME_AR' => 'name_ar',

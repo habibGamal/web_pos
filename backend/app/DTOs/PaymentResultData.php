@@ -29,7 +29,7 @@ class PaymentResultData
     ) {}
 
     /**
-     * Convert the DTO to an array
+     * Convert the DTO to an array.
      */
     public function toArray(): array
     {

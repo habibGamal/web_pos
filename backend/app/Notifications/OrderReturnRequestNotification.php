@@ -16,8 +16,6 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
 
     /**
      * Create a new notification instance.
-     *
-     * @param Order $order
      */
     public function __construct(Order $order)
     {
@@ -27,8 +25,7 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @param  mixed  $notifiable
      */
     public function via($notifiable): array
     {
@@ -38,14 +35,14 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {
         $orderItemsDetails = $this->order->items->map(function ($item) {
             $variant = $item->variant ? " ({$item->variant->name_ar})" : '';
-            return "• {$item->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: " . number_format((float) $item->price, 2) . " جنيه";
+
+            return "• {$item->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: " . number_format((float) $item->price, 2) . ' جنيه';
         })->implode("\n");
 
         $message = (new MailMessage)
@@ -91,7 +88,7 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
 
         // Check if refund is needed
         $needsRefund = $this->order->payment_status->value === 'paid' &&
-                      !$this->order->payment_method->isCOD();
+                      ! $this->order->payment_method->isCOD();
 
         if ($needsRefund) {
             $message->line('')
@@ -110,8 +107,7 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @param  mixed  $notifiable
      */
     public function toArray($notifiable): array
     {
@@ -123,7 +119,7 @@ class OrderReturnRequestNotification extends Notification implements ShouldQueue
             'return_reason' => $this->order->return_reason,
             'return_status' => $this->order->return_status->value,
             'needs_refund' => $this->order->payment_status->value === 'paid' &&
-                             !$this->order->payment_method->isCOD(),
+                             ! $this->order->payment_method->isCOD(),
         ];
     }
 }

@@ -12,7 +12,7 @@ use App\Models\Order;
 
 /**
  * Abstract base class for payment gateways
- * Follows Template Method pattern and provides common functionality
+ * Follows Template Method pattern and provides common functionality.
  */
 abstract class AbstractPaymentGateway implements PaymentGatewayInterface
 {
@@ -30,7 +30,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
 
     /**
      * Template method for payment initialization
-     * Follows Template Method pattern
+     * Follows Template Method pattern.
      */
     public function initializePayment(Order $order): PaymentResultData
     {
@@ -40,7 +40,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Template method for processing successful payment
+     * Template method for processing successful payment.
      */
     public function processSuccessfulPayment(Order $order, array $paymentData): Order
     {
@@ -51,7 +51,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
 
     /**
      * Default refund implementation - returns failure for gateways that don't support refunds
-     * Can be overridden by concrete gateways that support refunds
+     * Can be overridden by concrete gateways that support refunds.
      */
     public function processRefund(RefundRequestData $refundRequest): RefundResultData
     {
@@ -66,7 +66,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Validate order before payment initialization
+     * Validate order before payment initialization.
      */
     protected function validateOrder(Order $order): void
     {
@@ -80,7 +80,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Validate payment data before processing
+     * Validate payment data before processing.
      */
     protected function validatePaymentData(array $paymentData): void
     {
@@ -90,7 +90,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Update order after successful payment
+     * Update order after successful payment.
      */
     protected function updateOrderAfterPayment(Order $order, array $paymentData): Order
     {
@@ -110,7 +110,7 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
     }
 
     /**
-     * Default feature support - can be overridden by concrete implementations
+     * Default feature support - can be overridden by concrete implementations.
      */
     public function supports(string $feature): bool
     {
@@ -124,13 +124,13 @@ abstract class AbstractPaymentGateway implements PaymentGatewayInterface
 
     /**
      * Abstract method for creating payment data
-     * Must be implemented by concrete gateways
+     * Must be implemented by concrete gateways.
      */
     abstract protected function createPaymentData(Order $order): PaymentResultData;
 
     /**
      * Abstract method for executing refunds
-     * Only needs to be implemented by gateways that support refunds
+     * Only needs to be implemented by gateways that support refunds.
      */
     protected function executeRefund(RefundRequestData $refundRequest): RefundResultData
     {

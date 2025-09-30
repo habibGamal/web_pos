@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register payment services and their dependencies
+     * Register payment services and their dependencies.
      */
     private function registerPaymentServices(): void
     {

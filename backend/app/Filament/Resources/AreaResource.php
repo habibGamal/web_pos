@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AreaResource\Pages;
-use App\Filament\Resources\AreaResource\RelationManagers;
 use App\Models\Area;
 use App\Models\Gov;
 use Filament\Forms;
@@ -38,7 +37,7 @@ class AreaResource extends Resource
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var Area $record */
+        /* @var Area $record */
         return [
             'المحافظة' => $record->gov?->name_ar ?? $record->gov?->name_en,
         ];
@@ -75,6 +74,12 @@ class AreaResource extends Resource
                             ->label('اسم المنطقة بالإنجليزية')
                             ->required()
                             ->maxLength(255),
+                        Forms\Components\TextInput::make('shipping_cost')
+                            ->label('تكلفة الشحن')
+                            ->numeric()
+                            ->step(0.01)
+                            ->default(0.00)
+                            ->required(),
                     ]),
             ]);
     }
@@ -100,8 +105,9 @@ class AreaResource extends Resource
                     ->label('عدد العناوين')
                     ->counts('addresses')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('shippingCost.value')
-                    ->label('تكاليف الشحن')
+                Tables\Columns\TextColumn::make('shipping_cost')
+                    ->label('تكلفة الشحن')
+                    ->money('EGP')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
@@ -138,7 +144,7 @@ class AreaResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\ShippingCostsRelationManager::class,
+            //
         ];
     }
 

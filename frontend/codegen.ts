@@ -7,6 +7,7 @@ const config: CodegenConfig = {
   // documents: ['src/**/*.tsx'],
   ignoreNoDocuments: true, // for better experience with the watcher
   // watch: true,
+  allowPartialOutputs: true, // Allow generation even with errors
   generates: {
     './src/gql/': {
       preset: 'client',

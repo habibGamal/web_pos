@@ -40,8 +40,8 @@ class ReturnOrderConfirmationNotification extends Notification implements Should
         $returnItemsDetails = $this->returnOrder->returnItems->map(function ($item) {
             $variant = $item->orderItem->variant ? " ({$item->orderItem->variant->name_ar})" : '';
 
-            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: ".
-                   number_format((float) $item->total_price, 2).' جنيه';
+            return "• {$item->orderItem->product->name_ar}{$variant} - الكمية: {$item->quantity} - السعر: " .
+                   number_format((float) $item->total_price, 2) . ' جنيه';
         })->implode("\n");
 
         $totalItemsCount = $this->returnOrder->returnItems->sum('quantity');
@@ -50,17 +50,17 @@ class ReturnOrderConfirmationNotification extends Notification implements Should
         });
 
         return (new MailMessage)
-            ->subject('تأكيد طلب الإرجاع - رقم #'.$this->returnOrder->id)
+            ->subject('تأكيد طلب الإرجاع - رقم #' . $this->returnOrder->id)
             ->greeting("مرحباً {$this->returnOrder->order->user->name}،")
             ->line('تم استلام طلب الإرجاع الخاص بك بنجاح.')
             ->line('')
             ->line('**تفاصيل طلب الإرجاع:**')
-            ->line('• رقم الإرجاع: #'.$this->returnOrder->id)
-            ->line('• رقم الطلب الأصلي: #'.$this->returnOrder->order_id)
-            ->line('• تاريخ طلب الإرجاع: '.$this->returnOrder->created_at->format('Y-m-d H:i:s'))
-            ->line('• حالة الطلب: '.$this->returnOrder->status->getLabel())
-            ->line('• عدد العناصر: '.$totalItemsCount)
-            ->line('• القيمة المقدرة للإرجاع: '.number_format($totalRefundAmount, 2).' جنيه')
+            ->line('• رقم الإرجاع: #' . $this->returnOrder->id)
+            ->line('• رقم الطلب الأصلي: #' . $this->returnOrder->order_id)
+            ->line('• تاريخ طلب الإرجاع: ' . $this->returnOrder->created_at->format('Y-m-d H:i:s'))
+            ->line('• حالة الطلب: ' . $this->returnOrder->status->getLabel())
+            ->line('• عدد العناصر: ' . $totalItemsCount)
+            ->line('• القيمة المقدرة للإرجاع: ' . number_format($totalRefundAmount, 2) . ' جنيه')
             ->line('')
             ->line('**سبب الإرجاع:**')
             ->line($this->returnOrder->reason)
@@ -81,8 +81,8 @@ class ReturnOrderConfirmationNotification extends Notification implements Should
             ->line('• يمكنك متابعة حالة طلب الإرجاع من خلال حسابك.')
             ->line('')
             ->line('إذا كان لديك أي استفسارات، لا تتردد في التواصل مع خدمة العملاء.')
-            ->line('شكراً لك على ثقتك في '.config('app.name'))
-            ->salutation('مع أطيب التحيات,'."\n".'فريق '.config('app.name'));
+            ->line('شكراً لك على ثقتك في ' . config('app.name'))
+            ->salutation('مع أطيب التحيات,' . "\n" . 'فريق ' . config('app.name'));
     }
 
     /**

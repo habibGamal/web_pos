@@ -9,26 +9,6 @@ use App\Models\ProductVariant;
 class ProductVariantType
 {
     /**
-     * Get display name for variant based on attributes.
-     */
-    public function name(ProductVariant $variant): string
-    {
-        $attributes = [];
-
-        if ($variant->color) {
-            $attributes[] = $variant->color;
-        }
-        if ($variant->size) {
-            $attributes[] = $variant->size;
-        }
-        if ($variant->capacity) {
-            $attributes[] = $variant->capacity;
-        }
-
-        return !empty($attributes) ? implode(' - ', $attributes) : $variant->sku;
-    }
-
-    /**
      * Check if the variant is in stock.
      */
     public function isInStock(ProductVariant $variant): bool
@@ -58,30 +38,5 @@ class ProductVariantType
     public function effectivePrice(ProductVariant $variant): float
     {
         return (float) ($variant->sale_price ?? $variant->price ?? $variant->product->price);
-    }
-
-    /**
-     * Get variant attributes as JSON.
-     */
-    public function attributes(ProductVariant $variant): string
-    {
-        $attributes = [];
-
-        if ($variant->color) {
-            $attributes['color'] = $variant->color;
-        }
-        if ($variant->size) {
-            $attributes['size'] = $variant->size;
-        }
-        if ($variant->capacity) {
-            $attributes['capacity'] = $variant->capacity;
-        }
-
-        // Merge additional attributes
-        if ($variant->additional_attributes) {
-            $attributes = array_merge($attributes, $variant->additional_attributes);
-        }
-
-        return json_encode($attributes);
     }
 }

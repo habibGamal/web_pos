@@ -9,7 +9,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class AnnouncementResource extends Resource
 {
@@ -124,4 +123,4 @@ class AnnouncementResource extends Resource
             'edit' => Pages\EditAnnouncement::route('/{record}/edit'),
         ];
     }
-} 
+}

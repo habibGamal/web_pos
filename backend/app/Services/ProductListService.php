@@ -11,12 +11,12 @@ use Illuminate\Support\Collection;
 class ProductListService
 {
     /**
-     * Get products based on provided filter criteria
+     * Get products based on provided filter criteria.
      */
     public function getFilteredProducts(array $filters = [])
     {
         // If there's a search query, use TNTSearch and then apply filters
-        if (!empty($filters['query'])) {
+        if (! empty($filters['query'])) {
             $searchQuery = $filters['query'];
 
             // Get search results as IDs first
@@ -41,12 +41,12 @@ class ProductListService
         }
 
         // Apply brand filter if provided
-        if (!empty($filters['brands'])) {
+        if (! empty($filters['brands'])) {
             $query->whereIn('brand_id', $filters['brands']);
         }
 
         // Apply category filter if provided
-        if (!empty($filters['categories'])) {
+        if (! empty($filters['categories'])) {
             // Get all descendant categories for the selected categories
             $allCategoryIds = $filters['categories'];
             foreach ($filters['categories'] as $categoryId) {
@@ -90,7 +90,7 @@ class ProductListService
     }
 
     /**
-     * Get products by category ID including all child categories
+     * Get products by category ID including all child categories.
      */
     public function getProductsByCategory(int $categoryId): Builder
     {
@@ -103,7 +103,7 @@ class ProductListService
     }
 
     /**
-     * Get products by brand ID
+     * Get products by brand ID.
      */
     public function getProductsByBrand(int $brandId): Builder
     {
@@ -112,7 +112,7 @@ class ProductListService
     }
 
     /**
-     * Get all active brands
+     * Get all active brands.
      */
     public function getAllBrands(): Collection
     {
@@ -123,7 +123,7 @@ class ProductListService
     }
 
     /**
-     * Get all active root categories with their children
+     * Get all active root categories with their children.
      */
     public function getAllCategories(): Collection
     {
@@ -136,7 +136,7 @@ class ProductListService
     }
 
     /**
-     * Get price range for all active products
+     * Get price range for all active products.
      */
     public function getPriceRange(): array
     {
@@ -151,10 +151,10 @@ class ProductListService
     }
 
     /**
-     * Recursively add all child categories to the array
+     * Recursively add all child categories to the array.
      *
-     * @param int $categoryId
-     * @param array &$categoryArray
+     * @param  int  $categoryId
+     * @param  array  &$categoryArray
      * @return void
      */
     private function addChildCategories($categoryId, &$categoryArray)

@@ -22,16 +22,16 @@ type Cart {
     items: [CartItem!]! @hasMany
 
     "Cart total price"
-    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartType@totalPrice")
+    total_price: Float! @method(name: "getTotalPrice")
 
     "Cart total items count"
-    total_items: Int! @field(resolver: "App\\GraphQL\\Types\\CartType@totalItems")
+    total_items: Int! @count(relation: "items")
 
     "Cart total quantity"
-    total_quantity: Int! @field(resolver: "App\\GraphQL\\Types\\CartType@totalQuantity")
+    total_quantity: Int! @method(name: "getTotalQuantity")
 
     "Whether the cart is empty"
-    is_empty: Boolean! @field(resolver: "App\\GraphQL\\Types\\CartType@isEmpty")
+    is_empty: Boolean! @method(name: "getIsEmpty")
 
     "Cart owner (if authenticated)"
     user: User @belongsTo
@@ -52,7 +52,7 @@ type CartItem {
     quantity: Int!
 
     "Price per unit at time of adding to cart"
-    unit_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartItemType@unitPrice")
+    unit_price: Float!
 
     "When the item was added to cart"
     created_at: DateTime!
@@ -67,7 +67,7 @@ type CartItem {
     product: Product! @field(resolver: "App\\GraphQL\\Types\\CartItemType@product")
 
     "Total price for this line item"
-    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\CartItemType@totalPrice")
+    total_price: Float!
 
     "Whether this item is in stock"
     is_available: Boolean! @field(resolver: "App\\GraphQL\\Types\\CartItemType@isAvailable")

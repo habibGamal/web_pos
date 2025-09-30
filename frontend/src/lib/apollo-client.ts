@@ -42,11 +42,12 @@ const authLink = setContext(async (_, { headers }) => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
   
   // Ensure we have a CSRF token for state-changing operations
-  let csrfToken = getCsrfToken();
-  if (!csrfToken && typeof window !== 'undefined') {
-    await fetchCsrfCookie();
-    csrfToken = getCsrfToken();
-  }
+  // let csrfToken = getCsrfToken();
+  // if (!csrfToken && typeof window !== 'undefined') {
+  //   await fetchCsrfCookie();
+  //   csrfToken = getCsrfToken();
+  // }
+  
   
   const requestHeaders: Record<string, string> = {
     ...headers,
@@ -59,55 +60,122 @@ const authLink = setContext(async (_, { headers }) => {
     requestHeaders.authorization = `Bearer ${token}`;
   }
 
-  // Add CSRF token header if available
-  if (csrfToken) {
-    requestHeaders['X-XSRF-TOKEN'] = csrfToken;
-  }
-  
+  // Add CSRF token header for state-changing requests
+  // console.log('CSRF Token:', csrfToken);
+  // if (csrfToken) {
+  //   requestHeaders['X-XSRF-TOKEN'] = csrfToken;
+  // }
+
   return {
     headers: requestHeaders,
   };
 });
 
-// Error link to handle authentication errors
-const errorLink = onError((errorResponse) => {
-  const { graphQLErrors, networkError } = errorResponse as any;
-  
-  if (graphQLErrors) {
-    graphQLErrors.forEach((error: any) => {
-      console.error(
-        `[GraphQL error]: Message: ${error.message}, Location: ${error.locations}, Path: ${error.path}`
-      );
+// Enhanced error link with better error categorization and handling
+const errorLink = onError(({ error, operation }) => {
+  console.error('Apollo error occurred:', {
+    error,
+    operation: operation.operationName,
+    variables: operation.variables,
+  });
 
-      // Handle authentication errors
-      if (error.extensions?.code === 'UNAUTHENTICATED' || error.message.includes('Unauthenticated')) {
-        // Clear invalid token
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth_token');
+  // Check if it's a GraphQL error using the new Apollo Client 4 pattern
+  if (error && typeof error === 'object' && 'errors' in error) {
+    // Handle GraphQL errors
+    const graphQLErrors = (error as any).errors;
+    if (Array.isArray(graphQLErrors)) {
+      graphQLErrors.forEach((gqlError: any) => {
+        console.error(
+          `[GraphQL error]: Message: ${gqlError.message}, Location: ${gqlError.locations}, Path: ${gqlError.path}`,
+          {
+            operation: operation.operationName,
+            variables: operation.variables,
+            extensions: gqlError.extensions,
+          }
+        );
+
+        // Handle specific error types
+        if (gqlError.extensions?.code === 'UNAUTHENTICATED' || gqlError.message.includes('Unauthenticated')) {
+          handleAuthenticationError();
+        } else if (gqlError.extensions?.code === 'VALIDATION_ERROR') {
+          // Validation errors are handled by the component
+          console.warn('Validation error:', gqlError.extensions.validation);
+        } else if (gqlError.extensions?.code === 'INTERNAL_ERROR') {
+          // Log internal errors for monitoring
+          console.error('Internal server error:', gqlError);
+          
+          // TODO: Report to error monitoring service
+          // reportError(new Error(gqlError.message), { 
+          //   type: 'GRAPHQL_INTERNAL_ERROR',
+          //   operation: operation.operationName 
+          // });
         }
-        
-        // Redirect to login page if not already there
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login')) {
-          window.location.href = '/auth/login';
-        }
-      }
+      });
+    }
+  } else if (error instanceof Error) {
+    // Handle network and other errors
+    console.error(`[Network/Other error]:`, {
+      message: error.message,
+      stack: error.stack,
+      operation: operation.operationName,
+      variables: operation.variables,
     });
-  }
-
-  if (networkError) {
-    console.error(`[Network error]: ${networkError}`);
     
-    // Handle 401 Unauthorized
-    if ('statusCode' in networkError && (networkError as any).statusCode === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        if (!window.location.pathname.includes('/auth/login')) {
-          window.location.href = '/auth/login';
-        }
+    // Check for HTTP status codes in network errors
+    if ('statusCode' in error) {
+      const statusCode = (error as any).statusCode;
+      
+      switch (statusCode) {
+        case 401:
+          handleAuthenticationError();
+          break;
+        case 403:
+          console.warn('Access forbidden for operation:', operation.operationName);
+          break;
+        case 422:
+          // Validation errors are handled by components
+          console.warn('Validation error from server');
+          break;
+        case 429:
+          console.warn('Rate limit exceeded');
+          // TODO: Implement retry logic with exponential backoff
+          break;
+        case 500:
+        case 502:
+        case 503:
+        case 504:
+          console.error('Server error:', statusCode);
+          // TODO: Report to error monitoring service
+          // reportError(error, { 
+          //   type: 'NETWORK_SERVER_ERROR',
+          //   statusCode,
+          //   operation: operation.operationName 
+          // });
+          break;
+        default:
+          console.error('Unexpected network error:', statusCode);
       }
     }
   }
 });
+
+// Helper function to handle authentication errors consistently
+function handleAuthenticationError() {
+  if (typeof window === 'undefined') return;
+  
+  // Clear invalid token
+  localStorage.removeItem('auth_token');
+  
+  // Only redirect if not on auth pages
+  const currentPath = window.location.pathname;
+  const isAuthPage = currentPath.includes('/auth/');
+  
+  if (!isAuthPage) {
+    // Store current location for redirect after login
+    localStorage.setItem('redirect_after_login', currentPath);
+    window.location.href = '/auth/login';
+  }
+}
 
 // Create Apollo Client instance
 export const apolloClient = new ApolloClient({
@@ -117,12 +185,7 @@ export const apolloClient = new ApolloClient({
       User: {
         fields: {
           // Cache policy for user fields that might change
-          avatar: {
-            merge: false,
-          },
-          linked_providers: {
-            merge: false,
-          },
+          // Note: avatar and linked_providers fields removed from schema
         },
       },
     },

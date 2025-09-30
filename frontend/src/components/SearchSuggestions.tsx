@@ -4,7 +4,7 @@ import { useI18n } from "@/hooks/use-i18n";
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
-import { Image } from "@/components/ui/Image";
+import { ProductImageWithFallback } from "@/components/ImageWithFallback";
 import { Loader2, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -104,13 +104,13 @@ export function SearchSuggestions({
                                     onClick={() => handleSuggestionClick(suggestion)}
                                     className="w-full flex items-center gap-3 p-2 hover:bg-muted rounded-md text-left"
                                 >
-                                    <Image
-                                        src={suggestion.featured_image}
-                                        alt={suggestion.name}
-                                        className="w-10 h-10 rounded-md object-cover"
-                                        width={40}
-                                        height={40}
-                                    />
+                                    <div className="relative w-10 h-10 rounded-md overflow-hidden">
+                                        <ProductImageWithFallback
+                                            src={suggestion.featured_image}
+                                            alt={suggestion.name}
+                                            className="object-cover"
+                                        />
+                                    </div>
                                     <div className="flex-1">
                                         <div className="font-medium line-clamp-1">
                                             {suggestion.name}

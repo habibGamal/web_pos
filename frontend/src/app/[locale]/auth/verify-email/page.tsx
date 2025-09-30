@@ -3,17 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Mail, CheckCircle, Clock, RefreshCw } from 'lucide-react';
+import { QuickAuthForm } from '@/components/auth/auth-form-template';
+import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
+import { Mail, CheckCircle, Clock } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 export default function VerifyEmailPage() {
-  return <VerifyEmailForm />;
-}
-
-function VerifyEmailForm() {
   const t = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -21,7 +16,7 @@ function VerifyEmailForm() {
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  
+
   // Get verification parameters from URL
   const verificationId = searchParams.get('id');
   const hash = searchParams.get('hash');
@@ -65,7 +60,7 @@ function VerifyEmailForm() {
 
   const handleResendVerification = async () => {
     if (isResending || resendCooldown > 0 || !user?.email) return;
-    
+
     setIsResending(true);
     setResendSuccess(false);
     clearError();
@@ -112,16 +107,12 @@ function VerifyEmailForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md bg-white/95 backdrop-blur-sm border-white/20 shadow-xl">
-        <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto h-16 w-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Mail className="w-8 h-8 text-primary" />
-          </div>
-          <CardTitle className="text-3xl font-extrabold text-gray-900">
-            {t('auth.verifyEmail.title')}
-          </CardTitle>
-          <CardDescription className="space-y-2">
+    <QuickAuthForm
+      config={{
+        icon: Mail,
+        title: t('auth.verifyEmail.title'),
+        description: (
+          <div className="space-y-2">
             <p className="text-sm text-gray-600">
               {t('auth.verifyEmail.subtitle')}
             </p>
@@ -131,102 +122,100 @@ function VerifyEmailForm() {
             <p className="text-sm text-gray-600">
               {t('auth.verifyEmail.instruction')}
             </p>
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          {/* Success message for resend */}
-          {resendSuccess && (
-            <Alert>
-              <CheckCircle className="h-4 w-4" />
-              <AlertDescription>
-                {t('auth.verifyEmail.success')}
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Error message */}
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          <div className="space-y-4">
-            <Button
-              onClick={handleResendVerification}
-              disabled={isResending || resendCooldown > 0}
-              className="w-full"
-            >
-              {isResending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {t('auth.verifyEmail.resending')}
-                </>
-              ) : resendCooldown > 0 ? (
-                `Resend in ${resendCooldown}s`
-              ) : (
-                t('auth.verifyEmail.resendButton')
-              )}
-            </Button>
-            
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="w-full"
-            >
-              Sign out
-            </Button>
           </div>
+        ),
+        isStatusForm: true,
+      }}
+      form={{
+        instance: {} as any,
+        onSubmit: () => {},
+        error,
+      }}
+      fallback={{
+        title: t('auth.verifyEmail.errorBoundary.title'),
+        description: t('auth.verifyEmail.errorBoundary.description'),
+        buttonText: t('auth.verifyEmail.errorBoundary.retry'),
+        buttonHref: '/auth/verify-email',
+      }}
+    >
+      {/* Success message for resend */}
+      {resendSuccess && (
+        <div className="w-full p-3 bg-green-50 border border-green-200 rounded-md mb-4">
+          <div className="flex items-center">
+            <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+            <p className="text-sm text-green-800">
+              {t('auth.verifyEmail.success')}
+            </p>
+          </div>
+        </div>
+      )}
 
-          {/* Help Section */}
-          <Card className="border-gray-200 bg-gray-50/50">
-            <CardContent className="pt-6 text-center">
-              <CardTitle className="text-sm font-medium text-gray-900 mb-2">
-                Still having trouble?
-              </CardTitle>
-              <CardDescription className="text-xs text-gray-600 mb-3">
-                Make sure to check your spam folder. If you still don't receive the email, try resending it or contact support.
-              </CardDescription>
-              <div className="space-y-2">
-                <Button
-                  onClick={() => router.replace('/auth/register')}
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs w-full"
-                >
-                  Use a different email address
-                </Button>
-                <Button
-                  asChild
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs w-full"
-                >
-                  <a href="/support">
-                    Contact support
-                  </a>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Debug info (remove in production) */}
-          {process.env.NODE_ENV === 'development' && (verificationId || hash) && (
-            <Card className="border-gray-200 bg-gray-50/50">
-              <CardContent className="pt-6">
-                <CardTitle className="text-sm font-medium text-gray-900 mb-2">Debug Info:</CardTitle>
-                <div className="text-xs text-gray-600 space-y-1">
-                  <p>ID: {verificationId}</p>
-                  <p>Hash: {hash}</p>
-                  <p>Expires: {expires}</p>
-                  <p>Signature: {signature}</p>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="space-y-4">
+        <button
+          onClick={handleResendVerification}
+          disabled={isResending || resendCooldown > 0}
+          className="w-full px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isResending ? (
+            <span className="flex items-center justify-center">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              {t('auth.verifyEmail.resending')}
+            </span>
+          ) : resendCooldown > 0 ? (
+            `Resend in ${resendCooldown}s`
+          ) : (
+            t('auth.verifyEmail.resendButton')
           )}
+        </button>
+
+        <button
+          onClick={handleLogout}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
+        >
+          Sign out
+        </button>
+      </div>
+
+      {/* Help Section */}
+      <Card className="border-gray-200 bg-gray-50/50">
+        <CardContent className="pt-6 text-center">
+          <CardTitle className="text-sm font-medium text-gray-900 mb-2">
+            Still having trouble?
+          </CardTitle>
+          <CardDescription className="text-xs text-gray-600 mb-3">
+            Make sure to check your spam folder. If you still don't receive the email, try resending it or contact support.
+          </CardDescription>
+          <div className="space-y-2">
+            <button
+              onClick={() => router.replace('/auth/register')}
+              className="w-full px-3 py-2 text-xs text-primary hover:text-primary/80 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Use a different email address
+            </button>
+            <a
+              href="/support"
+              className="block w-full px-3 py-2 text-xs text-primary hover:text-primary/80 border border-gray-300 rounded-md hover:bg-gray-50"
+            >
+              Contact support
+            </a>
+          </div>
         </CardContent>
       </Card>
-    </div>
+
+      {/* Debug info (remove in production) */}
+      {process.env.NODE_ENV === 'development' && (verificationId || hash) && (
+        <Card className="border-gray-200 bg-gray-50/50">
+          <CardContent className="pt-6">
+            <CardTitle className="text-sm font-medium text-gray-900 mb-2">Debug Info:</CardTitle>
+            <div className="text-xs text-gray-600 space-y-1">
+              <p>ID: {verificationId}</p>
+              <p>Hash: {hash}</p>
+              <p>Expires: {expires}</p>
+              <p>Signature: {signature}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </QuickAuthForm>
   );
 }

@@ -4,7 +4,6 @@ namespace App\GraphQL\Mutations;
 
 use App\Models\User;
 use App\Notifications\GeneralNotification;
-use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationMutation
 {
@@ -18,12 +17,12 @@ class NotificationMutation
 
         $user = User::find($userId);
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not found');
         }
 
         $metadata = [];
-        if (!empty($notificationData['metadata'])) {
+        if (! empty($notificationData['metadata'])) {
             $metadata = json_decode($notificationData['metadata'], true) ?? [];
         }
 
@@ -49,13 +48,13 @@ class NotificationMutation
         $notificationId = $args['id'];
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not authenticated');
         }
 
         $notification = $user->notifications()->where('id', $notificationId)->first();
 
-        if (!$notification) {
+        if (! $notification) {
             throw new \Exception('Notification not found');
         }
 
@@ -71,7 +70,7 @@ class NotificationMutation
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not authenticated');
         }
 
@@ -88,13 +87,13 @@ class NotificationMutation
         $notificationId = $args['id'];
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not authenticated');
         }
 
         $notification = $user->notifications()->where('id', $notificationId)->first();
 
-        if (!$notification) {
+        if (! $notification) {
             throw new \Exception('Notification not found');
         }
 

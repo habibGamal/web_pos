@@ -22,7 +22,7 @@ class ReturnPolicySetting extends Model
     ];
 
     /**
-     * Get the typed value of the setting
+     * Get the typed value of the setting.
      */
     public function getTypedValue()
     {
@@ -35,7 +35,7 @@ class ReturnPolicySetting extends Model
     }
 
     /**
-     * Set the value with proper type casting
+     * Set the value with proper type casting.
      */
     public function setTypedValue($value): void
     {
@@ -48,7 +48,7 @@ class ReturnPolicySetting extends Model
     }
 
     /**
-     * Scope to get public settings only
+     * Scope to get public settings only.
      */
     public function scopePublic($query)
     {
@@ -56,7 +56,7 @@ class ReturnPolicySetting extends Model
     }
 
     /**
-     * Scope to get settings by key
+     * Scope to get settings by key.
      */
     public function scopeByKey($query, string $key)
     {

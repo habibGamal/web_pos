@@ -60,7 +60,7 @@ class Brand extends Model
      */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Brand::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     /**
@@ -68,7 +68,7 @@ class Brand extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(Brand::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     /**
@@ -77,7 +77,7 @@ class Brand extends Model
     public function getDisplayImageAttribute(): ?string
     {
         // Return the brand's own image if it exists
-        if (!empty($this->image)) {
+        if (! empty($this->image)) {
             return $this->image;
         }
 
@@ -96,7 +96,7 @@ class Brand extends Model
     {
         $image = $this->display_image;
 
-        if (!$image) {
+        if (! $image) {
             return null;
         }
 
@@ -106,5 +106,21 @@ class Brand extends Model
         }
 
         return asset('storage/' . $image);
+    }
+
+    /**
+     * Check if the brand has any products.
+     */
+    public function hasProducts(): bool
+    {
+        return $this->products()->exists();
+    }
+
+    /**
+     * Scope to get only active brands.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

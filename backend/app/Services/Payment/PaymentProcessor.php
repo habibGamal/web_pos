@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 /**
  * Payment processor that orchestrates payment processing using strategy pattern
- * Follows Single Responsibility Principle and Strategy Pattern
+ * Follows Single Responsibility Principle and Strategy Pattern.
  */
 class PaymentProcessor
 {
@@ -28,7 +28,7 @@ class PaymentProcessor
     }
 
     /**
-     * Initialize payment method to gateway mappings from config
+     * Initialize payment method to gateway mappings from config.
      */
     private function initializeGatewayMappings(): void
     {
@@ -43,7 +43,7 @@ class PaymentProcessor
     }
 
     /**
-     * Register a payment strategy for a specific gateway
+     * Register a payment strategy for a specific gateway.
      */
     public function addStrategy(PaymentStrategyInterface $strategy, ?string $gatewayName = null): void
     {
@@ -53,7 +53,7 @@ class PaymentProcessor
     }
 
     /**
-     * Get the gateway name for a payment method
+     * Get the gateway name for a payment method.
      */
     public function getGatewayForPaymentMethod(PaymentMethod $paymentMethod): string
     {
@@ -61,7 +61,7 @@ class PaymentProcessor
     }
 
     /**
-     * Get all registered strategies
+     * Get all registered strategies.
      */
     public function getStrategies(): Collection
     {
@@ -69,7 +69,7 @@ class PaymentProcessor
     }
 
     /**
-     * Process payment for an order using the appropriate strategy
+     * Process payment for an order using the appropriate strategy.
      */
     public function processPayment(Order $order): PaymentResultData
     {
@@ -85,7 +85,7 @@ class PaymentProcessor
     }
 
     /**
-     * Process successful payment callback
+     * Process successful payment callback.
      */
     public function processPaymentSuccess(Order $order, array $paymentData): Order
     {
@@ -101,7 +101,7 @@ class PaymentProcessor
     }
 
     /**
-     * Process failed payment callback
+     * Process failed payment callback.
      */
     public function processPaymentFailure(Order $order, array $paymentData): Order
     {
@@ -117,7 +117,7 @@ class PaymentProcessor
     }
 
     /**
-     * Process refund for an order
+     * Process refund for an order.
      */
     public function processRefund(RefundRequestData $refundRequest): RefundResultData
     {
@@ -153,7 +153,7 @@ class PaymentProcessor
     }
 
     /**
-     * Find the appropriate strategy for an order
+     * Find the appropriate strategy for an order.
      */
     private function findStrategyForOrder(Order $order): ?PaymentStrategyInterface
     {
@@ -177,7 +177,7 @@ class PaymentProcessor
     }
 
     /**
-     * Check if a payment method is supported
+     * Check if a payment method is supported.
      */
     public function supportsPaymentMethod(PaymentMethod $paymentMethod): bool
     {
@@ -193,7 +193,7 @@ class PaymentProcessor
     }
 
     /**
-     * Get supported payment methods
+     * Get supported payment methods.
      */
     public function getSupportedPaymentMethods(): array
     {

@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\CartService;
 use App\Services\PromotionService;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class PromotionController extends Controller
 {
@@ -20,9 +18,8 @@ class PromotionController extends Controller
     }
 
     /**
-     * Apply a promotion code to the user's cart
+     * Apply a promotion code to the user's cart.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function applyPromotion(Request $request)
@@ -68,7 +65,7 @@ class PromotionController extends Controller
     }
 
     /**
-     * Remove the applied promotion from the cart
+     * Remove the applied promotion from the cart.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -87,7 +84,7 @@ class PromotionController extends Controller
     }
 
     /**
-     * Get automatic promotions applicable to the cart
+     * Get automatic promotions applicable to the cart.
      *
      * @return \Illuminate\Http\JsonResponse
      */

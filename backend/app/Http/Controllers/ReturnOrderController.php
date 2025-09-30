@@ -150,7 +150,7 @@ class ReturnOrderController extends Controller
     }
 
     /**
-     * Show return history for the user (legacy support)
+     * Show return history for the user (legacy support).
      */
     public function history(Request $request)
     {

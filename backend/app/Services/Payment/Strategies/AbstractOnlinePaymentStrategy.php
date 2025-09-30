@@ -13,7 +13,7 @@ use App\Models\Order;
 
 /**
  * Abstract base strategy for online payment methods
- * Implements common functionality for gateway-based payments
+ * Implements common functionality for gateway-based payments.
  */
 abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
 {
@@ -25,7 +25,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Template method for executing payment
+     * Template method for executing payment.
      */
     public function execute(Order $order): PaymentResultData
     {
@@ -35,7 +35,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Template method for processing successful payment
+     * Template method for processing successful payment.
      */
     public function processSuccess(Order $order, array $paymentData): Order
     {
@@ -43,7 +43,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Template method for processing failed payment
+     * Template method for processing failed payment.
      */
     public function processFailure(Order $order, array $paymentData): Order
     {
@@ -55,7 +55,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Process refund through the gateway
+     * Process refund through the gateway.
      */
     public function processRefund(RefundRequestData $refundRequest): RefundResultData
     {
@@ -63,7 +63,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Validate order before processing
+     * Validate order before processing.
      */
     protected function validateOrder(Order $order): void
     {
@@ -79,7 +79,7 @@ abstract class AbstractOnlinePaymentStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Get the payment method enum this strategy handles
+     * Get the payment method enum this strategy handles.
      */
     abstract protected function getPaymentMethodEnum(): PaymentMethod;
 }

@@ -39,7 +39,7 @@ class ReturnOrderService
     }
 
     /**
-     * Check if an order is eligible for return
+     * Check if an order is eligible for return.
      */
     public function isOrderEligibleForReturn(Order $order): bool
     {
@@ -47,7 +47,6 @@ class ReturnOrderService
         if (! ReturnPolicyService::returnsEnabled()) {
             return false;
         }
-
 
         // Check if order is delivered
         if ($order->order_status !== OrderStatus::DELIVERED) {
@@ -67,7 +66,7 @@ class ReturnOrderService
     }
 
     /**
-     * Check if an order has an active return
+     * Check if an order has an active return.
      */
     protected function hasActiveReturn(Order $order): bool
     {
@@ -77,7 +76,7 @@ class ReturnOrderService
     }
 
     /**
-     * Check if order was delivered within return window
+     * Check if order was delivered within return window.
         if (!$order->delivered_at) {
             return false;
         }
@@ -113,12 +112,11 @@ class ReturnOrderService
             }
         }
 
-
         return true;
     }
 
     /**
-     * Request return for specific order items
+     * Request return for specific order items.
      */
     public function requestReturn(int $orderId, array $returnItems, string $reason): ReturnOrder
     {
@@ -134,8 +132,6 @@ class ReturnOrderService
             throw new Exception('Some items are not eligible for return.');
         }
 
-
-
         return DB::transaction(function () use ($order, $returnItems, $reason, $user) {
             // Create return order
             $returnOrder = ReturnOrder::create([
@@ -150,7 +146,6 @@ class ReturnOrderService
             ]);
 
             $totalAmount = 0;
-
 
             // Create return items
             foreach ($returnItems as $item) {
@@ -200,7 +195,7 @@ class ReturnOrderService
     }
 
     /**
-     * Approve return request (Admin action)
+     * Approve return request (Admin action).
      */
     public function approveReturn(int $returnOrderId): ReturnOrder
     {
@@ -232,7 +227,7 @@ class ReturnOrderService
     }
 
     /**
-     * Reject return request (Admin action)
+     * Reject return request (Admin action).
      */
     public function rejectReturn(int $returnOrderId, ?string $rejectionReason = null): ReturnOrder
     {
@@ -266,7 +261,7 @@ class ReturnOrderService
     }
 
     /**
-     * Complete return process (Admin action - when items are physically returned)
+     * Complete return process (Admin action - when items are physically returned).
      */
     public function completeReturn(int $returnOrderId): ReturnOrder
     {
@@ -345,7 +340,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get maximum returnable quantity for an order item
+     * Get maximum returnable quantity for an order item.
      */
     public function getMaxReturnableQuantity(OrderItem $orderItem): int
     {
@@ -359,7 +354,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get all pending return orders
+     * Get all pending return orders.
      */
     public function getPendingReturnOrders()
     {
@@ -375,7 +370,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get return statistics
+     * Get return statistics.
      */
     public function getReturnStatistics(): array
     {
@@ -389,7 +384,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get user's return history
+     * Get user's return history.
      */
     public function getUserReturnHistory(?int $userId = null)
     {
@@ -406,7 +401,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get return order by return number
+     * Get return order by return number.
      */
     public function getByReturnNumber(string $returnNumber): ?ReturnOrder
     {
@@ -421,7 +416,7 @@ class ReturnOrderService
     }
 
     /**
-     * Get returns for a specific order
+     * Get returns for a specific order.
      */
     public function getOrderReturns(int $orderId)
     {
@@ -435,7 +430,7 @@ class ReturnOrderService
     }
 
     /**
-     * Calculate total returned amount for an order
+     * Calculate total returned amount for an order.
      */
     public function getOrderTotalReturnedAmount(int $orderId): float
     {
@@ -445,7 +440,7 @@ class ReturnOrderService
     }
 
     /**
-     * Check if an order has any active return requests
+     * Check if an order has any active return requests.
      */
     public function hasActiveReturnRequests(int $orderId): bool
     {
@@ -455,7 +450,7 @@ class ReturnOrderService
     }
 
     /**
-     * Update refund amount for a return order (Admin action)
+     * Update refund amount for a return order (Admin action).
      */
     public function updateRefundAmount(int $returnOrderId, float $refundAmount): ReturnOrder
     {
@@ -491,7 +486,7 @@ class ReturnOrderService
     }
 
     /**
-     * Calculate estimated refund amount for return items
+     * Calculate estimated refund amount for return items.
      */
     public function calculateEstimatedRefund(array $returnItems): float
     {

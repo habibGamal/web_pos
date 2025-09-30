@@ -2,8 +2,6 @@
 
 namespace App\Filament\Widgets;
 
-use App\Enums\OrderStatus;
-use App\Enums\PaymentStatus;
 use Filament\Widgets\Concerns\InteractsWithPageFilters;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -19,9 +17,9 @@ class OrdersSalesOverview extends BaseWidget
         $orderStatus = $this->filters['orderStatus'] ?? [];
 
         $baseQuery = \App\Models\Order::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate))
-            ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus));
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate))
+            ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus));
 
         // Total Orders
         $totalOrders = $baseQuery->clone()->count();
@@ -33,7 +31,7 @@ class OrdersSalesOverview extends BaseWidget
         $previousTotalOrders = \App\Models\Order::query()
             ->where('created_at', '>=', $previousStartDate)
             ->where('created_at', '<=', $previousEndDate)
-            ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+            ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
             ->count();
 
         $ordersGrowth = $previousTotalOrders > 0
@@ -49,7 +47,7 @@ class OrdersSalesOverview extends BaseWidget
             ->where('created_at', '>=', $previousStartDate)
             ->where('created_at', '<=', $previousEndDate)
             ->where('payment_status', \App\Enums\PaymentStatus::PAID)
-            ->when(!empty($orderStatus), fn($query) => $query->whereIn('order_status', $orderStatus))
+            ->when(! empty($orderStatus), fn ($query) => $query->whereIn('order_status', $orderStatus))
             ->sum('total');
 
         $revenueGrowth = $previousRevenue > 0

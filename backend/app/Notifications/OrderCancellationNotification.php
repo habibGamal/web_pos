@@ -18,8 +18,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      *
-     * @param Order $order
-     * @param string $recipient Either 'customer' or 'admin'
+     * @param  string  $recipient  Either 'customer' or 'admin'
      */
     public function __construct(Order $order, string $recipient = 'customer')
     {
@@ -30,8 +29,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @param  mixed  $notifiable
      */
     public function via($notifiable): array
     {
@@ -41,8 +39,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     /**
      * Get the mail representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     public function toMail($notifiable): MailMessage
     {
@@ -54,15 +51,14 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Build customer notification email
+     * Build customer notification email.
      *
-     * @param mixed $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     protected function buildCustomerNotification($notifiable): MailMessage
     {
         $needsRefund = $this->order->payment_status->value === 'paid' &&
-                      !$this->order->payment_method->isCOD();
+                      ! $this->order->payment_method->isCOD();
 
         $message = (new MailMessage)
             ->subject(__('Order Cancelled - Order #:order_id', ['order_id' => $this->order->id]))
@@ -85,15 +81,14 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     }
 
     /**
-     * Build admin notification email
+     * Build admin notification email.
      *
-     * @param mixed $notifiable
-     * @return MailMessage
+     * @param  mixed  $notifiable
      */
     protected function buildAdminNotification($notifiable): MailMessage
     {
         $needsRefund = $this->order->payment_status->value === 'paid' &&
-                      !$this->order->payment_method->isCOD();
+                      ! $this->order->payment_method->isCOD();
 
         $message = (new MailMessage)
             ->subject(__('[Admin] Order Cancelled - Order #:order_id', ['order_id' => $this->order->id]))
@@ -102,7 +97,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
             ->line(__('Customer Details:'))
             ->line(__('• Customer: :name (:email)', [
                 'name' => $this->order->user->name,
-                'email' => $this->order->user->email
+                'email' => $this->order->user->email,
             ]))
             ->line(__('• Total Amount: :amount', ['amount' => number_format($this->order->total, 2)]))
             ->line(__('• Payment Method: :method', ['method' => $this->order->payment_method->getLabel()]))
@@ -124,8 +119,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
     /**
      * Get the array representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @param  mixed  $notifiable
      */
     public function toArray($notifiable): array
     {
@@ -136,7 +130,7 @@ class OrderCancellationNotification extends Notification implements ShouldQueue
             'payment_status' => $this->order->payment_status->value,
             'recipient' => $this->recipient,
             'needs_refund' => $this->order->payment_status->value === 'paid' &&
-                             !$this->order->payment_method->isCOD(),
+                             ! $this->order->payment_method->isCOD(),
         ];
     }
 }

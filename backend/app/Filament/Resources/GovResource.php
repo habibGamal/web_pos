@@ -36,7 +36,7 @@ class GovResource extends Resource
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var Gov $record */
+        /* @var Gov $record */
         return [
             'الاسم بالإنجليزية' => $record->name_en,
         ];

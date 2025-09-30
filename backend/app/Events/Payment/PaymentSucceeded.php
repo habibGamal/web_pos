@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 
 /**
  * Event fired when payment is successfully completed
- * Follows Single Responsibility Principle
+ * Follows Single Responsibility Principle.
  */
 class PaymentSucceeded
 {

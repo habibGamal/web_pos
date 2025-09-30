@@ -10,12 +10,12 @@ use App\Models\Order;
 
 /**
  * Strategy for Cash on Delivery payment processing
- * Follows Strategy Pattern and Single Responsibility Principle
+ * Follows Strategy Pattern and Single Responsibility Principle.
  */
 class CashOnDeliveryStrategy implements PaymentStrategyInterface
 {
     /**
-     * Check if this strategy can handle the given order
+     * Check if this strategy can handle the given order.
      */
     public function canHandle(Order $order): bool
     {
@@ -23,7 +23,7 @@ class CashOnDeliveryStrategy implements PaymentStrategyInterface
     }
 
     /**
-     * Get the payment method identifier this strategy handles
+     * Get the payment method identifier this strategy handles.
      */
     public function getPaymentMethod(): string
     {
@@ -32,7 +32,7 @@ class CashOnDeliveryStrategy implements PaymentStrategyInterface
 
     /**
      * Execute the payment processing strategy
-     * For COD, no immediate payment processing is needed
+     * For COD, no immediate payment processing is needed.
      */
     public function execute(Order $order): PaymentResultData
     {
@@ -57,7 +57,7 @@ class CashOnDeliveryStrategy implements PaymentStrategyInterface
 
     /**
      * Process successful payment callback
-     * For COD, this happens when the order is delivered
+     * For COD, this happens when the order is delivered.
      */
     public function processSuccess(Order $order, array $paymentData): Order
     {
@@ -70,7 +70,7 @@ class CashOnDeliveryStrategy implements PaymentStrategyInterface
 
     /**
      * Process failed payment callback
-     * For COD, this could happen if payment is refused on delivery
+     * For COD, this could happen if payment is refused on delivery.
      */
     public function processFailure(Order $order, array $paymentData): Order
     {

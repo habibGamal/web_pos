@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name_en');
             $table->string('name_ar');
             $table->foreignId('gov_id')->constrained('govs')->onDelete('cascade');
+            $table->decimal('shipping_cost', 10, 2)->default(0.00);
             $table->timestamps();
         });
     }

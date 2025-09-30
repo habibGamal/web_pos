@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 class SettingsController extends Controller
 {
     /**
-     * Get all public settings
+     * Get all public settings.
      */
     public function index(): JsonResponse
     {
@@ -19,7 +19,7 @@ class SettingsController extends Controller
     }
 
     /**
-     * Get settings by group
+     * Get settings by group.
      */
     public function byGroup(string $group): JsonResponse
     {
@@ -28,8 +28,10 @@ class SettingsController extends Controller
         return response()->json([
             'data' => $settings,
         ]);
-    }    /**
-     * Get a specific setting
+    }
+
+    /**
+     * Get a specific setting.
      */
     public function show(string $key): JsonResponse
     {

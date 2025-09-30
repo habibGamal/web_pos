@@ -20,7 +20,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { ProductImageWithFallback } from '@/components/ImageWithFallback';
 import Link from 'next/link';
 import { resolveImageSrc } from '@/lib/image';
 
@@ -235,10 +235,9 @@ export default function CartPage() {
                   <div className="flex-shrink-0">
                     <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-gray-100">
                       {item.product.featured_image ? (
-                        <Image
+                        <ProductImageWithFallback
                           src={resolveImageSrc(item.product.featured_image)}
                           alt={item.product.name}
-                          fill
                           className="object-cover"
                         />
                       ) : (

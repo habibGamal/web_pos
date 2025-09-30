@@ -6,14 +6,11 @@ type Order {
     "Unique identifier"
     id: ID!
 
-    "Order number (user-facing)"
-    order_number: String! @field(resolver: "App\\GraphQL\\Types\\OrderType@orderNumber")
-
     "User ID this order belongs to"
-    user_id: ID! @field(resolver: "App\\GraphQL\\Types\\OrderType@userId")
+    user_id: ID!
 
     "Order status"
-    status: OrderStatus! @field(resolver: "App\\GraphQL\\Types\\OrderType@status")
+    order_status: OrderStatus!
 
     "Payment status"
     payment_status: PaymentStatus!
@@ -21,26 +18,17 @@ type Order {
     "Subtotal before taxes and discounts"
     subtotal: Float!
 
-    "Tax amount"
-    tax_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@taxAmount")
-
     "Shipping cost"
     shipping_cost: Float!
 
     "Discount amount"
-    discount_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@discountAmount")
+    discount: Float!
 
     "Total order amount"
-    total_amount: Float! @field(resolver: "App\\GraphQL\\Types\\OrderType@totalAmount")
-
-    "Currency code"
-    currency: String! @field(resolver: "App\\GraphQL\\Types\\OrderType@currency")
+    total: Float!
 
     "Shipping address"
-    shipping_address: Address! @field(resolver: "App\\GraphQL\\Types\\OrderType@shippingAddress")
-
-    "Billing address"
-    billing_address: Address! @field(resolver: "App\\GraphQL\\Types\\OrderType@billingAddress")
+    shipping_address: Address! @belongsTo(relation: "shippingAddress")
 
     "Order notes"
     notes: String
@@ -57,20 +45,14 @@ type Order {
     "Order items"
     items: [OrderItem!]! @hasMany
 
-    "Order status history"
-    statusHistory: [OrderStatusHistory!]! @hasMany
-
     "Returns for this order"
-    returns: [ReturnOrder!]! @hasMany
-
-    "Payment transactions"
-    payments: [Payment!]! @hasMany
+    returns: [ReturnOrder!]! @hasMany(relation: "returnOrders")
 
     "Whether the order can be cancelled"
-    can_be_cancelled: Boolean! @field(resolver: "App\\GraphQL\\Types\\OrderType@canBeCancelled")
+    can_be_cancelled: Boolean! @method(name: "canBeCancelled")
 
     "Whether the order can be returned"
-    can_be_returned: Boolean! @field(resolver: "App\\GraphQL\\Types\\OrderType@canBeReturned")
+    can_be_returned: Boolean! @method(name: "canBeReturned")
 
     "Order tracking information"
     tracking_number: String
@@ -100,7 +82,7 @@ type OrderItem {
     unit_price: Float!
 
     "Total price for this line item"
-    total_price: Float! @field(resolver: "App\\GraphQL\\Types\\OrderItemType@totalPrice")
+    total_price: Float!
 
     "Product this order item belongs to"
     product: Product! @belongsTo(foreignKey: "product_id")
@@ -125,63 +107,6 @@ type OrderItem {
 
     "Quantity that can still be returned"
     returnable_quantity: Int! @field(resolver: "App\\GraphQL\\Types\\OrderItemType@returnableQuantity")
-}
-
-# Address type (embedded in orders)
-type Address {
-    "Full name"
-    full_name: String!
-
-    "Phone number"
-    phone: String!
-
-    "Address line 1"
-    address_line_1: String!
-
-    "Address line 2"
-    address_line_2: String
-
-    "City"
-    city: String!
-
-    "State/Province"
-    state: String!
-
-    "Postal code"
-    postal_code: String!
-
-    "Country"
-    country: String!
-}
-
-# Order Status History type
-type OrderStatusHistory {
-    "Unique identifier"
-    id: ID!
-
-    "Order ID"
-    order_id: ID!
-
-    "Previous status"
-    previous_status: OrderStatus
-
-    "New status"
-    new_status: OrderStatus!
-
-    "Status change reason/notes"
-    notes: String
-
-    "User who made the change (admin)"
-    changed_by_user_id: ID
-
-    "When the status was changed"
-    created_at: DateTime!
-
-    "Order this history belongs to"
-    order: Order! @belongsTo
-
-    "User who made the change"
-    changedBy: User @belongsTo(relation: "changedBy")
 }
 
 # Return Order type
@@ -289,45 +214,6 @@ type ReturnStatusHistory {
     changedBy: User @belongsTo(relation: "changedBy")
 }
 
-# Payment type
-type Payment {
-    "Unique identifier"
-    id: ID!
-
-    "Order ID this payment belongs to"
-    order_id: ID!
-
-    "Payment method"
-    payment_method: PaymentMethod!
-
-    "Payment gateway (Kashier, etc.)"
-    gateway: String!
-
-    "Payment gateway transaction ID"
-    gateway_transaction_id: String
-
-    "Payment amount"
-    amount: Float!
-
-    "Payment currency"
-    currency: String!
-
-    "Payment status"
-    status: PaymentStatus!
-
-    "Payment gateway response"
-    gateway_response: String
-
-    "When the payment was initiated"
-    created_at: DateTime!
-
-    "When the payment was last updated"
-    updated_at: DateTime!
-
-    "Order this payment belongs to"
-    order: Order! @belongsTo
-}
-
 # Enums
 enum OrderStatus {
     "Order placed but not yet confirmed"
@@ -373,17 +259,14 @@ enum PaymentStatus {
 }
 
 enum PaymentMethod {
-    "Credit/Debit Card"
-    CARD @enum(value: "CARD")
+    "Cash on Delivery / الدفع عند الاستلام"
+    CASH_ON_DELIVERY @enum(value: "cash_on_delivery")
 
-    "Cash on Delivery"
-    COD @enum(value: "COD")
+    "Credit Card / بطاقة ائتمانية"
+    CREDIT_CARD @enum(value: "credit_card")
 
-    "Bank Transfer"
-    BANK_TRANSFER @enum(value: "BANK_TRANSFER")
-
-    "Digital Wallet"
-    WALLET @enum(value: "WALLET")
+    "Wallet / المحفظة الإلكترونية"
+    WALLET @enum(value: "wallet")
 }
 
 enum ReturnStatus {
@@ -432,45 +315,13 @@ enum ReturnReason {
 # Input types
 input CreateOrderInput {
     "Shipping address"
-    shipping_address: AddressInput!
-
-    "Billing address (optional, defaults to shipping)"
-    billing_address: AddressInput
+    shipping_address_id: Int! @rules(apply: ["required", "exists:addresses,id"])
 
     "Payment method"
     payment_method: PaymentMethod!
 
     "Order notes"
     notes: String
-
-    "Whether billing address same as shipping"
-    billing_same_as_shipping: Boolean = true
-}
-
-input AddressInput {
-    "Full name"
-    full_name: String! @rules(apply: ["required", "string", "max:255"])
-
-    "Phone number"
-    phone: String! @rules(apply: ["required", "string", "max:20"])
-
-    "Address line 1"
-    address_line_1: String! @rules(apply: ["required", "string", "max:255"])
-
-    "Address line 2"
-    address_line_2: String @rules(apply: ["nullable", "string", "max:255"])
-
-    "City"
-    city: String! @rules(apply: ["required", "string", "max:100"])
-
-    "State/Province"
-    state: String! @rules(apply: ["required", "string", "max:100"])
-
-    "Postal code"
-    postal_code: String! @rules(apply: ["required", "string", "max:20"])
-
-    "Country"
-    country: String! @rules(apply: ["required", "string", "max:100"])
 }
 
 input CancelOrderInput {
@@ -502,6 +353,7 @@ input ReturnItemInput {
 
 # Order and Return Queries
 extend type Query {
+
     "Get user's orders with pagination"
     orders(
         "Filter by status"

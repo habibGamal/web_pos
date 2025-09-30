@@ -5,10 +5,14 @@ use App\Notifications\GeneralNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Notification;
+use Tests\Utilities\GraphQLTestHelpers;
 
-uses(RefreshDatabase::class);
+uses(RefreshDatabase::class, GraphQLTestHelpers::class);
 
 beforeEach(function () {
+    // Set broadcast driver to null to prevent Pusher connection errors during testing
+    config(['broadcasting.default' => 'null']);
+
     $this->user = User::factory()->create();
     $this->actingAs($this->user, 'sanctum');
 });
@@ -58,7 +62,7 @@ describe('GeneralNotification', function () {
         ]);
 
         $dbNotification = DatabaseNotification::where('notifiable_id', $this->user->id)->first();
-        $data = json_decode($dbNotification->data, true);
+        $data = $dbNotification->data; // data is already an array in Laravel
 
         expect($data)->toHaveKey('title', 'Database Test');
         expect($data)->toHaveKey('message', 'This should be stored in database');
@@ -203,7 +207,8 @@ describe('Notification GraphQL API', function () {
     });
 
     it('requires authentication for notification queries', function () {
-        $this->actingAs(null);
+        // Create a fresh request without authentication
+        $this->refreshApplication();
 
         $response = $this->graphQL('
             query {
@@ -215,16 +220,22 @@ describe('Notification GraphQL API', function () {
             }
         ');
 
-        $response->assertGraphQLError('Unauthenticated.');
+        $response->assertJson([
+            'errors' => [
+                [
+                    'message' => 'Unauthenticated.',
+                ],
+            ],
+        ]);
     });
 
     it('filters unread notifications correctly', function () {
         // Create mixed read/unread notifications
-        $this->user->notify(new GeneralNotification('Unread', 'Should appear', 'info'));
         $this->user->notify(new GeneralNotification('Read', 'Should not appear', 'info'));
+        $this->user->notify(new GeneralNotification('Unread', 'Should appear', 'info'));
 
-        // Mark second notification as read
-        $readNotification = $this->user->notifications()->latest()->first();
+        // Mark first notification as read
+        $readNotification = $this->user->notifications()->oldest()->first();
         $readNotification->markAsRead();
 
         $response = $this->graphQL('

@@ -35,7 +35,9 @@ class OrderItemsRelationManager extends RelationManager
                     ->label('المتغير')
                     ->visible(fn ($record) => $record->variant_id !== null)
                     ->formatStateUsing(function ($record) {
-                        if (!$record->variant) return null;
+                        if (! $record->variant) {
+                            return;
+                        }
 
                         $variantDetails = [];
 
@@ -51,7 +53,7 @@ class OrderItemsRelationManager extends RelationManager
                             $variantDetails[] = 'السعة: ' . $record->variant->capacity;
                         }
 
-                        return !empty($variantDetails) ? implode(' | ', $variantDetails) : null;
+                        return ! empty($variantDetails) ? implode(' | ', $variantDetails) : null;
                     })
                     ->disabled(),
 
@@ -91,7 +93,9 @@ class OrderItemsRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('variant')
                     ->label('المتغير')
                     ->getStateUsing(function ($record) {
-                        if (!$record->variant) return null;
+                        if (! $record->variant) {
+                            return;
+                        }
 
                         $variantDetails = [];
 
@@ -107,7 +111,7 @@ class OrderItemsRelationManager extends RelationManager
                             $variantDetails[] = 'السعة: ' . $record->variant->capacity;
                         }
 
-                        return !empty($variantDetails) ? implode(' | ', $variantDetails) : null;
+                        return ! empty($variantDetails) ? implode(' | ', $variantDetails) : null;
                     })
                     ->toggleable(isToggledHiddenByDefault: false),
 

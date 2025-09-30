@@ -1,23 +1,24 @@
 'use client';
-import { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import { useLazyQuery, useMutation, useQuery } from '@apollo/client/react';
+import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { useQuery, useLazyQuery, useMutation } from '@apollo/client/react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { graphql } from '../gql';
 import { useFragment } from '../gql/fragment-masking';
 import type {
-  User,
   AuthPayload,
+  ChangePasswordInput,
+  ForgotPasswordInput,
   LoginInput,
   RegisterInput,
-  SocialLoginInput,
-  ForgotPasswordInput,
-  ResetPasswordInput,
-  ChangePasswordInput,
-  UpdateProfileInput,
-  VerifyEmailInput,
   ResendVerificationInput,
+  ResetPasswordInput,
+  SocialLoginInput,
+  UpdateProfileInput,
+  User,
+  VerifyEmailInput,
 } from '../gql/graphql';
-import apolloClient, { fetchCsrfCookie } from '../lib/apollo-client';
+import apolloClient from '../lib/apollo-client';
 
 export const UserFragment = graphql(/* GraphQL */ `
   fragment UserFields on User {
@@ -25,17 +26,14 @@ export const UserFragment = graphql(/* GraphQL */ `
     name
     email
     email_verified
+    is_email_verified
     phone
     locale
-    is_admin
-    avatar
-    full_name
-    initials
-    has_social_accounts
-    linked_providers {
-      provider
-      provider_id
-    }
+    google_id
+    facebook_id
+    email_verified_at
+    created_at
+    updated_at
   }
 `);
 // // GraphQL Documents
@@ -169,13 +167,7 @@ const refreshTokenMutationDocument = graphql(/* GraphQL */ `
   }
 `);
 
-const checkEmailAvailabilityQueryDocument = graphql(/* GraphQL */ `
-  query CheckEmailAvailability($email: String!) {
-    checkEmailAvailability(email: $email)
-  }
-`);
-
-// // Auth Context
+// Auth Context
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
@@ -195,7 +187,6 @@ interface AuthContextType {
   ) => Promise<{ success: boolean; message: string }>;
   deleteAccount: () => Promise<{ success: boolean; message: string }>;
   refreshToken: () => Promise<AuthPayload>;
-  checkEmailAvailability: (email: string) => Promise<boolean>;
   clearError: () => void;
   refetchUser: () => Promise<void>;
 }
@@ -237,7 +228,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [resendVerificationMutation] = useMutation(resendVerificationMutationDocument);
   const [deleteAccountMutation] = useMutation(deleteAccountMutationDocument);
   const [refreshTokenMutation] = useMutation(refreshTokenMutationDocument);
-  const [checkEmailMutation] = useLazyQuery(checkEmailAvailabilityQueryDocument);
 
   // // Helper function to get token
   function getToken(): string | null {
@@ -266,11 +256,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return data;
   }
 
-  // Helper function to handle errors
+  // Helper function to handle errors using the centralized error handler
   function handleError(error: any): never {
-    const message = error.graphQLErrors?.[0]?.message || error.message || 'An error occurred';
-    setError(message);
-    throw new Error(message);
+    throw error;
   }
 
   // Initialize user state
@@ -296,7 +284,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         setError(null);
 
-        const { data } = await loginMutation({ variables: { input } });
+        // Add push token if available
+        const pushToken = localStorage.getItem('push_token');
+        const loginInput = {
+          ...input,
+          ...(pushToken && { expo_push_token: pushToken }),
+        };
+
+        const { data } = await loginMutation({ variables: { input: loginInput } });
         console.log(data);
         if (!data?.login) throw new Error('No data returned');
 
@@ -319,11 +314,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: RegisterInput): Promise<AuthPayload> => {
       try {
         setError(null);
-        // Ensure CSRF cookie is available
-        await fetchCsrfCookie();
+        
+        // Add push token if available
+        const pushToken = typeof window !== 'undefined' 
+          ? localStorage.getItem('push_token') ?? (window as any).pushToken
+          : null;
+        const registerInput = {
+          ...input,
+          ...(pushToken && { expo_push_token: pushToken }),
+        };
 
-        const { data } = await registerMutation({ variables: { input } });
-        if (!data?.register) throw new Error('No data returned');
+        const result = await registerMutation({ 
+          variables: { input: registerInput },
+          errorPolicy: 'all' // Allow partial data with errors
+        });
+        
+        const { data } = result;
+        
+        // With errorPolicy: 'all', check for errors in result.error
+        if (result.error) {
+          // This will properly extract validation errors from GraphQL response
+          throw result.error;
+        }
+        
+        if (!data?.register) {
+          throw new Error('Registration failed - no data returned');
+        }
 
         const authResult: AuthPayload = {
           __typename: 'AuthPayload',
@@ -344,10 +360,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: SocialLoginInput): Promise<AuthPayload> => {
       try {
         setError(null);
-        // Ensure CSRF cookie is available
-        await fetchCsrfCookie();
+        
 
-        const { data } = await socialLoginMutation({ variables: { input } });
+        // Add push token if available
+        const pushToken = localStorage.getItem('push_token');
+        const socialLoginInput = {
+          ...input,
+          ...(pushToken && { expo_push_token: pushToken }),
+        };
+
+        const { data } = await socialLoginMutation({ variables: { input: socialLoginInput } });
         if (!data?.socialLogin) throw new Error('No data returned');
 
         const authResult: AuthPayload = {
@@ -388,8 +410,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: ForgotPasswordInput): Promise<{ message: string }> => {
       try {
         setError(null);
-        // Ensure CSRF cookie is available
-        await fetchCsrfCookie();
+        
 
         const { data } = await forgotPasswordMutation({ variables: { input } });
         if (!data?.forgotPassword) throw new Error('No data returned');
@@ -405,8 +426,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: ResetPasswordInput): Promise<{ success: boolean; message: string }> => {
       try {
         setError(null);
-        // Ensure CSRF cookie is available
-        await fetchCsrfCookie();
+        
 
         const { data } = await resetPasswordMutation({ variables: { input } });
         if (!data?.resetPassword) throw new Error('No data returned');
@@ -422,8 +442,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     async (input: ChangePasswordInput): Promise<{ success: boolean; message: string }> => {
       try {
         setError(null);
-        // Ensure CSRF cookie is available
-        await fetchCsrfCookie();
+        
 
         const { data } = await changePasswordMutation({ variables: { input } });
         if (!data?.changePassword) throw new Error('No data returned');
@@ -525,20 +544,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [refreshTokenMutation]);
 
-  const checkEmailAvailability = useCallback(
-    async (email: string): Promise<boolean> => {
-      try {
-        setError(null);
-        const { data } = await checkEmailMutation({ variables: { email } });
-        if (!data || data.checkEmailAvailability === undefined) throw new Error('No data returned');
-        return data.checkEmailAvailability;
-      } catch (error) {
-        return handleError(error);
-      }
-    },
-    [checkEmailMutation]
-  );
-
   const clearError = useCallback((): void => {
     setError(null);
   }, []);
@@ -571,7 +576,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     resendVerification,
     deleteAccount,
     refreshToken,
-    checkEmailAvailability,
     clearError,
     refetchUser,
   };
@@ -592,12 +596,13 @@ export function useAuth(): AuthContextType {
 // Additional hooks for specific use cases
 export function useRequireAuth(): AuthContextType {
   const auth = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!auth.isLoading && !auth.isAuthenticated) {
       // Redirect to login page
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        router.replace('/auth/login');
       }
     }
   }, [auth.isLoading, auth.isAuthenticated]);
@@ -607,12 +612,13 @@ export function useRequireAuth(): AuthContextType {
 
 export function useRequireGuest(): AuthContextType {
   const auth = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!auth.isLoading && auth.isAuthenticated) {
       // Redirect to dashboard or home page
       if (typeof window !== 'undefined') {
-        window.location.href = '/dashboard';
+        router.replace('/');
       }
     }
   }, [auth.isLoading, auth.isAuthenticated]);

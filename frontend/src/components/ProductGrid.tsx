@@ -51,16 +51,18 @@ export function ProductGrid({
   const t = useTranslations();
 
   const gridColumns = {
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-    5: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5',
+    // Mobile-first responsive grid with better small screen handling
+    2: 'grid-cols-1 min-[480px]:grid-cols-2',
+    3: 'grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-3',
+    4: 'grid-cols-1 min-[480px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4',
+    5: 'grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
   };
 
   if (isLoading) {
     return (
       <div className={cn(
-        'grid gap-6',
+        // Mobile-first responsive gap spacing
+        'grid gap-4 sm:gap-6',
         gridColumns[columns],
         className
       )}>
@@ -101,7 +103,8 @@ export function ProductGrid({
 
   return (
     <div className={cn(
-      'grid gap-6',
+      // Mobile-first responsive gap spacing
+      'grid gap-4 sm:gap-6',
       gridColumns[columns],
       className
     )}>

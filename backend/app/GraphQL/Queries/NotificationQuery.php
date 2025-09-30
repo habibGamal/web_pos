@@ -3,7 +3,6 @@
 namespace App\GraphQL\Queries;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationQuery
@@ -15,7 +14,7 @@ class NotificationQuery
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('User not authenticated');
         }
 
@@ -42,7 +41,7 @@ class NotificationQuery
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return 0;
         }
 

@@ -26,10 +26,7 @@ return new class extends Migration
             $table->string('payment_status')->default(PaymentStatus::PENDING->value);
             $table->string('payment_method')->default(PaymentMethod::CASH_ON_DELIVERY->value);
 
-            $table->string('return_status')->nullable();
             $table->timestamp('delivered_at')->nullable();
-            $table->timestamp('return_requested_at')->nullable();
-            $table->text('return_reason')->nullable();
 
             $table->timestamp('cancelled_at')->nullable();
             $table->text('cancellation_reason')->nullable();

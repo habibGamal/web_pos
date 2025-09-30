@@ -1,22 +1,23 @@
 # Authentication Types and Mutations
 # This file contains all authentication-related GraphQL types, inputs, and mutations
 
-# Extended User type for authentication context
-extend type User {
-    "User's profile image URL with fallback to default avatar"
-    avatar: String @field(resolver: "App\\GraphQL\\Types\\UserType@avatar")
+# User type for authentication context
+type User {
+    "Unique primary key."
+    id: ID!
 
-    "User's full name (alias for name field)"
-    full_name: String! @field(resolver: "App\\GraphQL\\Types\\UserType@fullName")
+    "Non-unique name."
+    name: String!
 
-    "User's initials for avatar generation"
-    initials: String! @field(resolver: "App\\GraphQL\\Types\\UserType@initials")
+    "Unique email address (privacy controlled)."
+    email: String!
+
 
     "Whether the user has completed email verification"
-    email_verified: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@emailVerified")
+    email_verified: Boolean!
 
     "Whether the user has completed email verification (alias)"
-    is_email_verified: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@emailVerified")
+    is_email_verified: Boolean!
 
     "User's phone number"
     phone: String
@@ -24,23 +25,24 @@ extend type User {
     "User's preferred language/locale"
     locale: String!
 
-    "Whether the user is an admin"
-    is_admin: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@isAdmin")
+    "User's Google ID"
+    google_id: String
 
-    "User's Google ID (only visible to self)"
-    google_id: String @field(resolver: "App\\GraphQL\\Types\\UserType@googleId")
+    "User's Facebook ID"
+    facebook_id: String
 
-    "User's Facebook ID (only visible to self)"
-    facebook_id: String @field(resolver: "App\\GraphQL\\Types\\UserType@facebookId")
+    "When the email was verified."
+    email_verified_at: DateTime
 
-    "Whether the user can access admin panel"
-    can_access_admin: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@canAccessAdmin")
+    "When the account was created."
+    created_at: DateTime!
 
-    "Whether the user has any social login accounts"
-    has_social_accounts: Boolean! @field(resolver: "App\\GraphQL\\Types\\UserType@hasSocialAccounts")
+    "When the account was last updated."
+    updated_at: DateTime!
 
-    "User's linked social providers (only visible to self)"
-    linked_providers: [SocialProvider!]! @field(resolver: "App\\GraphQL\\Types\\UserType@linkedProviders")
+    "User's addresses"
+    addresses: [Address!]! @hasMany
+
 }
 
 # Social provider information
@@ -104,6 +106,9 @@ input LoginInput {
 
     "Remember me flag"
     remember: Boolean = false
+
+    "Expo push notification token"
+    expo_push_token: String @rules(apply: ["nullable", "string"])
 }
 
 input RegisterInput {
@@ -124,6 +129,9 @@ input RegisterInput {
 
     "User's preferred language"
     locale: String @rules(apply: ["nullable", "in:en,ar"])
+
+    "Expo push notification token"
+    expo_push_token: String @rules(apply: ["nullable", "string"])
 }
 
 input SocialLoginInput {
@@ -138,6 +146,9 @@ input SocialLoginInput {
 
     "User's preferred language"
     locale: String @rules(apply: ["nullable", "in:en,ar"])
+
+    "Expo push notification token"
+    expo_push_token: String @rules(apply: ["nullable", "string"])
 }
 
 input ForgotPasswordInput {
@@ -227,7 +238,7 @@ extend type Mutation {
     changePassword(input: ChangePasswordInput! @spread): SuccessPayload! @guard @field(resolver: "App\\GraphQL\\Mutations\\ChangePasswordMutation")
 
     "Update user profile"
-    updateProfile(input: UpdateProfileInput! @spread): User! @guard
+    updateProfile(input: UpdateProfileInput! @spread): User! @guard @update
 
     "Verify email address"
     verifyEmail(input: VerifyEmailInput! @spread): EmailVerificationPayload!

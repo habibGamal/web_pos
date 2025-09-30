@@ -37,7 +37,7 @@ class UserResource extends Resource
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var User $record */
+        /* @var User $record */
         return ['email' => $record->email];
     }
 

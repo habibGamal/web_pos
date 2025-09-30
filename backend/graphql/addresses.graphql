@@ -1,0 +1,118 @@
+# Address Management Types and Mutations
+# This file contains all address-related GraphQL types, inputs, and mutations
+
+# Address type (embedded in orders)
+type Address {
+    "Unique identifier"
+    id: ID!
+
+    "Full address content"
+    content: String!
+
+    "Phone number for this address"
+    phone: String!
+
+    "Area ID"
+    area_id: ID
+
+    "Area the address belongs to"
+    area: Area @belongsTo(relation: "area")
+
+    "Owner user ID"
+    user_id: ID!
+
+    "User who owns this address"
+    user: User! @belongsTo
+
+    "Orders using this address as shipping address"
+    orders: [Order!]! @hasMany(relation: "orders")
+
+    "When the address was created"
+    created_at: DateTime!
+
+    "When the address was last updated"
+    updated_at: DateTime!
+}
+
+type Gov {
+    "Unique identifier"
+    id: ID!
+
+    "Name"
+    name: String! @localized
+
+    "Areas belonging to this governorate"
+    areas: [Area!]! @hasMany(relation: "areas")
+
+    "When the governorate was created"
+    created_at: DateTime!
+
+    "When the governorate was last updated"
+    updated_at: DateTime!
+}
+
+type Area {
+    "Unique identifier"
+    id: ID!
+
+    "Name"
+    name: String! @localized
+
+    "Governorate ID"
+    gov_id: ID!
+
+    "Governorate this area belongs to"
+    gov: Gov! @belongsTo(relation: "gov")
+
+    "Shipping cost"
+    shipping_cost: Float!
+
+    "When the area was created"
+    created_at: DateTime!
+
+    "When the area was last updated"
+    updated_at: DateTime!
+}
+
+# Input types
+input AddressInput {
+    "Full address content"
+    content: String! @rules(apply: ["required", "string", "max:1000"])
+
+    "Phone number for this address"
+    phone: String! @rules(apply: ["required", "string", "max:20"])
+
+    "Area ID (references areas table)"
+    area_id: ID! @rules(apply: ["required", "exists:areas,id"])
+}
+
+extend type Query {
+
+    "Get all governorates with their areas"
+    governorates: [Gov!]! @all
+
+    "Get areas by governorate ID"
+    areas(
+        "Governorate ID"
+        gov_id: ID! @rules(apply: ["required", "exists:govs,id"]) @where
+    ): [Area!]! @find
+}
+
+extend type Mutation {
+    "Create new address"
+    createAddress(input: AddressInput! @spread): Address! @field(resolver: "App\\GraphQL\\Mutations\\Addresses\\CreateAddressMutation") @guard
+
+    "Update existing address"
+    updateAddress(
+        "Address ID"
+        id: ID! @rules(apply: ["required", "exists:addresses,id"])
+        "Address data"
+        input: AddressInput! @spread
+    ): Address! @field(resolver: "App\\GraphQL\\Mutations\\Addresses\\UpdateAddressMutation") @guard
+
+    "Delete address"
+    deleteAddress(
+        "Address ID"
+        id: ID! @rules(apply: ["required", "exists:addresses,id"])
+    ): Boolean! @field(resolver: "App\\GraphQL\\Mutations\\Addresses\\DeleteAddressMutation") @guard
+}

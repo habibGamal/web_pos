@@ -24,7 +24,7 @@ class SectionsQuery
         // Apply sorting
         if (isset($args['sorted']) && $args['sorted']) {
             $query->orderBy('sort_order')
-                  ->orderBy('title_en');
+                ->orderBy('title_en');
         } else {
             $query->orderBy('title_en');
         }

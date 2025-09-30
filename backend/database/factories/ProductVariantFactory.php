@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -28,10 +27,6 @@ class ProductVariantFactory extends Factory
             'quantity' => $this->faker->numberBetween(0, 100),
             'price' => null, // Default to use product price
             'sale_price' => null, // Default to use product sale price
-            'color' => $this->faker->optional(0.7)->colorName(),
-            'size' => $this->faker->optional(0.7)->randomElement(['XS', 'S', 'M', 'L', 'XL', 'XXL']),
-            'capacity' => $this->faker->optional(0.3)->randomElement(['16GB', '32GB', '64GB', '128GB', '256GB']),
-            'additional_attributes' => null,
             'is_default' => false,
             'is_active' => $this->faker->boolean(90),
         ];

@@ -16,10 +16,8 @@ class CompleteReturnAction
     }
 
     /**
-     * Complete a return request
+     * Complete a return request.
      *
-     * @param Order $order
-     * @return Order
      * @throws \Exception
      */
     public function execute(Order $order): Order

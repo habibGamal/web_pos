@@ -17,7 +17,7 @@ use Inertia\Inertia;
 
 /**
  * Refactored payment controller following SOLID principles
- * Single Responsibility: Only handles HTTP requests/responses and delegates business logic
+ * Single Responsibility: Only handles HTTP requests/responses and delegates business logic.
  */
 class PaymentController extends Controller
 {
@@ -27,7 +27,7 @@ class PaymentController extends Controller
     ) {}
 
     /**
-     * Initiate payment for an order
+     * Initiate payment for an order.
      */
     public function initiatePayment(Request $request)
     {
@@ -48,7 +48,7 @@ class PaymentController extends Controller
             return $this->renderPaymentPage($order, $paymentData);
 
         } catch (Exception $e) {
-            Log::error('Error initializing payment: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('Error initializing payment: ' . $e->getMessage(), ['exception' => $e]);
 
             return redirect()->route('orders.index')
                 ->with('error', 'Unable to process payment. Please try again later or contact support.');
@@ -56,7 +56,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Handle successful payment callback
+     * Handle successful payment callback.
      */
     public function handleSuccess(Request $request)
     {
@@ -100,7 +100,7 @@ class PaymentController extends Controller
                 ->with('success', 'Payment completed successfully! Your order is being processed.');
 
         } catch (Exception $e) {
-            Log::error('Error handling payment success: '.$e->getMessage(), [
+            Log::error('Error handling payment success: ' . $e->getMessage(), [
                 'exception' => $e,
                 'params' => $request->all(),
             ]);
@@ -111,7 +111,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Handle failed payment callback
+     * Handle failed payment callback.
      */
     public function handleFailure(Request $request)
     {
@@ -138,7 +138,7 @@ class PaymentController extends Controller
                 ->with('error', 'Payment was not successful. Please try again or use a different payment method.');
 
         } catch (Exception $e) {
-            Log::error('Error handling payment failure: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('Error handling payment failure: ' . $e->getMessage(), ['exception' => $e]);
 
             return redirect()->route('checkout.index')
                 ->with('error', 'Error processing your payment. Please try again or contact support.');
@@ -146,7 +146,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Show payment page for an existing order
+     * Show payment page for an existing order.
      */
     public function showPayment(int $orderId)
     {
@@ -162,7 +162,7 @@ class PaymentController extends Controller
             return $this->renderPaymentPage($order, $paymentData);
 
         } catch (Exception $e) {
-            Log::error('Error showing payment: '.$e->getMessage(), ['exception' => $e]);
+            Log::error('Error showing payment: ' . $e->getMessage(), ['exception' => $e]);
 
             return redirect()->route('orders.index')
                 ->with('error', 'Unable to process payment. Please try again later.');
@@ -170,7 +170,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Validate that payment can be initiated for this order
+     * Validate that payment can be initiated for this order.
      */
     private function validatePaymentInitiation(Order $order): void
     {
@@ -184,7 +184,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Render the appropriate payment page based on payment method
+     * Render the appropriate payment page based on payment method.
      */
     private function renderPaymentPage(Order $order, PaymentResultData $paymentData)
     {

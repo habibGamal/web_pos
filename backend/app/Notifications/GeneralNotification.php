@@ -5,7 +5,6 @@ namespace App\Notifications;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class GeneralNotification extends Notification implements ShouldQueue
@@ -63,6 +62,14 @@ class GeneralNotification extends Notification implements ShouldQueue
             'metadata' => $this->metadata,
             'created_at' => now()->toISOString(),
         ]);
+    }
+
+    /**
+     * Get the type of the notification being broadcast.
+     */
+    public function broadcastType(): string
+    {
+        return $this->type;
     }
 
     /**

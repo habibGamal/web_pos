@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Events\Payment\PaymentFailed;
 use App\Events\Payment\PaymentSucceeded;
+use App\Listeners\HandleFailedExpoNotifications;
 use App\Listeners\Payment\HandlePaymentFailed;
 use App\Listeners\Payment\HandlePaymentSucceeded;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
+use Illuminate\Notifications\Events\NotificationFailed;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -21,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         PaymentFailed::class => [
             HandlePaymentFailed::class,
+        ],
+        NotificationFailed::class => [
+            HandleFailedExpoNotifications::class,
         ],
     ];
 

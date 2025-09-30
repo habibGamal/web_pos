@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ProductVariant extends Model
 {
@@ -22,10 +23,6 @@ class ProductVariant extends Model
         'quantity',
         'price',
         'sale_price',
-        'color',
-        'size',
-        'capacity',
-        'additional_attributes',
         'is_default',
         'is_active',
     ];
@@ -35,15 +32,17 @@ class ProductVariant extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'images' => 'array',
-        'quantity' => 'integer',
-        'price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'additional_attributes' => 'array',
-        'is_default' => 'boolean',
-        'is_active' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'images' => 'array',
+            'quantity' => 'integer',
+            'price' => 'decimal:2',
+            'sale_price' => 'decimal:2',
+            'is_default' => 'boolean',
+            'is_active' => 'boolean',
+        ];
+    }
 
     /**
      * Get the product that owns the variant.
@@ -54,9 +53,15 @@ class ProductVariant extends Model
     }
 
     /**
+     * Get the attribute values for this variant.
+     */
+    public function attributeValues(): BelongsToMany
+    {
+        return $this->belongsToMany(AttributeValue::class, 'variant_attribute_values', 'variant_id', 'attribute_value_id');
+    }
+
+    /**
      * Get the first image or null if no images.
-     *
-     * @return string|null
      */
     public function getFeaturedImageAttribute(): ?string
     {
@@ -65,5 +70,36 @@ class ProductVariant extends Model
         }
 
         return is_array($this->images) ? $this->images[0] : null;
+    }
+
+    /**
+     * Get variant attributes as a formatted string.
+     */
+    public function getAttributesStringAttribute(): string
+    {
+        return $this->attributeValues
+            ->groupBy('attribute.name')
+            ->map(fn ($values, $attributeName) => $attributeName . ': ' . $values->pluck('display_value')->join(', '))
+            ->join(' | ');
+    }
+
+    /**
+     * Check if variant has a specific attribute value.
+     */
+    public function hasAttributeValue(int $attributeValueId): bool
+    {
+        return $this->attributeValues()->where('attribute_value_id', $attributeValueId)->exists();
+    }
+
+    /**
+     * Get attribute value by attribute name.
+     */
+    public function getVariantAttributeValue(string $attributeName): ?string
+    {
+        $attributeValue = $this->attributeValues
+            ->whereHas('attribute', fn ($q) => $q->where('name_en', $attributeName)->orWhere('name_ar', $attributeName))
+            ->first();
+
+        return $attributeValue?->display_value;
     }
 }

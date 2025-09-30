@@ -2,8 +2,14 @@
 
 namespace App\Filament\Resources;
 
+use App\Actions\Orders\ApproveReturnAction;
+use App\Actions\Orders\CancelOrderAction;
+use App\Actions\Orders\CompleteReturnAction;
+use App\Actions\Orders\MarkOrderAsDeliveredAction;
+use App\Actions\Orders\MarkOrderAsShippedAction;
+use App\Actions\Orders\ProcessRefundAction;
+use App\Actions\Orders\RejectReturnAction;
 use App\Enums\OrderStatus;
-use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Enums\ReturnStatus;
 use App\Filament\Resources\OrderResource\Pages;
@@ -16,18 +22,10 @@ use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Filament\Notifications\Notification;
-use App\Services\OrderReturnService;
-use App\Actions\Orders\MarkOrderAsShippedAction;
-use App\Actions\Orders\MarkOrderAsDeliveredAction;
-use App\Actions\Orders\CancelOrderAction;
-use App\Actions\Orders\ApproveReturnAction;
-use App\Actions\Orders\RejectReturnAction;
-use App\Actions\Orders\CompleteReturnAction;
-use App\Actions\Orders\ProcessRefundAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -44,7 +42,7 @@ class OrderResource extends Resource
 
     public static function getGlobalSearchResultTitle(Model $record): string
     {
-        /** @var Order $record */
+        /* @var Order $record */
         return 'طلب #' . $record->id;
     }
 
@@ -55,7 +53,7 @@ class OrderResource extends Resource
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var Order $record */
+        /* @var Order $record */
         return [
             'Status' => $record->order_status->value,
             'Total' => number_format($record->total, 2),
@@ -355,7 +353,7 @@ class OrderResource extends Resource
                     ->label('إلغاء الطلب')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
-                    ->visible(fn (Order $record) => !in_array($record->order_status, [OrderStatus::CANCELLED, OrderStatus::DELIVERED]))
+                    ->visible(fn (Order $record) => ! in_array($record->order_status, [OrderStatus::CANCELLED, OrderStatus::DELIVERED]))
                     ->requiresConfirmation()
                     ->modalHeading('إلغاء الطلب')
                     ->modalDescription('هل أنت متأكد من إلغاء هذا الطلب؟ سيتم إرجاع البضائع للمخزون.')

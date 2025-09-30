@@ -17,8 +17,8 @@ class CustomersSalesOverview extends BaseWidget
         $customerType = $this->filters['customerType'] ?? [];
 
         $baseQuery = \App\Models\User::query()
-            ->when($startDate, fn($query) => $query->where('created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('created_at', '<=', $endDate));
+            ->when($startDate, fn ($query) => $query->where('created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('created_at', '<=', $endDate));
 
         // Previous period for comparison
         $previousStartDate = $startDate ? now()->parse($startDate)->subMonth() : now()->subMonths(2);
@@ -37,15 +37,15 @@ class CustomersSalesOverview extends BaseWidget
 
         // Active Customers (who made orders)
         $activeCustomers = \App\Models\User::query()
-            ->whereHas('orders', function($query) use ($startDate, $endDate) {
-                $query->when($startDate, fn($q) => $q->where('created_at', '>=', $startDate))
-                      ->when($endDate, fn($q) => $q->where('created_at', '<=', $endDate));
+            ->whereHas('orders', function ($query) use ($startDate, $endDate) {
+                $query->when($startDate, fn ($q) => $q->where('created_at', '>=', $startDate))
+                    ->when($endDate, fn ($q) => $q->where('created_at', '<=', $endDate));
             })
             ->count();
 
         // New vs Returning Customers
         $newCustomers = $baseQuery->clone()
-            ->whereDoesntHave('orders', function($query) use ($startDate) {
+            ->whereDoesntHave('orders', function ($query) use ($startDate) {
                 $query->where('created_at', '<', $startDate ?? now()->subMonth());
             })
             ->count();
@@ -55,8 +55,8 @@ class CustomersSalesOverview extends BaseWidget
         // Customer Lifetime Value
         $totalRevenue = \App\Models\Order::query()
             ->join('users', 'orders.user_id', '=', 'users.id')
-            ->when($startDate, fn($query) => $query->where('users.created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('users.created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('users.created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('users.created_at', '<=', $endDate))
             ->where('orders.payment_status', \App\Enums\PaymentStatus::PAID)
             ->sum('orders.total');
 
@@ -65,8 +65,8 @@ class CustomersSalesOverview extends BaseWidget
         // Average Orders per Customer
         $totalOrders = \App\Models\Order::query()
             ->join('users', 'orders.user_id', '=', 'users.id')
-            ->when($startDate, fn($query) => $query->where('users.created_at', '>=', $startDate))
-            ->when($endDate, fn($query) => $query->where('users.created_at', '<=', $endDate))
+            ->when($startDate, fn ($query) => $query->where('users.created_at', '>=', $startDate))
+            ->when($endDate, fn ($query) => $query->where('users.created_at', '<=', $endDate))
             ->count();
 
         $avgOrdersPerCustomer = $activeCustomers > 0 ? round($totalOrders / $activeCustomers, 1) : 0;

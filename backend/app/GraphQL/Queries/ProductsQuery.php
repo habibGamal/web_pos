@@ -27,12 +27,12 @@ class ProductsQuery
         }
 
         // Apply ordering
-        if (isset($args['orderBy']) && is_array($args['orderBy']) && !empty($args['orderBy'])) {
+        if (isset($args['orderBy']) && is_array($args['orderBy']) && ! empty($args['orderBy'])) {
             $this->applyOrdering($query, $args['orderBy']);
         } else {
             // Default ordering: featured first, then by created_at desc
             $query->orderByDesc('is_featured')
-                  ->orderByDesc('created_at');
+                ->orderByDesc('created_at');
         }
 
         return $query;
@@ -68,9 +68,9 @@ class ProductsQuery
             $searchTerm = $search['query'];
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name_en', 'like', "%{$searchTerm}%")
-                  ->orWhere('name_ar', 'like', "%{$searchTerm}%")
-                  ->orWhere('description_en', 'like', "%{$searchTerm}%")
-                  ->orWhere('description_ar', 'like', "%{$searchTerm}%");
+                    ->orWhere('name_ar', 'like', "%{$searchTerm}%")
+                    ->orWhere('description_en', 'like', "%{$searchTerm}%")
+                    ->orWhere('description_ar', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -85,10 +85,10 @@ class ProductsQuery
         if (isset($search['min_price'])) {
             $query->where(function ($q) use ($search) {
                 $q->where('price', '>=', $search['min_price'])
-                  ->orWhere(function ($subQ) use ($search) {
-                      $subQ->whereNotNull('sale_price')
-                           ->where('sale_price', '>=', $search['min_price']);
-                  });
+                    ->orWhere(function ($subQ) use ($search) {
+                        $subQ->whereNotNull('sale_price')
+                            ->where('sale_price', '>=', $search['min_price']);
+                    });
             });
         }
 
@@ -97,11 +97,11 @@ class ProductsQuery
                 $q->where(function ($subQ) use ($search) {
                     // Check sale price first if it exists
                     $subQ->whereNotNull('sale_price')
-                         ->where('sale_price', '<=', $search['max_price']);
+                        ->where('sale_price', '<=', $search['max_price']);
                 })->orWhere(function ($subQ) use ($search) {
                     // If no sale price, check regular price
                     $subQ->whereNull('sale_price')
-                         ->where('price', '<=', $search['max_price']);
+                        ->where('price', '<=', $search['max_price']);
                 });
             });
         }
@@ -112,13 +112,13 @@ class ProductsQuery
 
         if (isset($search['is_on_sale']) && $search['is_on_sale']) {
             $query->whereNotNull('sale_price')
-                  ->whereColumn('sale_price', '<', 'price');
+                ->whereColumn('sale_price', '<', 'price');
         }
 
         if (isset($search['in_stock_only']) && $search['in_stock_only']) {
             $query->whereHas('variants', function ($variantQuery) {
                 $variantQuery->where('is_active', true)
-                             ->where('quantity', '>', 0);
+                    ->where('quantity', '>', 0);
             });
         }
     }
@@ -134,5 +134,4 @@ class ProductsQuery
             $query->orderBy($column, $direction);
         }
     }
-
 }

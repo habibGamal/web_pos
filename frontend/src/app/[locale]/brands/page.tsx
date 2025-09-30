@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Grid, List, Filter } from 'lucide-react';
-import Image from 'next/image';
+import { BrandImageWithFallback } from '@/components/ImageWithFallback';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { resolveImageSrc } from '@/lib/image';
@@ -265,21 +265,16 @@ export default function BrandsPage() {
                 >
                   <CardContent className="p-6 text-center">
                     <div className="aspect-square relative mb-4 rounded-lg overflow-hidden bg-gray-50">
-                      <Image
-                        src={resolveImageSrc(brand.display_image)}
+                      <BrandImageWithFallback
+                        src={resolveImageSrc(brand.image)}
                         alt={brand.name}
-                        fill
                         className="object-cover transition-transform duration-300 group-hover:scale-110"
                       />
                     </div>
                     <h3 className="font-semibold text-lg mb-2 group-hover:text-primary transition-colors">
                       {brand.name}
                     </h3>
-                    {brand.description && (
-                      <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                        {brand.description}
-                      </p>
-                    )}
+
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
                       {brand.active_products_count} {t('brand.products')}
                     </Badge>
@@ -305,10 +300,9 @@ export default function BrandsPage() {
             {selectedBrand && (
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 relative rounded-lg overflow-hidden bg-gray-50">
-                  <Image
+                  <BrandImageWithFallback
                     src={'/images/placeholder-brand.jpg'}
                     alt={selectedBrand.name}
-                    fill
                     className="object-cover"
                   />
                 </div>

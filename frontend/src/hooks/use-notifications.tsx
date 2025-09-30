@@ -62,7 +62,7 @@ export function useUnreadNotificationsCount() {
   const { data, loading, error, refetch } = useQuery(getUnreadNotificationsCountDocument, {
     skip: !isAuthenticated,
     errorPolicy: 'all',
-    pollInterval: 30000, // Poll every 30 seconds
+    // pollInterval: 30000, // Poll every 30 seconds
   });
 
   return {

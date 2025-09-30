@@ -14,7 +14,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { ProductImageWithFallback } from '@/components/ImageWithFallback';
 import Link from 'next/link';
 import type { CartItem } from '@/gql/graphql';
 
@@ -97,18 +97,11 @@ export function CartItemComponent({
           {/* Product Image */}
           <div className="flex-shrink-0">
             <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-lg overflow-hidden bg-gray-100">
-              {item.product.featured_image ? (
-                <Image
-                  src={item.product.featured_image}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Package className="h-8 w-8 text-gray-400" />
-                </div>
-              )}
+              <ProductImageWithFallback
+                src={item.product.featured_image}
+                alt={item.product.name}
+                className="object-cover"
+              />
               
               {/* Availability overlay */}
               {!item.is_available && (
@@ -306,18 +299,11 @@ export function CompactCartItem({
     <div className={cn("flex items-center gap-3 p-3 bg-white border rounded", className)}>
       {/* Product Image */}
       <div className="relative w-12 h-12 rounded overflow-hidden bg-gray-100 flex-shrink-0">
-        {item.product.featured_image ? (
-          <Image
-            src={item.product.featured_image}
-            alt={item.product.name}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="h-4 w-4 text-gray-400" />
-          </div>
-        )}
+        <ProductImageWithFallback
+          src={item.product.featured_image}
+          alt={item.product.name}
+          className="object-cover"
+        />
       </div>
 
       {/* Product Info */}

@@ -12,18 +12,17 @@ use Illuminate\Support\Facades\Log;
 
 /**
  * Service for handling payment webhooks
- * Follows Single Responsibility Principle
+ * Follows Single Responsibility Principle.
  */
 class PaymentWebhookHandler
 {
     public function __construct(
         private PaymentProcessor $paymentProcessor,
         private PaymentValidatorInterface $validator
-    ) {
-    }
+    ) {}
 
     /**
-     * Handle incoming webhook request
+     * Handle incoming webhook request.
      */
     public function handle(Request $request): array
     {
@@ -37,7 +36,7 @@ class PaymentWebhookHandler
                 'headers' => $headers,
             ]);
 
-            if (!$this->validator->validateWebhookPayload($rawPayload, $headers)) {
+            if (! $this->validator->validateWebhookPayload($rawPayload, $headers)) {
                 Log::warning('Invalid webhook signature', [
                     'params' => $request->all(),
                     'raw_payload' => $rawPayload,
@@ -60,7 +59,7 @@ class PaymentWebhookHandler
     }
 
     /**
-     * Process validated webhook data
+     * Process validated webhook data.
      */
     private function processWebhookData(array $webhookData): array
     {
@@ -69,7 +68,7 @@ class PaymentWebhookHandler
         $transactionId = $webhookData['data']['transactionId'] ?? null;
         $amount = $webhookData['data']['amount'] ?? null;
 
-        if (!$merchantOrderId) {
+        if (! $merchantOrderId) {
             Log::error('Missing merchantOrderId in webhook data', ['webhook_data' => $webhookData]);
 
             return ['status' => 'error', 'message' => 'Missing order reference'];
@@ -77,7 +76,7 @@ class PaymentWebhookHandler
 
         $orderId = extractOrderIdFromMerchantOrderNumber($merchantOrderId);
 
-        if (!$orderId) {
+        if (! $orderId) {
             Log::error('Could not extract order ID from merchantOrderId', [
                 'merchantOrderId' => $merchantOrderId,
                 'webhook_data' => $webhookData,
@@ -88,7 +87,7 @@ class PaymentWebhookHandler
 
         $order = Order::find($orderId);
 
-        if (!$order) {
+        if (! $order) {
             Log::error('Order not found', ['order_id' => $orderId, 'merchantOrderId' => $merchantOrderId]);
 
             return ['status' => 'error', 'message' => 'Order not found'];
@@ -104,7 +103,7 @@ class PaymentWebhookHandler
     }
 
     /**
-     * Handle successful payment webhook
+     * Handle successful payment webhook.
      */
     private function handleSuccessfulPayment(Order $order, array $paymentData, ?string $transactionId, ?string $amount): void
     {
@@ -120,7 +119,7 @@ class PaymentWebhookHandler
     }
 
     /**
-     * Handle failed payment webhook
+     * Handle failed payment webhook.
      */
     private function handleFailedPayment(Order $order, array $paymentData, ?string $status): void
     {

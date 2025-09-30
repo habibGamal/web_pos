@@ -51,11 +51,11 @@ class ReturnOrderStatusUpdatedNotification extends Notification implements Shoul
             ->line($intro)
             ->line('')
             ->line('**تفاصيل طلب الإرجاع:**')
-            ->line('• رقم الإرجاع: #'.$this->returnOrder->id)
-            ->line('• رقم الطلب الأصلي: #'.$this->returnOrder->order_id)
-            ->line('• تاريخ طلب الإرجاع: '.$this->returnOrder->created_at->format('Y-m-d H:i:s'))
-            ->line('• الحالة الحالية: '.$this->returnOrder->status->getLabel())
-            ->line('• عدد العناصر: '.$this->returnOrder->items->sum('quantity'));
+            ->line('• رقم الإرجاع: #' . $this->returnOrder->id)
+            ->line('• رقم الطلب الأصلي: #' . $this->returnOrder->order_id)
+            ->line('• تاريخ طلب الإرجاع: ' . $this->returnOrder->created_at->format('Y-m-d H:i:s'))
+            ->line('• الحالة الحالية: ' . $this->returnOrder->status->getLabel())
+            ->line('• عدد العناصر: ' . $this->returnOrder->items->sum('quantity'));
 
         // Add admin notes if present
         if ($this->returnOrder->admin_notes) {
@@ -68,10 +68,10 @@ class ReturnOrderStatusUpdatedNotification extends Notification implements Shoul
         if ($this->returnOrder->status === ReturnOrderStatus::COMPLETED && $this->returnOrder->refund_amount) {
             $message->line('')
                 ->line('**تفاصيل الاسترداد:**')
-                ->line('• المبلغ المسترد: '.number_format((float) $this->returnOrder->refund_amount, 2).' جنيه');
+                ->line('• المبلغ المسترد: ' . number_format((float) $this->returnOrder->refund_amount, 2) . ' جنيه');
 
             if ($this->returnOrder->refunded_at) {
-                $message->line('• تاريخ الاسترداد: '.$this->returnOrder->refunded_at->format('Y-m-d H:i:s'));
+                $message->line('• تاريخ الاسترداد: ' . $this->returnOrder->refunded_at->format('Y-m-d H:i:s'));
             }
         }
 
@@ -79,27 +79,27 @@ class ReturnOrderStatusUpdatedNotification extends Notification implements Shoul
 
         $message->action('عرض تفاصيل الإرجاع', route('returns.show', $this->returnOrder))
             ->line('')
-            ->line('شكراً لك على ثقتك في '.config('app.name'))
-            ->salutation('مع أطيب التحيات,'."\n".'فريق '.config('app.name'));
+            ->line('شكراً لك على ثقتك في ' . config('app.name'))
+            ->salutation('مع أطيب التحيات,' . "\n" . 'فريق ' . config('app.name'));
 
         return $message;
     }
 
     /**
-     * Get subject line based on status
+     * Get subject line based on status.
      */
     private function getSubjectByStatus(): string
     {
         return match ($this->returnOrder->status) {
-            ReturnOrderStatus::APPROVED => 'تمت الموافقة على طلب الإرجاع - رقم #'.$this->returnOrder->id,
-            ReturnOrderStatus::REJECTED => 'تم رفض طلب الإرجاع - رقم #'.$this->returnOrder->id,
-            ReturnOrderStatus::COMPLETED => 'تم إكمال عملية الإرجاع - رقم #'.$this->returnOrder->id,
-            default => 'تحديث حالة طلب الإرجاع - رقم #'.$this->returnOrder->id,
+            ReturnOrderStatus::APPROVED => 'تمت الموافقة على طلب الإرجاع - رقم #' . $this->returnOrder->id,
+            ReturnOrderStatus::REJECTED => 'تم رفض طلب الإرجاع - رقم #' . $this->returnOrder->id,
+            ReturnOrderStatus::COMPLETED => 'تم إكمال عملية الإرجاع - رقم #' . $this->returnOrder->id,
+            default => 'تحديث حالة طلب الإرجاع - رقم #' . $this->returnOrder->id,
         };
     }
 
     /**
-     * Get intro message based on status
+     * Get intro message based on status.
      */
     private function getIntroByStatus(): string
     {
@@ -112,7 +112,7 @@ class ReturnOrderStatusUpdatedNotification extends Notification implements Shoul
     }
 
     /**
-     * Add status-specific content to the message
+     * Add status-specific content to the message.
      */
     private function addStatusSpecificContent(MailMessage $message): MailMessage
     {

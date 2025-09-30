@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { Geist, Geist_Mono } from 'next/font/google';
+// @ts-ignore
 import '../globals.css';
 import { getMessages } from 'next-intl/server';
 import Providers from '../providers';

@@ -60,7 +60,7 @@ class Category extends Model
      */
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'parent_id');
+        return $this->belongsTo(self::class, 'parent_id');
     }
 
     /**
@@ -68,43 +68,22 @@ class Category extends Model
      */
     public function children(): HasMany
     {
-        return $this->hasMany(Category::class, 'parent_id');
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     /**
-     * Get the display image with fallback to first product's featured image.
+     * Check if the category has any products.
      */
-    public function getDisplayImageAttribute(): ?string
+    public function hasProducts(): bool
     {
-        // Return the category's own image if it exists
-        if (!empty($this->image)) {
-            return $this->image;
-        }
-
-        // Fallback to first product's featured image
-        $firstProduct = $this->products()
-            ->where('is_active', true)
-            ->first();
-
-        return $firstProduct?->featured_image;
+        return $this->products()->exists();
     }
 
     /**
-     * Get the image URL with fallback logic.
+     * Scope to get only active categories.
      */
-    public function getImageUrlAttribute(): ?string
+    public function scopeActive($query)
     {
-        $image = $this->display_image;
-
-        if (!$image) {
-            return null;
-        }
-
-        // Return full URL for external images or storage path for local images
-        if (str_starts_with($image, 'http')) {
-            return $image;
-        }
-
-        return asset('storage/' . $image);
+        return $query->where('is_active', true);
     }
 }

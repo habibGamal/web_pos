@@ -30,7 +30,7 @@ class OrderReturnController extends Controller
     }
 
     /**
-     * Request return for an order (Legacy - redirects to new return system)
+     * Request return for an order (Legacy - redirects to new return system).
      */
     public function requestReturn(RequestOrderReturnRequest $request, int $orderId)
     {
@@ -40,7 +40,7 @@ class OrderReturnController extends Controller
     }
 
     /**
-     * Show return history for the user (Legacy - redirects to new system)
+     * Show return history for the user (Legacy - redirects to new system).
      */
     public function history(Request $request)
     {

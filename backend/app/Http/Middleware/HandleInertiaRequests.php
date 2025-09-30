@@ -42,7 +42,7 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
-     * Get cart information if user is authenticated
+     * Get cart information if user is authenticated.
      */
     private function getCartInfo(Request $request): array
     {

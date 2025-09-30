@@ -13,9 +13,6 @@ class SocialAuthController extends Controller
 {
     /**
      * Redirect the user to the provider authentication page.
-     *
-     * @param string $provider
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function redirectToProvider(string $provider): RedirectResponse
     {
@@ -24,22 +21,19 @@ class SocialAuthController extends Controller
 
     /**
      * Handle provider callback and authenticate user.
-     *
-     * @param string $provider
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function handleProviderCallback(string $provider): RedirectResponse
     {
         try {
             $socialUser = Socialite::driver($provider)->user();
-            
+
             // Check if user already exists with this provider ID
             $user = User::where("{$provider}_id", $socialUser->getId())->first();
-            
+
             // If user doesn't exist with provider ID, check by email
-            if (!$user) {
+            if (! $user) {
                 $user = User::where('email', $socialUser->getEmail())->first();
-                
+
                 // If user exists with email, update their provider ID
                 if ($user) {
                     $user->update([
@@ -57,10 +51,10 @@ class SocialAuthController extends Controller
                     ]);
                 }
             }
-            
+
             // Login the user
             Auth::login($user);
-            
+
             return redirect()->intended(route('home', absolute: false));
         } catch (\Exception $e) {
             return redirect()->route('login')->withErrors([

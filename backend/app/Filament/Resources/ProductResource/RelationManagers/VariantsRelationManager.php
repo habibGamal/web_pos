@@ -7,8 +7,6 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class VariantsRelationManager extends RelationManager
 {
@@ -21,7 +19,6 @@ class VariantsRelationManager extends RelationManager
     protected static ?string $label = 'متغير';
 
     protected static ?string $title = 'متغيرات المنتج';
-
 
     public function form(Form $form): Form
     {
@@ -52,23 +49,130 @@ class VariantsRelationManager extends RelationManager
                     ->minValue(0)
                     ->default(0),
 
-                Forms\Components\TextInput::make('color')
-                    ->label('اللون')
-                    ->maxLength(255),
+                Forms\Components\Repeater::make('variant_attributes')
+                    ->label('خصائص المنتج')
+                    ->schema([
+                        Forms\Components\Select::make('attribute_id')
+                            ->label('الخاصية')
+                            ->options(function (callable $get) {
+                                $locale = app()->getLocale();
+                                $allAttributes = \App\Models\Attribute::orderBy('sort_order')
+                                    ->pluck("name_{$locale}", 'id')
+                                    ->toArray();
 
-                Forms\Components\TextInput::make('size')
-                    ->label('الحجم')
-                    ->maxLength(255),
+                                // Get already selected attributes from other repeater items
+                                $currentIndex = $get('attribute_id') ? array_search($get('attribute_id'), array_keys($allAttributes)) : null;
+                                $selectedAttributes = collect($get('../../'))
+                                    ->pluck('attribute_id')
+                                    ->filter()
+                                    ->unique()
+                                    ->values()
+                                    ->toArray();
 
-                Forms\Components\TextInput::make('capacity')
-                    ->label('السعة')
-                    ->maxLength(255),
+                                // Remove already selected attributes (except current one)
+                                foreach ($selectedAttributes as $selectedId) {
+                                    if ($selectedId != $get('attribute_id')) {
+                                        unset($allAttributes[$selectedId]);
+                                    }
+                                }
 
-                Forms\Components\KeyValue::make('additional_attributes')
-                    ->label('خصائص إضافية')
-                    ->keyLabel('الخاصية')
-                    ->valueLabel('القيمة')
-                    ->reorderable(),
+                                return $allAttributes;
+                            })
+                            ->required()
+                            ->reactive()
+                            ->afterStateUpdated(fn (callable $set) => $set('attribute_value_id', null))
+                            ->searchable(),
+
+                        Forms\Components\Select::make('attribute_value_id')
+                            ->label('القيمة')
+                            ->options(function (callable $get) {
+                                $attributeId = $get('attribute_id');
+                                if (! $attributeId) {
+                                    return [];
+                                }
+
+                                $locale = app()->getLocale();
+                                $attribute = \App\Models\Attribute::find($attributeId);
+
+                                if (! $attribute) {
+                                    return [];
+                                }
+
+                                return \App\Models\AttributeValue::where('attribute_id', $attributeId)
+                                    ->orderBy('sort_order')
+                                    ->get()
+                                    ->mapWithKeys(function ($value) use ($locale, $attribute) {
+                                        $displayValue = $value->{"value_{$locale}"} ?? $value->value;
+
+                                        // Add color indicator for color attributes
+                                        if ($attribute->type->value === 'color' && $value->color_code) {
+                                            $displayValue = "🎨 {$displayValue}";
+                                        }
+
+                                        return [$value->id => $displayValue];
+                                    })
+                                    ->toArray();
+                            })
+                            ->required()
+                            ->reactive()
+                            ->searchable(),
+                    ])
+                    ->columns(2)
+                    ->defaultItems(0)
+                    ->collapsible()
+                    ->itemLabel(function (array $state): ?string {
+                        if (! isset($state['attribute_id']) || ! isset($state['attribute_value_id'])) {
+                            return null;
+                        }
+
+                        $locale = app()->getLocale();
+                        $attribute = \App\Models\Attribute::find($state['attribute_id']);
+                        $attributeValue = \App\Models\AttributeValue::find($state['attribute_value_id']);
+
+                        if (! $attribute || ! $attributeValue) {
+                            return null;
+                        }
+
+                        $attributeName = $attribute->{"name_{$locale}"} ?? $attribute->name_en;
+                        $displayValue = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
+
+                        return "{$attributeName}: {$displayValue}";
+                    })
+                    ->dehydrated(false)
+                    ->afterStateHydrated(function (Forms\Components\Repeater $component, $state, $record) {
+                        if (! $record) {
+                            return;
+                        }
+
+                        $attributeValues = $record->attributeValues()->with('attribute')->get();
+                        $formattedData = $attributeValues->map(function ($attributeValue) {
+                            return [
+                                'attribute_id' => $attributeValue->attribute_id,
+                                'attribute_value_id' => $attributeValue->id,
+                            ];
+                        })->toArray();
+
+                        $component->state($formattedData);
+                    })
+                    ->rules([
+                        function () {
+                            return function (string $attribute, $value, \Closure $fail) {
+                                if (! is_array($value)) {
+                                    return;
+                                }
+
+                                $attributeIds = collect($value)->pluck('attribute_id')->filter();
+                                $duplicates = $attributeIds->duplicates();
+
+                                if ($duplicates->isNotEmpty()) {
+                                    $duplicateAttribute = \App\Models\Attribute::find($duplicates->first());
+                                    $locale = app()->getLocale();
+                                    $attributeName = $duplicateAttribute ? ($duplicateAttribute->{"name_{$locale}"} ?? $duplicateAttribute->name_en) : 'Unknown';
+                                    $fail("لا يمكن تكرار الخاصية '{$attributeName}'. كل خاصية يجب أن تظهر مرة واحدة فقط.");
+                                }
+                            };
+                        },
+                    ]),
 
                 Forms\Components\FileUpload::make('images')
                     ->label('الصور')
@@ -119,19 +223,12 @@ class VariantsRelationManager extends RelationManager
                     ->label('الكمية')
                     ->sortable()
                     ->badge()
-                    ->color(fn($record) => $record->quantity > 0 ? 'success' : 'danger'),
+                    ->color(fn ($record) => $record->quantity > 0 ? 'success' : 'danger'),
 
-                Tables\Columns\TextColumn::make('color')
-                    ->label('اللون')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('size')
-                    ->label('الحجم')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('capacity')
-                    ->label('السعة')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('attributes_string')
+                    ->label('الخصائص')
+                    ->searchable(false)
+                    ->wrap(),
 
                 Tables\Columns\IconColumn::make('is_default')
                     ->label('افتراضي')
@@ -169,10 +266,52 @@ class VariantsRelationManager extends RelationManager
                     ->falseLabel('غير افتراضي فقط'),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->using(function (array $data, string $model): \Illuminate\Database\Eloquent\Model {
+                        // Extract variant attributes data
+                        $variantAttributes = $data['variant_attributes'] ?? [];
+                        unset($data['variant_attributes']);
+
+                        // Create the variant
+                        $variant = $model::create($data);
+
+                        // Sync attribute values
+                        $attributeValueIds = collect($variantAttributes)
+                            ->pluck('attribute_value_id')
+                            ->filter()
+                            ->unique()
+                            ->values()
+                            ->toArray();
+
+                        if (! empty($attributeValueIds)) {
+                            $variant->attributeValues()->sync($attributeValueIds);
+                        }
+
+                        return $variant;
+                    }),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->using(function (\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model {
+                        // Extract variant attributes data
+                        $variantAttributes = $data['variant_attributes'] ?? [];
+                        unset($data['variant_attributes']);
+
+                        // Update the variant
+                        $record->update($data);
+
+                        // Sync attribute values
+                        $attributeValueIds = collect($variantAttributes)
+                            ->pluck('attribute_value_id')
+                            ->filter()
+                            ->unique()
+                            ->values()
+                            ->toArray();
+
+                        $record->attributeValues()->sync($attributeValueIds);
+
+                        return $record;
+                    }),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class AdminNotificationService
 {
     /**
-     * Send order placed notification to admin
+     * Send order placed notification to admin.
      */
     public function sendOrderPlacedNotification(Order $order): void
     {
@@ -50,7 +50,7 @@ class AdminNotificationService
     }
 
     /**
-     * Send order return request notification to admin
+     * Send order return request notification to admin.
      */
     public function sendOrderReturnRequestNotification(Order $order): void
     {
@@ -87,7 +87,7 @@ class AdminNotificationService
     }
 
     /**
-     * Send return order request notification to admin (new system)
+     * Send return order request notification to admin (new system).
      */
     public function sendReturnRequestNotification(ReturnOrder $returnOrder): void
     {

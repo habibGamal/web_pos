@@ -5,12 +5,14 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
-use App\Enums\ReturnStatus;
+use App\Observers\OrderObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([OrderObserver::class])]
 class Order extends Model
 {
     use HasFactory;
@@ -35,10 +37,7 @@ class Order extends Model
         'notes',
         'payment_id',
         'payment_details',
-        'return_status',
         'delivered_at',
-        'return_requested_at',
-        'return_reason',
         'cancelled_at',
         'cancellation_reason',
         'refunded_at',
@@ -57,9 +56,7 @@ class Order extends Model
         'order_status' => OrderStatus::class,
         'payment_status' => PaymentStatus::class,
         'payment_method' => PaymentMethod::class,
-        'return_status' => ReturnStatus::class,
         'delivered_at' => 'datetime',
-        'return_requested_at' => 'datetime',
         'cancelled_at' => 'datetime',
         'refunded_at' => 'datetime',
     ];
@@ -122,30 +119,19 @@ class Order extends Model
     }
 
     /**
-     * Check if the return request is pending admin approval.
+     * Check if the order can be returned.
      */
-    public function hasReturnPending(): bool
+    public function canBeReturned(): bool
     {
-        return $this->return_status === ReturnStatus::RETURN_REQUESTED;
-    }
+        // Business logic: Orders can be returned if they're DELIVERED and within return window
+        if ($this->order_status !== OrderStatus::DELIVERED || ! $this->delivered_at) {
+            return false;
+        }
 
-    /**
-     * Check if the return has been approved but not yet completed.
-     */
-    public function hasReturnApproved(): bool
-    {
-        return $this->return_status === ReturnStatus::RETURN_APPROVED;
-    }
+        // Allow returns within 30 days of delivery
+        $returnWindow = now()->subDays(30);
 
-    /**
-     * Check if the return process is completed.
-     */
-    public function isReturnCompleted(): bool
-    {
-        return in_array($this->return_status, [
-            ReturnStatus::ITEM_RETURNED,
-            ReturnStatus::REFUND_PROCESSED,
-        ]);
+        return $this->delivered_at->greaterThan($returnWindow);
     }
 
     /**
@@ -197,14 +183,6 @@ class Order extends Model
     public function scopeCancelled($query)
     {
         return $query->where('order_status', OrderStatus::CANCELLED);
-    }
-
-    /**
-     * Scope a query to only include orders with returns.
-     */
-    public function scopeReturns($query)
-    {
-        return $query->whereNotNull('return_status');
     }
 
     /**

@@ -14,6 +14,7 @@ class SectionType
     public function title(Section $section): string
     {
         $locale = app()->getLocale();
+
         return $locale === 'ar' ? $section->title_ar : $section->title_en;
     }
 

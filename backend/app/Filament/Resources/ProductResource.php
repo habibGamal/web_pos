@@ -101,7 +101,7 @@ class ProductResource extends Resource
                                     ->prefix('ج.م'),
                             ]),
                     ])
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -141,7 +141,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('total_quantity')
                     ->label('المخزون')
                     ->badge()
-                    ->color(fn(Product $record): string => $record->is_in_stock ? 'success' : 'danger'),
+                    ->color(fn (Product $record): string => $record->is_in_stock ? 'success' : 'danger'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الإنشاء')
                     ->dateTime()
@@ -194,28 +194,28 @@ class ProductResource extends Resource
                         ->label('تفعيل')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->action(fn(Collection $records) => $records->each->update(['is_active' => true]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => true]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('deactivate')
                         ->label('إلغاء التفعيل')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
-                        ->action(fn(Collection $records) => $records->each->update(['is_active' => false]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => false]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('feature')
                         ->label('تمييز')
                         ->icon('heroicon-o-star')
                         ->color('warning')
-                        ->action(fn(Collection $records) => $records->each->update(['is_featured' => true]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_featured' => true]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('unfeature')
                         ->label('إلغاء التمييز')
                         ->icon('heroicon-o-no-symbol')
                         ->color('gray')
-                        ->action(fn(Collection $records) => $records->each->update(['is_featured' => false]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_featured' => false]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                 ]),

@@ -10,7 +10,7 @@ const NAVIGATION_DATA_QUERY = graphql(/* GraphQL */ `
       id
       name
       slug
-      display_image
+      image
       display_order
       is_active
       active_products_count
@@ -19,7 +19,7 @@ const NAVIGATION_DATA_QUERY = graphql(/* GraphQL */ `
       id
       name
       slug
-      display_image
+      image
       display_order
       is_active
       active_products_count

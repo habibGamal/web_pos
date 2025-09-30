@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1043045405849",
+    "project_id": "turbo-ecommerce-32ea9",
+    "storage_bucket": "turbo-ecommerce-32ea9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043045405849:android:d40f4db4d7fd4b2dc89408",
+        "android_client_info": {
+          "package_name": "com.turboecommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuh6FeMCETEe0N4CuJvpb1MMbHgoaHPBc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
