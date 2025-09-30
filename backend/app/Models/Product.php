@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\ProductType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Scout\Searchable;
 
@@ -28,13 +30,19 @@ class Product extends Model
         'slug',
         'description_en',
         'description_ar',
+        'type',
+        'parent_id',
+        'sku',
         'price',
         'sale_price',
         'cost_price',
+        'quantity',
+        'images',
         'category_id',
         'brand_id',
         'is_active',
         'is_featured',
+        'is_default',
     ];
 
     /**
@@ -42,13 +50,20 @@ class Product extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'price' => 'decimal:2',
-        'sale_price' => 'decimal:2',
-        'cost_price' => 'decimal:2',
-        'is_active' => 'boolean',
-        'is_featured' => 'boolean',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'type' => ProductType::class,
+            'price' => 'decimal:2',
+            'sale_price' => 'decimal:2',
+            'cost_price' => 'decimal:2',
+            'quantity' => 'integer',
+            'images' => 'array',
+            'is_active' => 'boolean',
+            'is_featured' => 'boolean',
+            'is_default' => 'boolean',
+        ];
+    }
 
     protected $appends = [
         'featured_image',
@@ -70,6 +85,8 @@ class Product extends Model
             'description_en' => $this->description_en,
             'description_ar' => $this->description_ar,
             'slug' => $this->slug,
+            'sku' => $this->sku,
+            'type' => $this->type->value,
             'brand_name_en' => $this->brand?->name_en,
             'brand_name_ar' => $this->brand?->name_ar,
             'category_name_en' => $this->category?->name_en,
@@ -120,6 +137,22 @@ class Product extends Model
     }
 
     /**
+     * Get the parent product (for variants).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Get the child variants (for configurable products).
+     */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id')->where('type', ProductType::VARIANT);
+    }
+
+    /**
      * Get the order items for this product.
      */
     public function orderItems(): HasMany
@@ -133,6 +166,30 @@ class Product extends Model
     public function wishlists()
     {
         return $this->hasMany(WishlistItem::class);
+    }
+
+    /**
+     * Get the attribute values for this product.
+     */
+    public function attributeValues(): BelongsToMany
+    {
+        return $this->belongsToMany(AttributeValue::class, 'product_attribute_values', 'product_id', 'attribute_value_id');
+    }
+
+    /**
+     * Get the bundle items (for bundle products).
+     */
+    public function bundleItems(): HasMany
+    {
+        return $this->hasMany(BundleItem::class, 'bundle_id');
+    }
+
+    /**
+     * Get the products in this bundle (for bundle products).
+     */
+    public function bundleProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(self::class, 'bundle_items', 'bundle_id', 'product_id')->withPivot('quantity');
     }
 
     /**
@@ -153,14 +210,6 @@ class Product extends Model
     }
 
     /**
-     * Get the variants for the product.
-     */
-    public function variants(): HasMany
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
-
-    /**
      * Get the sections for the product.
      */
     public function sections()
@@ -170,10 +219,14 @@ class Product extends Model
     }
 
     /**
-     * Get the default variant for the product.
+     * Get the default variant for configurable products.
      */
     public function defaultVariant()
     {
+        if ($this->type !== ProductType::CONFIGURABLE) {
+            return;
+        }
+
         return $this->variants()
             ->where('is_default', true)
             ->where('is_active', true)
@@ -181,61 +234,39 @@ class Product extends Model
     }
 
     /**
-     * Get the total quantity across all variants.
+     * Get the total quantity across all variants for configurable products.
      */
     public function getTotalQuantityAttribute(): int
     {
-        return $this->variants->sum('quantity');
+        if ($this->type === ProductType::CONFIGURABLE) {
+            return $this->variants->sum('quantity');
+        }
+
+        return $this->quantity;
     }
 
     /**
-     * Get the featured image from the default variant or first variant.
+     * Get the featured image.
      */
     public function getFeaturedImageAttribute()
     {
-        // Try to get image from default variant
-        $defaultVariant = $this->defaultVariant();
-        if ($defaultVariant && ! empty($defaultVariant->images)) {
-            return $defaultVariant->featured_image;
+        if (empty($this->images)) {
+            return;
         }
 
-        // If no default variant, try the first variant with images
-        $variantWithImages = $this->variants->filter(function ($variant) {
-            return ! empty($variant->images);
-        })->first();
-
-        return $variantWithImages ? $variantWithImages->featured_image : null;
+        return is_array($this->images) ? $this->images[0] : null;
     }
 
     /**
-     * Get all images from all variants.
-     */
-    public function getAllImagesAttribute(): array
-    {
-        $images = [];
-        foreach ($this->variants as $variant) {
-            if (! empty($variant->images)) {
-                $images = array_merge($images, $variant->images);
-            }
-        }
-
-        return array_unique($images);
-    }
-
-    /**
-     * Check if the product has any variants in stock.
+     * Check if the product has stock.
      */
     public function getIsInStockAttribute(): bool
     {
-        return $this->variants->where('quantity', '>', 0)->count() > 0;
-    }
+        if ($this->type === ProductType::CONFIGURABLE) {
+            return $this->variants->where('quantity', '>', 0)->count() > 0;
+        }
 
-    /**
-     * Get images attribute (alias for all_images).
-     */
-    public function getImagesAttribute(): array
-    {
-        return $this->all_images;
+        return $this->quantity > 0;
     }
 
     /**
@@ -247,11 +278,66 @@ class Product extends Model
     }
 
     /**
+     * Get variant attributes as a formatted string.
+     */
+    public function getAttributesStringAttribute(): string
+    {
+        return $this->attributeValues
+            ->groupBy('attribute.name')
+            ->map(fn ($values, $attributeName) => $attributeName . ': ' . $values->pluck('display_value')->join(', '))
+            ->join(' | ');
+    }
+
+    /**
+     * Check if product has a specific attribute value.
+     */
+    public function hasAttributeValue(int $attributeValueId): bool
+    {
+        return $this->attributeValues()->where('attribute_value_id', $attributeValueId)->exists();
+    }
+
+    /**
+     * Get attribute value by attribute name.
+     */
+    public function getProductAttributeValue(string $attributeName): ?string
+    {
+        $attributeValue = $this->attributeValues
+            ->whereHas('attribute', fn ($q) => $q->where('name_en', $attributeName)->orWhere('name_ar', $attributeName))
+            ->first();
+
+        return $attributeValue?->display_value;
+    }
+
+    /**
      * Scope to get only active products.
      */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope to get products by type.
+     */
+    public function scopeByType($query, ProductType $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope to get only parent products (simple, configurable, bundle).
+     */
+    public function scopeParents($query)
+    {
+        return $query->whereIn('type', [ProductType::SIMPLE, ProductType::CONFIGURABLE, ProductType::BUNDLE]);
+    }
+
+    /**
+     * Scope to get only variants.
+     */
+    public function scopeVariants($query)
+    {
+        return $query->where('type', ProductType::VARIANT);
     }
 
     public function scopeForCards()

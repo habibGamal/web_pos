@@ -15,7 +15,7 @@ class OrderObserver
     public function created(Order $order): void
     {
         try {
-            $this->kafkaService->publishOrderCreated($order);
+            // $this->kafkaService->publishOrderCreated($order);
         } catch (\Exception $e) {
             // Log the error but don't fail the order creation
             Log::error('Failed to publish order creation event to Kafka', [

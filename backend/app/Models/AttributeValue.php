@@ -47,14 +47,6 @@ class AttributeValue extends Model
     }
 
     /**
-     * Get the product variants that use this attribute value.
-     */
-    public function variants(): BelongsToMany
-    {
-        return $this->belongsToMany(ProductVariant::class, 'variant_attribute_values', 'attribute_value_id', 'variant_id');
-    }
-
-    /**
      * Get the display value in the current locale.
      */
     public function getDisplayValueAttribute(): string

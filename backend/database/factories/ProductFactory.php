@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProductType;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -24,58 +24,153 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name_en = $this->faker->unique()->words(3, true);
+        $type = $this->faker->randomElement([ProductType::SIMPLE, ProductType::CONFIGURABLE, ProductType::BUNDLE]);
+
         return [
             'name_en' => $name_en,
             'name_ar' => $this->faker->unique()->words(3, true),
             'slug' => Str::slug($name_en),
             'description_en' => $this->faker->paragraphs(3, true),
             'description_ar' => $this->faker->paragraphs(3, true),
+            'type' => $type,
+            'parent_id' => null,
+            'sku' => $type === ProductType::SIMPLE ? 'SKU-' . $this->faker->unique()->randomNumber(8) : null,
             'price' => $this->faker->randomFloat(2, 10, 500),
-            'sale_price' => null, // Make deterministic - don't randomly generate
+            'sale_price' => null,
             'cost_price' => $this->faker->randomFloat(2, 1, 300),
+            'quantity' => $type === ProductType::CONFIGURABLE ? 0 : $this->faker->numberBetween(0, 100),
+            'images' => $type !== ProductType::CONFIGURABLE ? [
+                'products/product-' . $this->faker->numberBetween(1, 10) . '.jpg',
+            ] : null,
             'category_id' => Category::factory(),
             'brand_id' => Brand::factory(),
-            'is_active' => $this->faker->boolean(80), // 80% chance of being active
-            'is_featured' => $this->faker->boolean(20), // 20% chance of being featured
-
+            'is_active' => $this->faker->boolean(80),
+            'is_featured' => $this->faker->boolean(20),
+            'is_default' => false,
         ];
     }
 
     /**
-     * Configure the model factory.
-     *
-     * @return $this
+     * Create a simple product.
      */
-    public function configure()
+    public function simple(): static
     {
-        // By default, no variants are created
-        return $this;
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => ProductType::SIMPLE,
+                'parent_id' => null,
+                'sku' => 'SKU-' . $this->faker->unique()->randomNumber(8),
+                'quantity' => $this->faker->numberBetween(0, 100),
+                'images' => [
+                    'products/product-' . $this->faker->numberBetween(1, 10) . '.jpg',
+                ],
+            ];
+        });
     }
 
     /**
-     * Create a product with variants.
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     * Create a configurable product.
      */
-    public function withVariants()
+    public function configurable(): static
     {
-        return $this->afterCreating(function (Product $product) {
-            // Create a default variant
-            ProductVariant::factory()
-                ->default()
-                ->create([
-                    'product_id' => $product->id,
-                    'sku' => 'SKU-' . $product->id . '-DEFAULT',
-                    'quantity' => rand(0, 30),
-                ]);
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => ProductType::CONFIGURABLE,
+                'parent_id' => null,
+                'sku' => null,
+                'quantity' => 0,
+                'images' => null,
+            ];
+        });
+    }
 
-            // Create 0-3 additional variants
-            $variantCount = rand(0, 3);
-            for ($i = 1; $i <= $variantCount; $i++) {
-                ProductVariant::factory()->create([
+    /**
+     * Create a variant product.
+     */
+    public function variant(?Product $parent = null): static
+    {
+        return $this->state(function (array $attributes) use ($parent) {
+            $parentProduct = $parent ?? Product::factory()->configurable()->create();
+
+            return [
+                'type' => ProductType::VARIANT,
+                'parent_id' => $parentProduct->id,
+                'sku' => 'SKU-' . $parentProduct->id . '-' . $this->faker->unique()->randomNumber(4),
+                'quantity' => $this->faker->numberBetween(0, 50),
+                'images' => [
+                    'products/variant-' . $this->faker->numberBetween(1, 10) . '.jpg',
+                ],
+                'category_id' => $parentProduct->category_id,
+                'brand_id' => $parentProduct->brand_id,
+                'is_default' => false,
+            ];
+        });
+    }
+
+    /**
+     * Create a bundle product.
+     */
+    public function bundle(): static
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'type' => ProductType::BUNDLE,
+                'parent_id' => null,
+                'sku' => 'BUNDLE-' . $this->faker->unique()->randomNumber(8),
+                'quantity' => $this->faker->numberBetween(0, 20),
+                'images' => [
+                    'products/bundle-' . $this->faker->numberBetween(1, 10) . '.jpg',
+                ],
+            ];
+        });
+    }
+
+    /**
+     * Create a default variant.
+     */
+    public function defaultVariant(): static
+    {
+        return $this->variant()->state([
+            'is_default' => true,
+        ]);
+    }
+
+    /**
+     * Create a product with variants (configurable with its variants).
+     */
+    public function withVariants(int $variantCount = 3): static
+    {
+        return $this->configurable()->afterCreating(function (Product $product) use ($variantCount) {
+            // Create a default variant
+            Product::factory()
+                ->variant($product)
+                ->defaultVariant()
+                ->create();
+
+            // Create additional variants
+            for ($i = 1; $i < $variantCount; ++$i) {
+                Product::factory()
+                    ->variant($product)
+                    ->create();
+            }
+        });
+    }
+
+    /**
+     * Create a bundle with products.
+     */
+    public function withBundleItems(int $itemCount = 3): static
+    {
+        return $this->bundle()->afterCreating(function (Product $bundle) use ($itemCount) {
+            $products = Product::factory()
+                ->count($itemCount)
+                ->simple()
+                ->create();
+
+            foreach ($products as $product) {
+                $bundle->bundleItems()->create([
                     'product_id' => $product->id,
-                    'sku' => 'SKU-' . $product->id . '-' . $i,
-                    'quantity' => rand(0, 20),
+                    'quantity' => $this->faker->numberBetween(1, 3),
                 ]);
             }
         });
@@ -83,29 +178,26 @@ class ProductFactory extends Factory
 
     /**
      * Create a product with a sale price.
-     *
-     * @param float|null $salePrice
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
      */
-    public function withSalePrice(float $salePrice = null): static
+    public function withSalePrice(?float $salePrice = null): static
     {
         return $this->state(function (array $attributes) use ($salePrice) {
             $price = $attributes['price'] ?? $this->faker->randomFloat(2, 10, 500);
+
             return [
-                'sale_price' => $salePrice ?? ($price * 0.8), // 20% discount by default
+                'sale_price' => $salePrice ?? ($price * 0.8),
             ];
         });
     }
 
     /**
-     * Create a product that's on sale (with random sale price).
-     *
-     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     * Create a product that's on sale.
      */
     public function onSale(): static
     {
         return $this->state(function (array $attributes) {
             $price = $attributes['price'] ?? $this->faker->randomFloat(2, 10, 500);
+
             return [
                 'sale_price' => $this->faker->randomFloat(2, 5, $price * 0.9),
             ];
