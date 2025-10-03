@@ -6,13 +6,10 @@ use App\Enums\OrderStatus;
 use App\Enums\ReturnOrderStatus;
 use App\Models\Address;
 use App\Models\Brand;
-use App\Models\Cart;
-use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\ReturnOrder;
 use App\Models\ReturnOrderItem;
 use App\Models\User;
@@ -38,7 +35,7 @@ describe('Returns GraphQL Operations', function () {
             'category_id' => $this->category->id,
             'brand_id' => $this->brand->id,
         ]);
-        $this->productVariant = ProductVariant::factory()->create([
+        $this->productVariant = Product::factory()->variant()->create([
             'product_id' => $this->product->id,
         ]);
 

@@ -25,4 +25,19 @@ enum ProductType: string
             ->mapWithKeys(fn ($case) => [$case->value => $case->label()])
             ->toArray();
     }
+
+    public function isParent(): bool
+    {
+        return in_array($this, [self::CONFIGURABLE, self::BUNDLE]);
+    }
+
+    public function isSimple(): bool
+    {
+        return $this === self::SIMPLE;
+    }
+
+    public function isVariant(): bool
+    {
+        return $this === self::VARIANT;
+    }
 }

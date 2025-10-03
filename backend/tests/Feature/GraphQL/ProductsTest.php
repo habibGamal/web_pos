@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Models\Product;
-use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
 

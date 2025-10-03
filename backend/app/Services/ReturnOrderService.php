@@ -277,9 +277,10 @@ class ReturnOrderService
             // Return items to stock
             foreach ($returnOrder->returnItems as $returnItem) {
                 $orderItem = $returnItem->orderItem;
-                if ($orderItem->variant_id && $orderItem->variant) {
+                // product_id now points directly to the variant (Product with type=VARIANT)
+                if ($orderItem->product_id && $orderItem->product) {
                     $this->inventoryService->returnInventory(
-                        $orderItem->variant,
+                        $orderItem->product,
                         $returnItem->quantity
                     );
                 }

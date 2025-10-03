@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\Brand;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
 
@@ -250,8 +250,6 @@ describe('Categories GraphQL Queries', function () {
             ]);
         });
     });
-
-
 
     describe('Category Product Counts', function () {
         it('correctly counts active and inactive products', function () {

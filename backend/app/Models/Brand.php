@@ -117,6 +117,14 @@ class Brand extends Model
     }
 
     /**
+     * Get the brand's URL for frontend routing.
+     */
+    public function url(): string
+    {
+        return '/brands/' . $this->slug;
+    }
+
+    /**
      * Scope to get only active brands.
      */
     public function scopeActive($query)

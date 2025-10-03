@@ -6,7 +6,6 @@ use App\Exceptions\InsufficientStockException;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -52,11 +51,11 @@ class InventoryManagementService
      *
      * @throws InsufficientStockException
      */
-    public function reserveInventory(ProductVariant $variant, int $quantity): bool
+    public function reserveInventory(Product $variant, int $quantity): bool
     {
         return DB::transaction(function () use ($variant, $quantity) {
             // Lock the variant for update to prevent race conditions
-            $lockedVariant = ProductVariant::where('id', $variant->id)->lockForUpdate()->first();
+            $lockedVariant = Product::where('id', $variant->id)->lockForUpdate()->first();
 
             if (! $lockedVariant) {
                 throw new \Exception('Product variant not found during inventory reservation.');
@@ -64,10 +63,11 @@ class InventoryManagementService
 
             // Check if there's sufficient stock
             if ($lockedVariant->quantity < $quantity) {
+                $parentProduct = $lockedVariant->parent ?? $lockedVariant;
                 throw new InsufficientStockException(
                     $quantity,
                     $lockedVariant->quantity,
-                    $lockedVariant->product->name_en ?? $lockedVariant->product->name_ar ?? "Product #{$lockedVariant->product_id}"
+                    $parentProduct->name_en ?? $parentProduct->name_ar ?? "Product #{$lockedVariant->id}"
                 );
             }
 
@@ -75,8 +75,8 @@ class InventoryManagementService
             $lockedVariant->decrement('quantity', $quantity);
 
             Log::info('Inventory reserved', [
-                'variant_id' => $lockedVariant->id,
-                'product_id' => $lockedVariant->product_id,
+                'product_id' => $lockedVariant->id,
+                'parent_id' => $lockedVariant->parent_id,
                 'quantity_reserved' => $quantity,
                 'remaining_stock' => $lockedVariant->fresh()->quantity,
             ]);
@@ -89,11 +89,11 @@ class InventoryManagementService
      * Return inventory to stock (increase stock).
      * This is typically called when cancelling orders or processing returns.
      */
-    public function returnInventory(ProductVariant $variant, int $quantity): bool
+    public function returnInventory(Product $variant, int $quantity): bool
     {
         return DB::transaction(function () use ($variant, $quantity) {
             // Lock the variant for update to prevent race conditions
-            $lockedVariant = ProductVariant::where('id', $variant->id)->lockForUpdate()->first();
+            $lockedVariant = Product::where('id', $variant->id)->lockForUpdate()->first();
 
             if (! $lockedVariant) {
                 throw new \Exception('Product variant not found during inventory return.');
@@ -103,8 +103,8 @@ class InventoryManagementService
             $lockedVariant->increment('quantity', $quantity);
 
             Log::info('Inventory returned', [
-                'variant_id' => $lockedVariant->id,
-                'product_id' => $lockedVariant->product_id,
+                'product_id' => $lockedVariant->id,
+                'parent_id' => $lockedVariant->parent_id,
                 'quantity_returned' => $quantity,
                 'new_stock' => $lockedVariant->fresh()->quantity,
             ]);
@@ -120,8 +120,9 @@ class InventoryManagementService
     public function returnOrderInventoryToStock(Order $order): void
     {
         foreach ($order->items as $item) {
-            if ($item->variant_id && $item->variant) {
-                $this->returnInventory($item->variant, $item->quantity);
+            // product_id now points directly to the variant (Product with type=VARIANT)
+            if ($item->product_id && $item->product) {
+                $this->returnInventory($item->product, $item->quantity);
             }
         }
 

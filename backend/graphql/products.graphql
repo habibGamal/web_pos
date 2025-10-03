@@ -6,6 +6,9 @@ type Product {
     "Unique primary key."
     id: ID!
 
+    "Product SKU (for variants and simple products)"
+    sku: String
+
     "Product price."
     price: Float!
 
@@ -71,15 +74,18 @@ type Product {
 
     "Product's sections"
     sections: [Section!]! @belongsToMany
+
+    "Product's options"
+    options: [Option!]! @belongsToMany
 }
 
-# Product Variant type
+# Product Variant type (now same as Product with type = VARIANT)
 type ProductVariant {
     "Unique identifier"
     id: ID!
 
-    "Product ID this variant belongs to"
-    product_id: ID!
+    "Parent product ID this variant belongs to"
+    parent_id: ID!
 
     "Variant display name based on attributes"
     name: String! @rename(attribute: "attributes_string")
@@ -93,7 +99,7 @@ type ProductVariant {
     "Variant stock quantity"
     quantity: Int!
 
-    "Variant price (nullable - uses product price if not set)"
+    "Variant price (nullable - uses parent product price if not set)"
     price: Float
 
     "Variant sale price (nullable)"
@@ -108,7 +114,7 @@ type ProductVariant {
     "Whether the variant is active"
     is_active: Boolean!
 
-    "Variant's effective price (with fallback)"
+    "Variant's effective price (with fallback to parent)"
     effective_price: Float! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@effectivePrice")
 
     "When the variant was created"
@@ -118,10 +124,13 @@ type ProductVariant {
     updated_at: DateTime!
 
     "Parent product"
-    product: Product! @belongsTo
+    parent: Product! @belongsTo(relation: "parent")
 
     "Variant's attribute values"
     attribute_values: [AttributeValue!]! @belongsToMany(relation: "attributeValues")
+
+    "Variant's attributes grouped by attribute type"
+    grouped_attributes: [GroupedAttribute!]! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@groupedAttributes")
 
     "Whether the variant is in stock"
     is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@isInStock")
@@ -141,11 +150,26 @@ type Category {
     "Category name in current locale"
     name: String! @localized
 
+    "Category name in English"
+    name_en: String!
+
+    "Category name in Arabic"
+    name_ar: String!
+
     "Category's display image with fallback logic"
     image: String
 
+    "Category's display image URL (alias)"
+    display_image: String @rename(attribute: "image")
+
+    "Category's image URL (alias)"
+    image_url: String @rename(attribute: "image")
+
     "Category's display order"
     display_order: Int!
+
+    "Category's URL (for frontend routing)"
+    url: String @method(name: "url")
 
     "Category's parent ID"
     parent_id: ID
@@ -195,11 +219,26 @@ type Brand {
     "Brand name in current locale"
     name: String! @localized
 
+    "Brand name in English"
+    name_en: String!
+
+    "Brand name in Arabic"
+    name_ar: String!
+
     "Brand's display image with fallback logic"
     image: String
 
+    "Brand's display image URL (alias)"
+    display_image: String @rename(attribute: "image")
+
+    "Brand's image URL (alias)"
+    image_url: String @rename(attribute: "image")
+
     "Brand's display order"
     display_order: Int!
+
+    "Brand's URL (for frontend routing)"
+    url: String @method(name: "url")
 
     "Brand's parent ID"
     parent_id: ID
@@ -270,11 +309,23 @@ type Attribute {
     "Attribute name in current locale"
     name: String! @localized
 
+    "Attribute name in English"
+    name_en: String!
+
+    "Attribute name in Arabic"
+    name_ar: String!
+
     "Attribute input type"
     type: AttributeInputType!
 
     "Attribute description in current locale"
     description: String @localized
+
+    "Attribute description in English"
+    description_en: String
+
+    "Attribute description in Arabic"
+    description_ar: String
 
     "Sort order"
     sort_order: Int!
@@ -297,8 +348,17 @@ type AttributeValue {
     "Attribute ID this value belongs to"
     attribute_id: ID!
 
-    "Value identifier"
-    value: String! @localized
+    "Value identifier (raw value like 'S', 'M', 'L')"
+    value: String!
+
+    "Value identifier in English"
+    value_en: String
+
+    "Value identifier in Arabic"
+    value_ar: String
+
+    "Display value (localized) - for frontend display"
+    display_value: String! @localized(field: "value")
 
     "Color code for color attributes"
     color_code: String
@@ -316,7 +376,31 @@ type AttributeValue {
     attribute: Attribute! @belongsTo
 
     "Product variants using this value"
-    variants: [ProductVariant!]! @belongsToMany(relation: "variants")
+    variants: [Product!]! @belongsToMany(relation: "variants")
+}
+
+# Option type
+type Option {
+    "Unique identifier"
+    id: ID!
+
+    "Option name (localized)"
+    name: String! @localized
+
+    "Option name in English"
+    name_en: String!
+
+    "Option name in Arabic"
+    name_ar: String!
+
+    "Array of possible values"
+    values: [String!]!
+
+    "When the option was created"
+    created_at: DateTime!
+
+    "When the option was last updated"
+    updated_at: DateTime!
 }
 
 # Variant Attribute Group type
@@ -324,7 +408,16 @@ type VariantAttributeGroup {
     "Attribute information"
     attribute: Attribute!
 
-    "Values for this attribute"
+    "Values for this attribute (localized display values)"
+    values: [String!]!
+}
+
+# Grouped attributes result
+type GroupedAttribute {
+    "Attribute information"
+    attribute: Attribute!
+
+    "Values for this attribute (localized display values)"
     values: [String!]!
 }
 
@@ -452,8 +545,8 @@ extend type Query {
     "Get a single category by slug"
     categoryBySlug(
         "Category slug"
-        slug: String! @rules(apply: ["required", "exists:categories,slug"])
-    ): Category @first @where(key: "slug")
+        slug: String! @rules(apply: ["required", "exists:categories,slug"]) @where(key: "slug")
+    ): Category @first
 
     "Get all brands in hierarchical structure"
     brands(
@@ -472,8 +565,8 @@ extend type Query {
     "Get a single brand by slug"
     brandBySlug(
         "Brand slug"
-        slug: String! @rules(apply: ["required", "exists:brands,slug"])
-    ): Brand @first @where(key: "slug")
+        slug: String! @rules(apply: ["required", "exists:brands,slug"]) @where(key: "slug")
+    ): Brand @first
 
     "Get all sections"
     sections(

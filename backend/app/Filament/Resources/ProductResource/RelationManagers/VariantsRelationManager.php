@@ -8,6 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class VariantsRelationManager extends RelationManager
 {
@@ -129,7 +130,7 @@ class VariantsRelationManager extends RelationManager
                         Forms\Components\Tabs\Tab::make('الخصائص')
                             ->icon('heroicon-o-tag')
                             ->schema([
-                                Forms\Components\Repeater::make('attributeValues')
+                                Forms\Components\Repeater::make('productAttributeValues')
                                     ->label('خصائص المتغير')
                                     ->relationship()
                                     ->schema([
@@ -138,26 +139,32 @@ class VariantsRelationManager extends RelationManager
                                             ->options(function () {
                                                 return \App\Models\Attribute::pluck('name_' . app()->getLocale(), 'id')->toArray();
                                             })
-                                            ->required()
-                                            ->live()
-                                            ->afterStateUpdated(fn (Forms\Set $set) => $set('id', null))
-                                            ->searchable(),
-                                        Forms\Components\Select::make('id')
-                                            ->label('القيمة')
-                                            ->options(function (Forms\Get $get) {
-                                                $attributeId = $get('attribute_id');
-                                                if (! $attributeId) {
-                                                    return [];
+                                            ->afterStateHydrated(function (Forms\Components\Select $component, Forms\Get $get) {
+                                                $attribute = \App\Models\AttributeValue::with('attribute')
+                                                    ->where('id', $get('attribute_value_id'))->first()?->attribute;
+                                                if ($attribute) {
+                                                    $component->state($attribute->id);
                                                 }
+                                            })
+                                            ->required()
+                                            // ->live()
+                                            ->dehydrated(false)
+                                            // ->afterStateUpdated(fn(Forms\Set $set) => $set('id', null))
+                                            ->searchable(),
+                                        Forms\Components\Select::make('attribute_value_id')
+                                            ->label('الخاصية والقيمة')
+                                            ->live()
+                                            ->options(function (Forms\Get $get) {
                                                 $locale = app()->getLocale();
+                                                $attributeId = $get('attribute_id');
 
-                                                return \App\Models\AttributeValue::where('attribute_id', $attributeId)
-                                                    ->orderBy('sort_order')
+                                                return \App\Models\AttributeValue::with('attribute')
+                                                    ->when($attributeId, fn (Builder $query) => $query->where('attribute_id', $attributeId))
                                                     ->get()
                                                     ->mapWithKeys(function ($attributeValue) use ($locale) {
-                                                        $displayValue = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
+                                                        $valueName = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
 
-                                                        return [$attributeValue->id => $displayValue];
+                                                        return [$attributeValue->id => $valueName];
                                                     })
                                                     ->toArray();
                                             })
@@ -168,16 +175,18 @@ class VariantsRelationManager extends RelationManager
                                     ->defaultItems(0)
                                     ->collapsible()
                                     ->itemLabel(function (array $state): ?string {
-                                        if (! isset($state['attribute_id']) || ! isset($state['id'])) {
+                                        if (! isset($state['attribute_value_id'])) {
                                             return null;
                                         }
-                                        $attribute = \App\Models\Attribute::find($state['attribute_id']);
-                                        $attributeValue = \App\Models\AttributeValue::find($state['id']);
-                                        if (! $attribute || ! $attributeValue) {
+                                        $attributeValue = \App\Models\AttributeValue::with('attribute')->find($state['attribute_value_id']);
+                                        if (! $attributeValue || ! $attributeValue->attribute) {
                                             return null;
                                         }
+                                        $locale = app()->getLocale();
+                                        $attributeName = $attributeValue->attribute->{"name_{$locale}"} ?? $attributeValue->attribute->name;
+                                        $valueName = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
 
-                                        return $attribute->{'name_' . app()->getLocale()} . ': ' . $attributeValue->display_value;
+                                        return "{$attributeName}: {$valueName}";
                                     })
                                     ->columnSpanFull(),
                             ]),
@@ -207,7 +216,7 @@ class VariantsRelationManager extends RelationManager
                     ->sortable()
                     ->description(
                         fn ($record): ?string => $record->sale_price ?
-                            'عرض: ' . number_format((float) $record->sale_price, 2) . ' ج.م' : null
+                        'عرض: ' . number_format((float) $record->sale_price, 2) . ' ج.م' : null
                     ),
                 Tables\Columns\TextColumn::make('quantity')
                     ->label('المخزون')

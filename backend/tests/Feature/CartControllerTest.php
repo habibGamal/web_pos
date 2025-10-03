@@ -3,7 +3,6 @@
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia;
@@ -24,7 +23,7 @@ beforeEach(function () {
     ]);
 
     // Create a product variant
-    $this->variant = ProductVariant::factory()->create([
+    $this->variant = Product::factory()->variant()->create([
         'product_id' => $this->product->id,
         'is_active' => true,
         'is_default' => true,
@@ -48,14 +47,15 @@ test('can view cart page', function () {
 
     // Visit the cart page
     $response = $this->get(route('cart.index'));    // Assert that the page renders with the correct data
-    $response->assertInertia(fn (AssertableInertia $page) => $page
-        ->component('Cart/Index')
-        ->has('cart')
-        ->has('cart.items', 1)
-        ->has('cartSummary')
-        ->where('cartSummary.totalItems', 2)
+    $response->assertInertia(
+        fn (AssertableInertia $page) => $page
+            ->component('Cart/Index')
+            ->has('cart')
+            ->has('cart.items', 1)
+            ->has('cartSummary')
+            ->where('cartSummary.totalItems', 2)
         // Use a callback to compare float values to avoid precision issues
-        ->where('cartSummary.totalPrice', 200)
+            ->where('cartSummary.totalPrice', 200)
     );
 });
 
@@ -229,7 +229,7 @@ test('can clear cart', function () {
     ]);
 
     $product2 = Product::factory()->create(['is_active' => true]);
-    $variant2 = ProductVariant::factory()->create([
+    $variant2 = Product::factory()->variant()->create([
         'product_id' => $product2->id,
         'is_active' => true,
     ]);

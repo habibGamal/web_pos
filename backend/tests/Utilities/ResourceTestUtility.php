@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class ResourceTestUtility
 {
     /**
-     * Clean up all tables with foreign key checks disabled
+     * Clean up all tables with foreign key checks disabled.
      */
     public static function cleanupTables(array $tables): void
     {
@@ -19,7 +19,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Common product-related tables
+     * Common product-related tables.
      */
     public static function getProductTables(): array
     {
@@ -32,7 +32,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Extended product-related tables including relationships
+     * Extended product-related tables including relationships.
      */
     public static function getExtendedProductTables(): array
     {
@@ -48,7 +48,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Category-specific tables
+     * Category-specific tables.
      */
     public static function getCategoryTables(): array
     {
@@ -58,7 +58,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Brand-specific tables
+     * Brand-specific tables.
      */
     public static function getBrandTables(): array
     {
@@ -68,7 +68,7 @@ class ResourceTestUtility
     }
 
     /**
-     * User-related tables
+     * User-related tables.
      */
     public static function getUserTables(): array
     {
@@ -79,7 +79,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Order-related tables
+     * Order-related tables.
      */
     public static function getOrderTables(): array
     {
@@ -91,7 +91,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Clean up product-related tables
+     * Clean up product-related tables.
      */
     public static function cleanupProductTables(): void
     {
@@ -99,7 +99,7 @@ class ResourceTestUtility
     }
 
     /**
-     * Clean up extended product-related tables
+     * Clean up extended product-related tables.
      */
     public static function cleanupExtendedProductTables(): void
     {

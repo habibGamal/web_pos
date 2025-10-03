@@ -194,4 +194,12 @@ class Order extends Model
             ->where('payment_status', PaymentStatus::PAID)
             ->whereNot('payment_method', PaymentMethod::CASH_ON_DELIVERY);
     }
+
+    /**
+     * Get the currency code for the order.
+     */
+    public function getCurrency(): string
+    {
+        return 'EGP';
+    }
 }

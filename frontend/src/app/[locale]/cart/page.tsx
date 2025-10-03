@@ -260,15 +260,25 @@ export default function CartPage() {
                             {item.product.name}
                           </Link>
                         </h3>
-                        {item.variant.name && (
+                        {item.variant?.name && (
                           <p className="text-sm text-gray-600">
                             {t('cart.variant')}: {item.variant.name}
                           </p>
                         )}
-                        {item.variant.sku && (
+                        {item.variant?.sku && (
                           <p className="text-xs text-gray-500">
                             {t('cart.sku')}: {item.variant.sku}
                           </p>
+                        )}
+                        {/* Display product options */}
+                        {item.options && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {Object.entries(JSON.parse(item.options)).map(([key, value]) => (
+                              <Badge key={key} variant="outline" className="text-xs">
+                                {key}: {String(value)}
+                              </Badge>
+                            ))}
+                          </div>
                         )}
                       </div>
                       

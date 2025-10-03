@@ -7,7 +7,6 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
@@ -27,7 +26,7 @@ describe('Order Management GraphQL Operations', function () {
             'price' => 100.00,
         ]);
 
-        $this->variant = ProductVariant::factory()->create([
+        $this->variant = Product::factory()->variant()->create([
             'product_id' => $this->product->id,
             'quantity' => 100,
             'is_active' => true,

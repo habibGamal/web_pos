@@ -33,24 +33,26 @@ class OrderItemsRelationManager extends RelationManager
 
                 Forms\Components\TextInput::make('variant_details')
                     ->label('المتغير')
-                    ->visible(fn ($record) => $record->variant_id !== null)
+                    ->visible(fn ($record) => $record->product && $record->product->type === \App\Enums\ProductType::VARIANT)
                     ->formatStateUsing(function ($record) {
-                        if (! $record->variant) {
+                        // product_id now points directly to the variant (Product with type=VARIANT)
+                        if (! $record->product || $record->product->type !== \App\Enums\ProductType::VARIANT) {
                             return;
                         }
 
+                        $variant = $record->product;
                         $variantDetails = [];
 
-                        if ($record->variant->color) {
-                            $variantDetails[] = 'اللون: ' . $record->variant->color;
+                        if ($variant->color) {
+                            $variantDetails[] = 'اللون: ' . $variant->color;
                         }
 
-                        if ($record->variant->size) {
-                            $variantDetails[] = 'الحجم: ' . $record->variant->size;
+                        if ($variant->size) {
+                            $variantDetails[] = 'الحجم: ' . $variant->size;
                         }
 
-                        if ($record->variant->capacity) {
-                            $variantDetails[] = 'السعة: ' . $record->variant->capacity;
+                        if ($variant->capacity) {
+                            $variantDetails[] = 'السعة: ' . $variant->capacity;
                         }
 
                         return ! empty($variantDetails) ? implode(' | ', $variantDetails) : null;

@@ -129,13 +129,24 @@ export function CartItemComponent({
                 </h3>
                 
                 {/* Variant Information */}
-                {item.variant.name && (
+                {item.variant?.name && (
                   <p className="text-sm text-gray-600 mt-1">
                     {t('variant')}: {item.variant.name}
                   </p>
                 )}
                 
-                {item.variant.sku && (
+                {/* Selected Options */}
+                {item.options && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {Object.entries(JSON.parse(item.options)).map(([key, value]) => (
+                      <Badge key={key} variant="secondary" className="text-xs">
+                        {key}: {value as string}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+                
+                {item.variant?.sku && (
                   <p className="text-xs text-gray-500 mt-1">
                     {t('sku')}: {item.variant.sku}
                   </p>
@@ -314,6 +325,16 @@ export function CompactCartItem({
         <p className="text-xs text-gray-600">
           {formatPrice(item.unit_price)} × {item.quantity}
         </p>
+        {/* Selected Options */}
+        {item.options && (
+          <div className="flex flex-wrap gap-1 mt-1">
+            {Object.entries(JSON.parse(item.options)).map(([key, value]) => (
+              <Badge key={key} variant="secondary" className="text-[10px] py-0 px-1">
+                {key}: {value as string}
+              </Badge>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Quantity Controls */}

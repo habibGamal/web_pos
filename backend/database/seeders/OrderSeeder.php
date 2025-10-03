@@ -87,9 +87,9 @@ class OrderSeeder extends Seeder
                     $itemSubtotal = $quantity * $unitPrice;
                     $subtotal += $itemSubtotal;
 
+                    // product_id now points directly to the variant (Product with type=VARIANT)
                     $orderItems[] = [
-                        'product_id' => $product->id,
-                        'variant_id' => $variant?->id,
+                        'product_id' => $variant?->id ?? $product->id,
                         'quantity' => $quantity,
                         'unit_price' => $unitPrice,
                         'subtotal' => $itemSubtotal,

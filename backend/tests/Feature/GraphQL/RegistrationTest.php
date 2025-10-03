@@ -169,11 +169,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.email'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.email',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -211,11 +211,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.email'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.email',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -279,11 +279,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.password'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.password',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -316,11 +316,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.password'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.password',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -354,11 +354,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.locale'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.locale',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -504,11 +504,11 @@ describe('Registration GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.phone'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.phone',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
     });

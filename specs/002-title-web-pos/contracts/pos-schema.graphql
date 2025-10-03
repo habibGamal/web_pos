@@ -1,0 +1,80 @@
+# POS System GraphQL Schema
+# Feature: 002-title-web-pos
+# Purpose: POS system mutations for order management (protected by API key)
+
+"""
+Input for POS accepting an order
+"""
+input PosAcceptOrderInput {
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+    pos_order_id: String! @rules(apply: ["required", "string", "max:255"])
+}
+
+"""
+Input for POS rejecting an order
+"""
+input PosRejectOrderInput {
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+    reason_en: String! @rules(apply: ["required", "string", "max:1000"])
+    reason_ar: String! @rules(apply: ["required", "string", "max:1000"])
+}
+
+"""
+Input for POS updating order status
+"""
+input PosUpdateOrderStatusInput {
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+    pos_order_id: String @rules(apply: ["string", "max:255"])
+    new_status: OrderStatus! @rules(apply: ["required"])
+    reason_en: String @rules(apply: ["string", "max:1000"])
+    reason_ar: String @rules(apply: ["string", "max:1000"])
+}
+
+extend type Mutation {
+    """
+    POS system accepts an order (POS Manager mode only)
+    Protected by API key authentication via @guard(with: ["pos"])
+    """
+    posAcceptOrder(input: PosAcceptOrderInput! @spread): OrderStatusResponse
+        @guard(with: ["pos"])
+        @field(resolver: "App\\GraphQL\\Mutations\\PosAcceptOrder")
+    
+    """
+    POS system rejects an order (POS Manager mode only)
+    Protected by API key authentication via @guard(with: ["pos"])
+    """
+    posRejectOrder(input: PosRejectOrderInput! @spread): OrderStatusResponse
+        @guard(with: ["pos"])
+        @field(resolver: "App\\GraphQL\\Mutations\\PosRejectOrder")
+    
+    """
+    POS system updates order status (any transition)
+    Protected by API key authentication via @guard(with: ["pos"])
+    """
+    posUpdateOrderStatus(input: PosUpdateOrderStatusInput! @spread): OrderStatusResponse
+        @guard(with: ["pos"])
+        @field(resolver: "App\\GraphQL\\Mutations\\PosUpdateOrderStatus")
+}
+
+"""
+POS system information query (for health check)
+"""
+extend type Query {
+    """
+    POS system health check and configuration info
+    Protected by API key authentication via @guard(with: ["pos"])
+    """
+    posSystemInfo: PosSystemInfo
+        @guard(with: ["pos"])
+        @field(resolver: "App\\GraphQL\\Queries\\PosSystemInfo")
+}
+
+"""
+POS system information
+"""
+type PosSystemInfo {
+    order_manager_type: OrderManagerType!
+    stock_manager_type: StockManagerType!
+    api_version: String!
+    timestamp: DateTime!
+}

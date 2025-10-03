@@ -1,9 +1,8 @@
 <?php
 
 /**
- * Sample test to verify Pest setup and basic functionality
+ * Sample test to verify Pest setup and basic functionality.
  */
-
 it('can verify basic application functionality', function () {
     expect(true)->toBe(true);
     expect('Laravel')->toContain('ara');

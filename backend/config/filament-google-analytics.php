@@ -2,13 +2,13 @@
 
 return [
 
-    /**
+    /*
      * Dashboard Page
      */
     'dedicated_dashboard' => true,
     'dashboard_icon' => 'heroicon-m-chart-bar',
 
-    /**
+    /*
      * Widgets
      */
     'page_views' => [
@@ -65,14 +65,14 @@ return [
         'global' => true,
     ],
 
-    /**
+    /*
      * Trajectory Icons
      */
     'trending_up_icon' => 'heroicon-o-arrow-trending-up',
     'trending_down_icon' => 'heroicon-o-arrow-trending-down',
     'steady_icon' => 'heroicon-o-arrows-right-left',
 
-    /**
+    /*
      * Trajectory Colors
      */
     'trending_up_color' => 'success',

@@ -410,9 +410,21 @@ export default function CheckoutPage() {
                         <h4 className="font-medium text-sm truncate">
                           {item.product.name}
                         </h4>
-                        <p className="text-xs text-muted-foreground">
-                          {item.variant.name} • Qty: {item.quantity}
-                        </p>
+                        <div className="text-xs text-muted-foreground">
+                          {item.variant?.name && (
+                            <span>{item.variant.name} • </span>
+                          )}
+                          <span>Qty: {item.quantity}</span>
+                        </div>
+                        {item.options && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {Object.entries(JSON.parse(item.options)).map(([key, value]) => (
+                              <span key={key} className="text-[10px] px-1.5 py-0.5 bg-muted rounded">
+                                {key}: {String(value)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <div className="text-sm font-medium">
                         EGP {item.total_price.toFixed(2)}

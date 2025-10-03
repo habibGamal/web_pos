@@ -209,7 +209,11 @@
     "category": "Category",
     "sku": "SKU",
     "noReviews": "No reviews yet",
-    "relatedProducts": "Related Products"
+    "relatedProducts": "Related Products",
+    "select": "Select",
+    "availableOptions": "Available Options",
+    "selectedOptions": "Selected Options",
+    "selectOption": "Please select {option}"
   }
 
   ,"wishlist": {
@@ -280,7 +284,8 @@
     "limitedStock": "Limited stock",
     "quantity": "Quantity",
     "lineTotal": "Line total",
-    "stockWarning": "Some items in your cart are no longer available in the requested quantity."
+    "stockWarning": "Some items in your cart are no longer available in the requested quantity.",
+    "options": "Options"
   }
 
   ,"brand": {

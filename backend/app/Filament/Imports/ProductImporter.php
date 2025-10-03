@@ -2,10 +2,10 @@
 
 namespace App\Filament\Imports;
 
+use App\Enums\ProductType;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
@@ -238,14 +238,16 @@ class ProductImporter extends Importer
                 $variant = null;
 
                 if (! empty($this->variantData['sku'])) {
-                    $variant = ProductVariant::where('product_id', $record->id)
+                    $variant = Product::where('parent_id', $record->id)
+                        ->where('type', ProductType::VARIANT)
                         ->where('sku', $this->variantData['sku'])
                         ->first();
                 }
 
                 // If no variant exists with this SKU, check by color, size, and capacity
                 if (! $variant && ! empty($this->variantData['color']) && ! empty($this->variantData['size'])) {
-                    $variant = ProductVariant::where('product_id', $record->id)
+                    $variant = Product::where('parent_id', $record->id)
+                        ->where('type', ProductType::VARIANT)
                         ->where('color', $this->variantData['color'])
                         ->where('size', $this->variantData['size'])
                         ->where('capacity', $this->variantData['capacity'])

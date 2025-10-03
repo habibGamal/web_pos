@@ -4,9 +4,10 @@ use App\Filament\Resources\ProductResource\Pages\CreateProduct;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use Tests\Utilities\ProductTestUtility;
 
 use function Pest\Livewire\livewire;
+
+use Tests\Utilities\ProductTestUtility;
 
 beforeEach(function () {
     ProductTestUtility::cleanupTables();

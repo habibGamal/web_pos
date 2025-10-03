@@ -33,8 +33,6 @@ class AnnouncementFactory extends Factory
 
     /**
      * Indicate that the announcement is active.
-     *
-     * @return static
      */
     public function active(): static
     {
@@ -44,4 +42,4 @@ class AnnouncementFactory extends Factory
             ];
         });
     }
-} 
+}

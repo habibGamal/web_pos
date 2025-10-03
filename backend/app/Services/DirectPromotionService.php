@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Enums\ProductType;
 use App\Models\DirectPromotion;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -89,12 +89,8 @@ class DirectPromotionService
     {
         $revertedCount = 0;
 
-        // Revert product sale prices
+        // Revert product sale prices (including variants)
         $revertedCount += Product::whereNotNull('sale_price')
-            ->update(['sale_price' => null]);
-
-        // Revert variant sale prices
-        $revertedCount += ProductVariant::whereNotNull('sale_price')
             ->update(['sale_price' => null]);
 
         // Deactivate all price discount promotions
@@ -212,8 +208,12 @@ class DirectPromotionService
         $activePromotions = DirectPromotion::active()->count();
         $priceDiscountPromotions = DirectPromotion::active()->priceDiscount()->count();
         $freeShippingPromotions = DirectPromotion::active()->freeShipping()->count();
-        $productsWithSalePrice = Product::whereNotNull('sale_price')->count();
-        $variantsWithSalePrice = ProductVariant::whereNotNull('sale_price')->count();
+        $productsWithSalePrice = Product::whereNotNull('sale_price')
+            ->whereIn('type', [ProductType::SIMPLE, ProductType::CONFIGURABLE, ProductType::BUNDLE])
+            ->count();
+        $variantsWithSalePrice = Product::whereNotNull('sale_price')
+            ->where('type', ProductType::VARIANT)
+            ->count();
 
         return [
             'active_promotions' => $activePromotions,

@@ -1,0 +1,170 @@
+# Order Management GraphQL Schema
+# Feature: 002-title-web-pos
+# Purpose: Order status transitions, history tracking, cancellation
+
+"""
+Order status enumeration for POS communication
+"""
+enum OrderStatus {
+    pending
+    rejected
+    processing
+    out_for_delivery
+    completed
+    cancelled
+}
+
+"""
+Order manager type determines who controls order lifecycle
+"""
+enum OrderManagerType {
+    order_pos_manager "External POS system controls order"
+    order_web_manager "Web admin controls order"
+}
+
+"""
+Actor type for audit trail (who performed the action)
+"""
+enum ActorType {
+    user "Customer action"
+    admin "Admin panel action"
+    system "Automated system action"
+    external "POS system action"
+}
+
+"""
+Extended Order type with POS communication fields
+"""
+type Order {
+    id: ID!
+    user: User! @belongsTo
+    status: OrderStatus!
+    order_manager: OrderManagerType!
+    
+    # POS Integration fields
+    pos_order_id: String
+    pos_confirmed_at: DateTime
+    rejected_reason: String @localized
+    
+    # Existing fields
+    total_amount: Float!
+    items: [OrderItem!]! @hasMany
+    
+    # New relationship: Status history
+    status_history: [OrderStatusHistory!]! @hasMany(relation: "history")
+    latest_history: OrderStatusHistory @hasOne(relation: "history")
+    
+    # Computed fields
+    is_pos_controlled: Boolean!
+    can_be_cancelled_by_user: Boolean! @field(resolver: "App\\GraphQL\\Queries\\Order@canBeCancelledByUser")
+    
+    # Timestamps
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+"""
+Order status change audit trail
+"""
+type OrderStatusHistory {
+    id: ID!
+    order: Order! @belongsTo
+    old_status: OrderStatus
+    new_status: OrderStatus!
+    actor_type: ActorType!
+    actor_id: ID
+    actor: User @belongsTo(relation: "actor")
+    reason: String @localized
+    metadata: JSON
+    created_at: DateTime!
+}
+
+"""
+Input for updating order status (admin action)
+"""
+input UpdateOrderStatusInput {
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+    new_status: OrderStatus! @rules(apply: ["required"])
+    reason_en: String @rules(apply: ["required_if:new_status,rejected,cancelled", "max:1000"])
+    reason_ar: String @rules(apply: ["required_if:new_status,rejected,cancelled", "max:1000"])
+}
+
+"""
+Input for cancelling an order (user or admin action)
+"""
+input CancelOrderInput {
+    order_id: ID! @rules(apply: ["required", "exists:orders,id"])
+    reason_en: String @rules(apply: ["max:1000"])
+    reason_ar: String @rules(apply: ["max:1000"])
+}
+
+"""
+Response for order status mutations
+"""
+type OrderStatusResponse {
+    success: Boolean!
+    message: String!
+    order: Order
+    errors: [String!]
+}
+
+extend type Query {
+    """
+    Get order by ID with status history (customer access)
+    """
+    order(id: ID! @eq): Order @find @can(ability: "view", find: "id")
+    
+    """
+    List user's own orders with filtering by status
+    Note: Admin order management is handled via Filament resources
+    """
+    orders(
+        status: OrderStatus @eq
+        orderBy: [OrdersOrderByClause!] @orderBy
+    ): [Order!]! @paginate(defaultCount: 20) @guard
+    
+    """
+    Get status history for an order (customer access to their own orders)
+    """
+    orderStatusHistory(
+        order_id: ID! @eq(key: "order_id")
+    ): [OrderStatusHistory!]! @all @can(ability: "view", model: "App\\Models\\Order", find: "order_id")
+}
+
+extend type Mutation {
+    """
+    Update order status (Web Manager mode only - used by admin via Filament, not directly exposed)
+    Note: This mutation exists for internal use. Admin UI is via Filament.
+    """
+    updateOrderStatus(input: UpdateOrderStatusInput! @spread): OrderStatusResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\UpdateOrderStatus")
+        @can(ability: "update", model: "App\\Models\\Order", find: "input.order_id")
+    
+    """
+    Cancel an order (customer action)
+    """
+    cancelOrder(input: CancelOrderInput! @spread): OrderStatusResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\CancelOrder")
+        @guard
+}
+
+"""
+Order sorting options
+"""
+input OrdersOrderByClause {
+    column: OrdersOrderByColumn!
+    order: SortOrder!
+}
+
+enum OrdersOrderByColumn {
+    ID
+    CREATED_AT
+    UPDATED_AT
+    TOTAL_AMOUNT
+    STATUS
+}
+
+enum SortOrder {
+    ASC
+    DESC
+}

@@ -48,6 +48,11 @@ const PRODUCTS_QUERY = graphql(/* GraphQL */ `
           is_active
           is_default
         }
+        options {
+          id
+          name
+          values
+        }
       }
       paginatorInfo {
         count
@@ -117,6 +122,11 @@ const PRODUCT_BY_ID_QUERY = graphql(/* GraphQL */ `
         is_active
         is_default
       }
+      options {
+        id
+        name
+        values
+      }
     }
   }
 `);
@@ -174,6 +184,11 @@ const PRODUCT_BY_SLUG_QUERY = graphql(/* GraphQL */ `
         quantity
         is_active
         is_default
+      }
+      options {
+        id
+        name
+        values
       }
     }
   }

@@ -83,7 +83,7 @@ class OrderService
             $this->adminNotificationService->sendOrderPlacedNotification($order);
 
             // Return the created order with all its related items
-            return $order->load('items.product', 'items.variant', 'shippingAddress');
+            return $order->load('items.product', 'shippingAddress');
         });
     }
 
@@ -132,7 +132,7 @@ class OrderService
         $user = $this->getAuthenticatedUser();
 
         return Order::where('user_id', $user->id)
-            ->with(['items.product', 'items.variant', 'shippingAddress.area.gov'])
+            ->with(['items.product', 'shippingAddress.area.gov'])
             ->findOrFail($orderId);
     }
 

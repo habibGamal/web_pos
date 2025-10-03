@@ -109,8 +109,8 @@ class CartService
     {
         $cart = $this->getOrCreateCart();
 
-        // Eager load the items with their products and variants for better performance
-        return $cart->load(['items.product', 'items.variant']);
+        // Eager load the items with their products for better performance
+        return $cart->load(['items.product']);
     }
 
     /**

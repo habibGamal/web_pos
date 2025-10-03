@@ -37,8 +37,6 @@ class HeroSlideFactory extends Factory
 
     /**
      * Indicate that the hero slide is active.
-     *
-     * @return static
      */
     public function active(): static
     {
@@ -48,4 +46,4 @@ class HeroSlideFactory extends Factory
             ];
         });
     }
-} 
+}

@@ -1,15 +1,11 @@
 <?php
 
-use App\Enums\PromotionConditionType;
-use App\Enums\PromotionRewardType;
-use App\Enums\PromotionType;
 use App\Models\Brand;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Models\PromotionCondition;
 use App\Models\PromotionReward;
@@ -84,14 +80,14 @@ describe('validatePromotionCode', function () {
     });
 
     it('returns discount amount and promotion for valid percentage promotion', function () {
-        $product = Product::factory()->create(['price' => 100, 'sale_price' => null]);
-        $variant = ProductVariant::factory()->create(['product_id' => $product->id, 'price' => 100, 'sale_price' => null]);
+        $product = Product::factory()->configurable()->create(['price' => 100, 'sale_price' => null]);
+        $variant = Product::factory()->variant($product)->create(['price' => 100, 'sale_price' => null]);
         $cart = Cart::factory()->create(['user_id' => $this->user->id]);
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create(['code' => 'VALID20']);
@@ -110,7 +106,7 @@ describe('validatePromotionCode', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->freeShipping()->create(['code' => 'FREESHIP']);
@@ -129,12 +125,12 @@ describe('validatePromotionCode', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create([
             'code' => 'MIN100',
-            'min_order_value' => 100
+            'min_order_value' => 100,
         ]);
 
         $result = $this->promotionService->validatePromotionCode('MIN100');
@@ -150,7 +146,7 @@ describe('calculateDiscountAmount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create(['min_order_value' => 100]);
@@ -166,7 +162,7 @@ describe('calculateDiscountAmount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(25)->create();
@@ -182,7 +178,7 @@ describe('calculateDiscountAmount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->fixed(30)->create();
@@ -198,7 +194,7 @@ describe('calculateDiscountAmount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->fixed(100)->create(); // Discount more than cart value
@@ -214,7 +210,7 @@ describe('calculateDiscountAmount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->freeShipping()->create();
@@ -232,7 +228,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -249,7 +245,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product1->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -266,7 +262,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -282,7 +278,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -300,7 +296,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -318,7 +314,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -335,7 +331,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -353,7 +349,7 @@ describe('checkPromotionConditions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->percentage(20)->create();
@@ -374,13 +370,13 @@ describe('calculateBuyXGetYDiscount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product1->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product2->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         $promotion = Promotion::factory()->buyXGetY()->create();
@@ -403,19 +399,19 @@ describe('calculateBuyXGetYDiscount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product1->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product2->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product3->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->buyXGetY()->create();
@@ -437,13 +433,13 @@ describe('calculateBuyXGetYDiscount', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product1->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product2->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $promotion = Promotion::factory()->buyXGetY()->create();
@@ -457,10 +453,10 @@ describe('calculateBuyXGetYDiscount', function () {
 
     it('handles variant pricing in reward calculations', function () {
         $product = Product::factory()->create(['price' => 100, 'sale_price' => null]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'price' => 80,
-            'sale_price' => 70
+            'sale_price' => 70,
         ]);
 
         $cart = Cart::factory()->create(['user_id' => $this->user->id]);
@@ -469,7 +465,7 @@ describe('calculateBuyXGetYDiscount', function () {
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $promotion = Promotion::factory()->buyXGetY()->create();
@@ -508,7 +504,7 @@ describe('getEligiblePromotions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $automaticPromotion = Promotion::factory()->automatic()->percentage(20)->create();
@@ -526,7 +522,7 @@ describe('getEligiblePromotions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $goodPromotion = Promotion::factory()->automatic()->percentage(20)->create();
@@ -544,7 +540,7 @@ describe('getEligiblePromotions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $activePromotion = Promotion::factory()->automatic()->percentage(20)->create();
@@ -562,7 +558,7 @@ describe('getEligiblePromotions', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $validPromotion = Promotion::factory()->automatic()->percentage(20)->create();
@@ -582,7 +578,7 @@ describe('applyBestAutomaticPromotion', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         // Create promotion with high minimum order value
@@ -599,7 +595,7 @@ describe('applyBestAutomaticPromotion', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $lowPromotion = Promotion::factory()->automatic()->percentage(10)->create();
@@ -627,7 +623,7 @@ describe('applyBestAutomaticPromotion', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 3 // Total: 300
+            'quantity' => 3, // Total: 300
         ]);
 
         $percentagePromotion = Promotion::factory()->automatic()->percentage(20)->create(); // 60 discount

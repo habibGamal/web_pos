@@ -5,7 +5,6 @@ namespace Database\Factories;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -30,10 +29,15 @@ class OrderItemFactory extends Factory
         $unitPrice = fake()->randomFloat(2, 10, 200);
         $quantity = fake()->numberBetween(1, 5);
 
+        // product_id now points directly to the variant (Product with type=VARIANT)
+        // 70% chance of using a variant, otherwise use a simple product
+        $product = fake()->boolean(70)
+            ? Product::factory()->variant()
+            : Product::factory()->simple();
+
         return [
             'order_id' => Order::factory(),
-            'product_id' => Product::factory(),
-            'variant_id' => fake()->boolean(70) ? ProductVariant::factory() : null,
+            'product_id' => $product,
             'quantity' => $quantity,
             'unit_price' => $unitPrice,
             'subtotal' => $unitPrice * $quantity,

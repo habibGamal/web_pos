@@ -27,6 +27,9 @@ type Order {
     "Total order amount"
     total: Float!
 
+    "Currency code"
+    currency: String! @method(name: "getCurrency")
+
     "Shipping address"
     shipping_address: Address! @belongsTo(relation: "shippingAddress")
 
@@ -72,8 +75,8 @@ type OrderItem {
     "Order ID this item belongs to"
     order_id: ID!
 
-    "Product variant ID"
-    variant_id: ID!
+    "Product ID"
+    product_id: ID!
 
     "Quantity ordered"
     quantity: Int!
@@ -82,22 +85,19 @@ type OrderItem {
     unit_price: Float!
 
     "Total price for this line item"
-    total_price: Float!
+    subtotal: Float!
 
-    "Product this order item belongs to"
+    "Selected product options at time of order (e.g., {Color: Red, Size: Large})"
+    options: String
+
+    "Product this order item belongs to (can be a variant)"
     product: Product! @belongsTo(foreignKey: "product_id")
-
-    "Product variant details at time of order"
-    variant_details: String
 
     "When the item was added to order"
     created_at: DateTime!
 
     "When the item was last updated"
     updated_at: DateTime!
-
-    "Product variant (current state)"
-    variant: ProductVariant @belongsTo(relation: "variant")
 
     "Order this item belongs to"
     order: Order! @belongsTo

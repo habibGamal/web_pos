@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 class CategoryTestUtility
 {
     /**
-     * Clean up category-related tables for testing
+     * Clean up category-related tables for testing.
      */
     public static function cleanupTables(): void
     {
@@ -19,7 +19,7 @@ class CategoryTestUtility
     }
 
     /**
-     * Clean up all category-related tables including additional ones
+     * Clean up all category-related tables including additional ones.
      */
     public static function cleanupAllTables(): void
     {
@@ -31,7 +31,7 @@ class CategoryTestUtility
     }
 
     /**
-     * Clean up specific tables
+     * Clean up specific tables.
      */
     public static function cleanupSpecificTables(array $tables): void
     {

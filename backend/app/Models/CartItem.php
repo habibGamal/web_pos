@@ -18,8 +18,8 @@ class CartItem extends Model
     protected $fillable = [
         'cart_id',
         'product_id',
-        'product_variant_id',
         'quantity',
+        'options',
     ];
 
     /**
@@ -29,6 +29,7 @@ class CartItem extends Model
      */
     protected $casts = [
         'quantity' => 'integer',
+        'options' => 'array',
     ];
 
     /**
@@ -52,7 +53,7 @@ class CartItem extends Model
      */
     public function variant(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+        return $this->belongsTo(Product::class, 'product_variant_id');
     }
 
     /**
@@ -96,5 +97,18 @@ class CartItem extends Model
     public function getTotalPriceAttribute(): float
     {
         return $this->getTotalPrice();
+    }
+
+    /**
+     * Get options as JSON string for GraphQL.
+     * Returns null if options is null or empty.
+     */
+    public function getOptionsJson(): ?string
+    {
+        if ($this->options === null || empty($this->options)) {
+            return null;
+        }
+
+        return json_encode($this->options);
     }
 }

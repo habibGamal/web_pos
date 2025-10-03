@@ -286,6 +286,16 @@ export default function OrderDetailPage() {
                             {t('order.sku')}: {item.variant.sku}
                           </p>
                         )}
+                        {/* Display product options */}
+                        {item.options && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {Object.entries(JSON.parse(item.options)).map(([key, value]) => (
+                              <Badge key={key} variant="outline" className="text-xs">
+                                {key}: {String(value)}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 

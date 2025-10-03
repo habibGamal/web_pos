@@ -2,9 +2,10 @@
 
 use App\Filament\Resources\CategoryResource\Pages\ListCategories;
 use App\Models\Category;
-use Tests\Utilities\CategoryTestUtility;
 
 use function Pest\Livewire\livewire;
+
+use Tests\Utilities\CategoryTestUtility;
 
 beforeEach(function () {
     CategoryTestUtility::cleanupTables();
@@ -13,12 +14,12 @@ beforeEach(function () {
 it('has column', function (string $column) {
     livewire(ListCategories::class)
         ->assertTableColumnExists($column);
-})->with([fn() => 'name_' . app()->getLocale(), 'image', 'is_active', 'created_at', 'updated_at']);
+})->with([fn () => 'name_' . app()->getLocale(), 'image', 'is_active', 'created_at', 'updated_at']);
 
 it('can render column', function (string $column) {
     livewire(ListCategories::class)
         ->assertCanRenderTableColumn($column);
-})->with([fn() => 'name_' . app()->getLocale(), 'image', 'is_active', 'created_at', 'updated_at']);
+})->with([fn () => 'name_' . app()->getLocale(), 'image', 'is_active', 'created_at', 'updated_at']);
 
 it('can sort column', function (string $column) {
     $records = Category::factory(3)->create();
@@ -28,4 +29,4 @@ it('can sort column', function (string $column) {
         ->assertSuccessful()
         ->sortTable($column, 'desc')
         ->assertSuccessful();
-})->with([fn() => 'name_' . app()->getLocale(), 'is_active', 'created_at', 'updated_at']);
+})->with([fn () => 'name_' . app()->getLocale(), 'is_active', 'created_at', 'updated_at']);

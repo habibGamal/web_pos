@@ -30,8 +30,8 @@ describe('Authentication Integration Flow', function () {
                 }
             ',
             'variables' => [
-                'email' => 'newuser@example.com'
-            ]
+                'email' => 'newuser@example.com',
+            ],
         ]);
 
         $checkEmailResponse->assertStatus(200)
@@ -58,9 +58,9 @@ describe('Authentication Integration Flow', function () {
                     'name' => 'New User',
                     'email' => 'newuser@example.com',
                     'password' => 'newpassword123',
-                    'password_confirmation' => 'newpassword123'
-                ]
-            ]
+                    'password_confirmation' => 'newpassword123',
+                ],
+            ],
         ]);
 
         $registerResponse->assertStatus(200)
@@ -73,10 +73,10 @@ describe('Authentication Integration Flow', function () {
                         'user' => [
                             'id',
                             'name',
-                            'email'
-                        ]
-                    ]
-                ]
+                            'email',
+                        ],
+                    ],
+                ],
             ]);
 
         $registerData = $registerResponse->json('data.register');
@@ -87,14 +87,14 @@ describe('Authentication Integration Flow', function () {
         $this->assertDatabaseHas('users', [
             'id' => $newUserId,
             'email' => 'newuser@example.com',
-            'name' => 'New User'
+            'name' => 'New User',
         ]);
 
         // Step 4: Use token to access protected resource
         $meResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $token,
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 query Me {
                     me {
                         id
@@ -102,8 +102,8 @@ describe('Authentication Integration Flow', function () {
                         email
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         dump('Me response:', $meResponse->json());
 
@@ -130,9 +130,9 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'password123'
-                ]
-            ]
+                    'password' => 'password123',
+                ],
+            ],
         ]);
 
         $loginResponse->assertStatus(200)
@@ -141,9 +141,9 @@ describe('Authentication Integration Flow', function () {
                     'login' => [
                         'access_token',
                         'token_type',
-                        'user'
-                    ]
-                ]
+                        'user',
+                    ],
+                ],
             ]);
 
         $loginData = $loginResponse->json('data.login');
@@ -151,55 +151,55 @@ describe('Authentication Integration Flow', function () {
 
         // Step 2: Access protected resource
         $meResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $token,
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 query Me {
                     me {
                         id
                         email
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         $meResponse->assertStatus(200)
             ->assertJsonPath('data.me.email', 'test@example.com');
 
         // Step 3: Logout
         $logoutResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $token,
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 mutation Logout {
                     logout {
                         success
                         message
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         $logoutResponse->assertStatus(200)
             ->assertJsonPath('data.logout.success', true);
 
         // Step 4: Verify token is revoked
         $meAfterLogoutResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $token
+            'Authorization' => 'Bearer ' . $token,
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 query Me {
                     me {
                         id
                         email
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         $meAfterLogoutResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ]);
     });
 
@@ -216,9 +216,9 @@ describe('Authentication Integration Flow', function () {
             ',
             'variables' => [
                 'input' => [
-                    'email' => 'test@example.com'
-                ]
-            ]
+                    'email' => 'test@example.com',
+                ],
+            ],
         ]);
 
         $forgotPasswordResponse->assertStatus(200)
@@ -245,9 +245,9 @@ describe('Authentication Integration Flow', function () {
                     'email' => 'test@example.com',
                     'token' => $resetToken,
                     'password' => 'newpassword123',
-                    'password_confirmation' => 'newpassword123'
-                ]
-            ]
+                    'password_confirmation' => 'newpassword123',
+                ],
+            ],
         ]);
 
         $resetPasswordResponse->assertStatus(200)
@@ -256,9 +256,9 @@ describe('Authentication Integration Flow', function () {
                     'resetPassword' => [
                         'access_token',
                         'token_type',
-                        'user'
-                    ]
-                ]
+                        'user',
+                    ],
+                ],
             ]);
 
         // Step 3: Verify old password no longer works
@@ -273,14 +273,14 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'password123'
-                ]
-            ]
+                    'password' => 'password123',
+                ],
+            ],
         ]);
 
         $oldPasswordLoginResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Invalid email or password.'
+                'message' => 'Invalid email or password.',
             ]);
 
         // Step 4: Verify new password works
@@ -298,9 +298,9 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'newpassword123'
-                ]
-            ]
+                    'password' => 'newpassword123',
+                ],
+            ],
         ]);
 
         $newPasswordLoginResponse->assertStatus(200)
@@ -310,10 +310,10 @@ describe('Authentication Integration Flow', function () {
     it('completes social login flow with new user', function () {
         // Mock Socialite response for Google
         $mockSocialiteUser = (object) [
-            'getId' => fn() => 'google_123456',
-            'getEmail' => fn() => 'social@example.com',
-            'getName' => fn() => 'Social User',
-            'getAvatar' => fn() => 'https://example.com/avatar.jpg',
+            'getId' => fn () => 'google_123456',
+            'getEmail' => fn () => 'social@example.com',
+            'getName' => fn () => 'Social User',
+            'getAvatar' => fn () => 'https://example.com/avatar.jpg',
         ];
 
         $this->mock(\Laravel\Socialite\Contracts\Factory::class)
@@ -343,9 +343,9 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'provider' => 'google',
-                    'access_token' => 'valid_google_token'
-                ]
-            ]
+                    'access_token' => 'valid_google_token',
+                ],
+            ],
         ]);
 
         $socialLoginResponse->assertStatus(200)
@@ -358,10 +358,10 @@ describe('Authentication Integration Flow', function () {
                             'id',
                             'name',
                             'email',
-                            'googleId'
-                        ]
-                    ]
-                ]
+                            'googleId',
+                        ],
+                    ],
+                ],
             ]);
 
         $socialData = $socialLoginResponse->json('data.socialLogin');
@@ -370,14 +370,14 @@ describe('Authentication Integration Flow', function () {
         $this->assertDatabaseHas('users', [
             'email' => 'social@example.com',
             'name' => 'Social User',
-            'google_id' => 'google_123456'
+            'google_id' => 'google_123456',
         ]);
 
         // Step 3: Verify can access protected resources
         $meResponse = $this->withHeaders([
-            'Authorization' => 'Bearer ' . $socialData['access_token']
+            'Authorization' => 'Bearer ' . $socialData['access_token'],
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 query Me {
                     me {
                         id
@@ -385,8 +385,8 @@ describe('Authentication Integration Flow', function () {
                         googleId
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         $meResponse->assertStatus(200)
             ->assertJsonPath('data.me.email', 'social@example.com')
@@ -411,9 +411,9 @@ describe('Authentication Integration Flow', function () {
                 'input' => [
                     'current_password' => 'password123',
                     'password' => 'newpassword456',
-                    'password_confirmation' => 'newpassword456'
-                ]
-            ]
+                    'password_confirmation' => 'newpassword456',
+                ],
+            ],
         ]);
 
         $changePasswordResponse->assertStatus(200)
@@ -431,14 +431,14 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'password123'
-                ]
-            ]
+                    'password' => 'password123',
+                ],
+            ],
         ]);
 
         $oldPasswordLoginResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Invalid email or password.'
+                'message' => 'Invalid email or password.',
             ]);
 
         // Step 4: Verify new password works
@@ -456,9 +456,9 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'newpassword456'
-                ]
-            ]
+                    'password' => 'newpassword456',
+                ],
+            ],
         ]);
 
         $newPasswordLoginResponse->assertStatus(200)
@@ -478,14 +478,14 @@ describe('Authentication Integration Flow', function () {
             'variables' => [
                 'input' => [
                     'email' => 'test@example.com',
-                    'password' => 'wrongpassword'
-                ]
-            ]
+                    'password' => 'wrongpassword',
+                ],
+            ],
         ]);
 
         $invalidLoginResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Invalid email or password.'
+                'message' => 'Invalid email or password.',
             ]);
 
         // Test unauthenticated access
@@ -497,31 +497,31 @@ describe('Authentication Integration Flow', function () {
                         email
                     }
                 }
-            '
+            ',
         ]);
 
         $unauthenticatedResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ]);
 
         // Test invalid token
         $invalidTokenResponse = $this->withHeaders([
-            'Authorization' => 'Bearer invalid_token'
+            'Authorization' => 'Bearer invalid_token',
         ])->postJson('/graphql', [
-                    'query' => '
+            'query' => '
                 query Me {
                     me {
                         id
                         email
                     }
                 }
-            '
-                ]);
+            ',
+        ]);
 
         $invalidTokenResponse->assertStatus(200)
             ->assertJsonFragment([
-                'message' => 'Unauthenticated.'
+                'message' => 'Unauthenticated.',
             ]);
     });
 });

@@ -27,6 +27,7 @@ const createOrderDocument = graphql(/* GraphQL */ `
         quantity
         unit_price
         total_price
+        options
         product {
           id
           name

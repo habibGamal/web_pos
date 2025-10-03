@@ -31,7 +31,7 @@ class SectionFactory extends Factory
                 SectionType::REAL,
                 SectionType::RECOMMENDATION,
                 SectionType::TRENDING,
-                SectionType::NEW_ARRIVALS
+                SectionType::NEW_ARRIVALS,
             ]),
             'created_at' => now(),
             'updated_at' => now(),
@@ -40,8 +40,6 @@ class SectionFactory extends Factory
 
     /**
      * Configure the factory to create a REAL section.
-     *
-     * @return static
      */
     public function real(): static
     {
@@ -54,8 +52,6 @@ class SectionFactory extends Factory
 
     /**
      * Configure the factory to create a RECOMMENDATION section.
-     *
-     * @return static
      */
     public function recommendation(): static
     {
@@ -68,8 +64,6 @@ class SectionFactory extends Factory
 
     /**
      * Configure the factory to create a TRENDING section.
-     *
-     * @return static
      */
     public function trending(): static
     {
@@ -82,8 +76,6 @@ class SectionFactory extends Factory
 
     /**
      * Configure the factory to create a NEW_ARRIVALS section.
-     *
-     * @return static
      */
     public function newArrivals(): static
     {

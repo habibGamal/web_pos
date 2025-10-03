@@ -5,7 +5,6 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Tests\Utilities\GraphQLTestHelpers;
 
@@ -19,12 +18,32 @@ describe('Social Login GraphQL Mutations', function () {
     describe('Social Login Mutation', function () {
         it('successfully logs in with Google', function () {
             // Mock Socialite response
-            $mockUser = new class {
-                public function getId() { return '12345'; }
-                public function getEmail() { return 'john@example.com'; }
-                public function getName() { return 'John Doe'; }
-                public function getNickname() { return 'johndoe'; }
-                public function getAvatar() { return 'https://example.com/avatar.jpg'; }
+            $mockUser = new class
+            {
+                public function getId()
+                {
+                    return '12345';
+                }
+
+                public function getEmail()
+                {
+                    return 'john@example.com';
+                }
+
+                public function getName()
+                {
+                    return 'John Doe';
+                }
+
+                public function getNickname()
+                {
+                    return 'johndoe';
+                }
+
+                public function getAvatar()
+                {
+                    return 'https://example.com/avatar.jpg';
+                }
             };
 
             $mockProvider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
@@ -85,12 +104,32 @@ describe('Social Login GraphQL Mutations', function () {
 
         it('successfully logs in with Facebook', function () {
             // Mock Socialite response
-            $mockUser = new class {
-                public function getId() { return '67890'; }
-                public function getEmail() { return 'jane@example.com'; }
-                public function getName() { return 'Jane Smith'; }
-                public function getNickname() { return 'janesmith'; }
-                public function getAvatar() { return 'https://facebook.com/avatar.jpg'; }
+            $mockUser = new class
+            {
+                public function getId()
+                {
+                    return '67890';
+                }
+
+                public function getEmail()
+                {
+                    return 'jane@example.com';
+                }
+
+                public function getName()
+                {
+                    return 'Jane Smith';
+                }
+
+                public function getNickname()
+                {
+                    return 'janesmith';
+                }
+
+                public function getAvatar()
+                {
+                    return 'https://facebook.com/avatar.jpg';
+                }
             };
 
             $mockProvider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
@@ -150,12 +189,32 @@ describe('Social Login GraphQL Mutations', function () {
             ]);
 
             // Mock Socialite response
-            $mockUser = new class {
-                public function getId() { return '99999'; }
-                public function getEmail() { return 'existing@example.com'; }
-                public function getName() { return 'Existing User via Google'; }
-                public function getNickname() { return 'existinguser'; }
-                public function getAvatar() { return 'https://google.com/avatar.jpg'; }
+            $mockUser = new class
+            {
+                public function getId()
+                {
+                    return '99999';
+                }
+
+                public function getEmail()
+                {
+                    return 'existing@example.com';
+                }
+
+                public function getName()
+                {
+                    return 'Existing User via Google';
+                }
+
+                public function getNickname()
+                {
+                    return 'existinguser';
+                }
+
+                public function getAvatar()
+                {
+                    return 'https://google.com/avatar.jpg';
+                }
             };
 
             $mockProvider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
@@ -249,11 +308,11 @@ describe('Social Login GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.provider'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.provider',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -286,7 +345,7 @@ describe('Social Login GraphQL Mutations', function () {
             $mockProvider = \Mockery::mock('Laravel\Socialite\Contracts\Provider');
             $mockProvider->shouldReceive('userFromToken')
                 ->with('invalid_token')
-                ->andThrow(new \Laravel\Socialite\Two\InvalidStateException());
+                ->andThrow(new \Laravel\Socialite\Two\InvalidStateException);
 
             Socialite::shouldReceive('driver')
                 ->with('google')
@@ -313,11 +372,11 @@ describe('Social Login GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'access_token'
-                            ]
-                        ]
-                    ]
-                ]
+                                'access_token',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -353,11 +412,11 @@ describe('Social Login GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'provider'
-                            ]
-                        ]
-                    ]
-                ]
+                                'provider',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
     });

@@ -45,11 +45,14 @@ type CartItem {
     "Cart ID this item belongs to"
     cart_id: ID!
 
-    "Product variant ID"
-    product_variant_id: ID!
+    "Product ID (can be a parent product or variant)"
+    product_id: ID!
 
     "Quantity of this item in cart"
     quantity: Int!
+
+    "Selected product options (e.g., {Color: Red, Size: Large})"
+    options: String @method(name: "getOptionsJson")
 
     "Price per unit at time of adding to cart"
     unit_price: Float!
@@ -60,11 +63,8 @@ type CartItem {
     "When the item was last updated"
     updated_at: DateTime!
 
-    "Product variant"
-    variant: ProductVariant! @belongsTo(relation: "variant")
-
-    "Product (through variant)"
-    product: Product! @field(resolver: "App\\GraphQL\\Types\\CartItemType@product")
+    "Product (can be a parent product or variant)"
+    product: Product! @belongsTo
 
     "Total price for this line item"
     total_price: Float!
@@ -99,11 +99,14 @@ type Wishlist {
 
 # Input types for cart operations
 input AddToCartInput {
-    "Product variant ID to add"
-    product_variant_id: ID! @rules(apply: ["required", "exists:product_variants,id"])
+    "Product ID to add (can be a parent product or variant)"
+    product_id: ID! @rules(apply: ["required", "exists:products,id"])
 
     "Quantity to add"
     quantity: Int! @rules(apply: ["required", "min:1", "max:100"])
+
+    "Selected product options as JSON string (e.g., '{\"Color\":\"Red\",\"Size\":\"Large\"}')"
+    options: String
 }
 
 input UpdateCartItemInput {
@@ -164,10 +167,8 @@ extend type Mutation {
 
     "Move item from wishlist to cart"
     moveWishlistToCart(
-        "Product ID to move from wishlist to cart"
+        "Product ID to move from wishlist to cart and add to cart"
         product_id: ID! @rules(apply: ["required", "exists:products,id"])
-        "Product variant ID to add to cart"
-        product_variant_id: ID! @rules(apply: ["required", "exists:product_variants,id"])
         "Quantity to add to cart"
         quantity: Int! @rules(apply: ["required", "min:1", "max:100"])
     ): CartItem! @field(resolver: "App\\GraphQL\\Mutations\\Wishlist\\MoveToCartMutation") @guard

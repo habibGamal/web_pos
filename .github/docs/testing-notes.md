@@ -2,6 +2,112 @@
 
 This document contains common testing patterns and solutions encountered during test fixes.
 
+## GraphQL Schema Issues
+
+### Missing Localized Field Variations
+**Problem**: Tests fail because schema only exposes `@localized` fields like `name` but tests need access to both `name_en` and `name_ar`.
+
+**Solution**: Add explicit language-specific fields alongside the localized field in the GraphQL schema:
+
+```graphql
+type Attribute {
+    "Attribute name in current locale"
+    name: String! @localized
+    
+    "Attribute name in English"
+    name_en: String!
+    
+    "Attribute name in Arabic"
+    name_ar: String!
+    ...
+}
+```
+
+**Note**: After schema changes, always run `php artisan lighthouse:clear-cache`.
+
+### Product Variant Creation in Tests
+**Problem**: Tests fail when creating variants because `product_id` doesn't exist - should use `parent_id`.
+
+**Solution**: Use the factory's `variant($parent)` method correctly:
+
+```php
+// ❌ Wrong - don't override parent_id
+$variant = Product::factory()->variant()->create(['parent_id' => $product->id]);
+
+// ✅ Correct - pass parent as parameter
+$variant = Product::factory()->variant($product)->create();
+```
+
+**Also**: Ensure parent product is `configurable()` type to have variants:
+
+```php
+$product = Product::factory()->configurable()->create();
+$variant = Product::factory()->variant($product)->create();
+```
+
+**Common Places This Occurs**:
+- Test `beforeEach()` setup blocks
+- Individual test cases creating variants
+- Look for patterns like `Product::factory()->variant()->create(['product_id' => ...])` and fix them
+
+### Cart Items Use product_id Only
+**Problem**: Tests incorrectly used `product_variant_id` field in cart operations.
+
+**Root Cause**:
+- Database: `cart_items` table has `product_id` column only
+- GraphQL schema: `AddToCartInput` uses `product_id` field
+- Cart items reference products directly (including variants) via `product_id`
+- No separate `variant` field needed
+
+**Solution**:
+```php
+// ❌ Wrong - using product_variant_id
+CartItem::factory()->create([
+    'product_variant_id' => $variant->id,
+]);
+
+// ✅ Correct - using product_id
+CartItem::factory()->create([
+    'product_id' => $variant->id,
+]);
+
+// ✅ Mutation input
+'input' => [
+    'product_id' => (string) $variant->id,
+    'quantity' => 1,
+]
+```
+
+### Missing GraphQL Field Resolvers
+**Problem**: Test queries field that doesn't exist in schema (e.g., `grouped_attributes`).
+
+**Solution**: 
+1. Add field to GraphQL schema with resolver:
+```graphql
+type ProductVariant {
+    grouped_attributes: [GroupedAttribute!]! @field(resolver: "App\\GraphQL\\Types\\ProductVariantType@groupedAttributes")
+}
+```
+
+2. Implement resolver method in the Type class:
+```php
+public function groupedAttributes(Product $variant): array
+{
+    return $variant->attributeValues()
+        ->with('attribute')
+        ->get()
+        ->groupBy('attribute_id')
+        ->map(function ($values) {
+            return [
+                'attribute' => $values->first()->attribute,
+                'values' => $values->pluck('display_value')->toArray(),
+            ];
+        })
+        ->values()
+        ->toArray();
+}
+```
+
 ## Broadcasting & Pusher Issues
 
 ### Problem

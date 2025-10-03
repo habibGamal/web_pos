@@ -1,14 +1,12 @@
 <?php
 
+use App\Exceptions\ProductNotFoundException;
+use App\Exceptions\ProductVariantNotFoundException;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\CartItemResolverService;
-use App\Exceptions\ProductNotFoundException;
-use App\Exceptions\ProductVariantNotFoundException;
-use App\Exceptions\InsufficientStockException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -22,7 +20,7 @@ beforeEach(function () {
 describe('resolveCartItem', function () {
     it('returns existing cart item when product and variant match', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
         ]);
@@ -42,7 +40,7 @@ describe('resolveCartItem', function () {
 
     it('creates new cart item with quantity 0 when no existing item found', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
             'quantity' => 10,
@@ -60,13 +58,13 @@ describe('resolveCartItem', function () {
 
     it('uses default variant when no variant specified', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        $defaultVariant = ProductVariant::factory()->create([
+        $defaultVariant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
             'is_default' => true,
             'quantity' => 10,
         ]);
-        ProductVariant::factory()->create([
+        Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
             'is_default' => false,
@@ -78,13 +76,13 @@ describe('resolveCartItem', function () {
 
     it('uses first active variant when no default variant exists', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        $firstVariant = ProductVariant::factory()->create([
+        $firstVariant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
             'is_default' => false,
             'quantity' => 10,
         ]);
-        ProductVariant::factory()->create([
+        Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => true,
             'is_default' => false,
@@ -96,55 +94,55 @@ describe('resolveCartItem', function () {
     });
 
     it('throws ProductNotFoundException when product does not exist', function () {
-        expect(fn() => $this->service->resolveCartItem($this->cart, 99999))
+        expect(fn () => $this->service->resolveCartItem($this->cart, 99999))
             ->toThrow(ProductNotFoundException::class);
     });
 
     it('throws ProductNotFoundException when product is inactive', function () {
         $product = Product::factory()->create(['is_active' => false]);
 
-        expect(fn() => $this->service->resolveCartItem($this->cart, $product->id))
+        expect(fn () => $this->service->resolveCartItem($this->cart, $product->id))
             ->toThrow(ProductNotFoundException::class);
     });
 
     it('throws ProductVariantNotFoundException when specified variant does not exist', function () {
         $product = Product::factory()->create(['is_active' => true]);
 
-        expect(fn() => $this->service->resolveCartItem($this->cart, $product->id, 99999))
+        expect(fn () => $this->service->resolveCartItem($this->cart, $product->id, 99999))
             ->toThrow(ProductVariantNotFoundException::class);
     });
 
     it('throws ProductVariantNotFoundException when specified variant is inactive', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => false,
         ]);
 
-        expect(fn() => $this->service->resolveCartItem($this->cart, $product->id, $variant->id))
+        expect(fn () => $this->service->resolveCartItem($this->cart, $product->id, $variant->id))
             ->toThrow(ProductVariantNotFoundException::class);
     });
 
     it('throws ProductVariantNotFoundException when variant belongs to different product', function () {
         $product1 = Product::factory()->create(['is_active' => true]);
         $product2 = Product::factory()->create(['is_active' => true]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product2->id,
             'is_active' => true,
         ]);
 
-        expect(fn() => $this->service->resolveCartItem($this->cart, $product1->id, $variant->id))
+        expect(fn () => $this->service->resolveCartItem($this->cart, $product1->id, $variant->id))
             ->toThrow(ProductVariantNotFoundException::class);
     });
 
     it('throws ProductVariantNotFoundException when product has no active variants', function () {
         $product = Product::factory()->create(['is_active' => true]);
-        ProductVariant::factory()->create([
+        Product::factory()->variant()->create([
             'product_id' => $product->id,
             'is_active' => false,
         ]);
 
-        expect(fn() => $this->service->resolveCartItem($this->cart, $product->id))
+        expect(fn () => $this->service->resolveCartItem($this->cart, $product->id))
             ->toThrow(ProductVariantNotFoundException::class);
     });
 });
@@ -162,7 +160,7 @@ describe('toOrderItem', function () {
             'sale_price' => null,
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'price' => 80.00,
             'sale_price' => null,
@@ -197,7 +195,7 @@ describe('toOrderItem', function () {
             'sale_price' => null,
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'price' => null,
             'sale_price' => null,
@@ -223,7 +221,7 @@ describe('toOrderItem', function () {
             'sale_price' => 90.00,
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'price' => 80.00,
             'sale_price' => 70.00,
@@ -249,7 +247,7 @@ describe('toOrderItem', function () {
             'sale_price' => 85.00,
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'price' => 80.00,
             'sale_price' => null,
@@ -281,7 +279,7 @@ describe('toOrderItem', function () {
             'quantity' => 5,
         ]);
 
-        expect(fn() => $this->service->toOrderItem($cartItem, $this->order))
+        expect(fn () => $this->service->toOrderItem($cartItem, $this->order))
             ->toThrow(\Exception::class, 'Cart item must have a variant to be converted to order item');
     });
 });

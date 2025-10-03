@@ -94,11 +94,11 @@ describe('Password Reset GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'input.email'
-                            ]
-                        ]
-                    ]
-                ]
+                                'input.email',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 
@@ -123,11 +123,11 @@ describe('Password Reset GraphQL Mutations', function () {
                         'message',
                         'extensions' => [
                             'validation' => [
-                                'email'
-                            ]
-                        ]
-                    ]
-                ]
+                                'email',
+                            ],
+                        ],
+                    ],
+                ],
             ]);
         });
 

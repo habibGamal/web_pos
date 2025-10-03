@@ -80,6 +80,14 @@ class Category extends Model
     }
 
     /**
+     * Get the category's URL for frontend routing.
+     */
+    public function url(): string
+    {
+        return '/categories/' . $this->slug;
+    }
+
+    /**
      * Scope to get only active categories.
      */
     public function scopeActive($query)

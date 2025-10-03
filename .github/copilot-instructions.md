@@ -1,5 +1,6 @@
-- this project is migrating from laravel & react js with inertia to Next.js 15+ with GraphQL
+﻿- this project is migrating from laravel & react js with inertia to Next.js 15+ with GraphQL
 - MIGRATION IN PROGRESS: Currently implementing Next.js 15 frontend with GraphQL API communication
+
 - Backend: Laravel 11 with GraphQL (lighthouse-php) API layer + existing Inertia.js (legacy)
 - Frontend: Next.js 15+ with App Router, Apollo Client, shadcn/ui, TypeScript
 - using typescript for all model types (shared between frontend/backend)

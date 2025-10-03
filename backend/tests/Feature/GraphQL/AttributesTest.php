@@ -8,7 +8,6 @@ use App\Models\AttributeValue;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
 
@@ -222,7 +221,7 @@ describe('Attributes GraphQL Queries', function () {
             // Arrange
             $category = Category::factory()->create();
             $brand = Brand::factory()->create();
-            $product = Product::factory()->create([
+            $product = Product::factory()->configurable()->create([
                 'category_id' => $category->id,
                 'brand_id' => $brand->id,
             ]);
@@ -253,8 +252,7 @@ describe('Attributes GraphQL Queries', function () {
             ]);
 
             // Create variant and attach attributes
-            $variant = ProductVariant::factory()->create([
-                'product_id' => $product->id,
+            $variant = Product::factory()->variant($product)->create([
                 'sku' => 'TEST-VARIANT-001',
             ]);
             $variant->attributeValues()->attach([$sizeValue->id, $colorValue->id]);
@@ -312,7 +310,7 @@ describe('Attributes GraphQL Queries', function () {
             // Arrange
             app()->setLocale('en'); // Set to English for this test
 
-            $product = Product::factory()->create();
+            $product = Product::factory()->configurable()->create();
             $attribute = Attribute::factory()->create([
                 'name_en' => 'Size',
                 'name_ar' => 'الحجم',
@@ -324,9 +322,7 @@ describe('Attributes GraphQL Queries', function () {
                 'value_ar' => 'كبير',
             ]);
 
-            $variant = ProductVariant::factory()->create([
-                'product_id' => $product->id,
-            ]);
+            $variant = Product::factory()->variant($product)->create();
             $variant->attributeValues()->attach($attributeValue->id);
 
             // Act

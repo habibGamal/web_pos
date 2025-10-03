@@ -6,9 +6,7 @@ use App\Models\Brand;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
-use App\Models\WishlistItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
 
@@ -28,7 +26,7 @@ describe('Complete Shopping Journey Integration', function () {
             'price' => 100.00,
         ]);
 
-        $this->variant1 = ProductVariant::factory()->create([
+        $this->variant1 = Product::factory()->variant()->create([
             'product_id' => $this->product1->id,
             'quantity' => 100,
             'is_active' => true,
@@ -43,7 +41,7 @@ describe('Complete Shopping Journey Integration', function () {
             'price' => 75.00,
         ]);
 
-        $this->variant2 = ProductVariant::factory()->create([
+        $this->variant2 = Product::factory()->variant()->create([
             'product_id' => $this->product2->id,
             'quantity' => 50,
             'is_active' => true,

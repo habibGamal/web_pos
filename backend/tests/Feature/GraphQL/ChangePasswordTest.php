@@ -8,7 +8,7 @@ use Laravel\Sanctum\Sanctum;
 
 beforeEach(function () {
     $this->user = User::factory()->create([
-        'password' => Hash::make('current-password')
+        'password' => Hash::make('current-password'),
     ]);
 });
 
@@ -30,9 +30,9 @@ describe('Change Password GraphQL Mutation', function () {
                     'input' => [
                         'current_password' => 'current-password',
                         'password' => 'new-password123',
-                        'password_confirmation' => 'new-password123'
-                    ]
-                ]
+                        'password_confirmation' => 'new-password123',
+                    ],
+                ],
             ]);
 
             $response->assertSuccessful()
@@ -40,9 +40,9 @@ describe('Change Password GraphQL Mutation', function () {
                     'data' => [
                         'changePassword' => [
                             'success' => true,
-                            'message' => 'Password changed successfully'
-                        ]
-                    ]
+                            'message' => 'Password changed successfully',
+                        ],
+                    ],
                 ]);
 
             // Verify password was actually changed
@@ -66,9 +66,9 @@ describe('Change Password GraphQL Mutation', function () {
                 'variables' => [
                     'input' => [
                         'password' => 'new-password123',
-                        'password_confirmation' => 'new-password123'
-                    ]
-                ]
+                        'password_confirmation' => 'new-password123',
+                    ],
+                ],
             ]);
 
             $response->assertStatus(200)
@@ -91,14 +91,14 @@ describe('Change Password GraphQL Mutation', function () {
                     'input' => [
                         'current_password' => 'wrong-password',
                         'password' => 'new-password123',
-                        'password_confirmation' => 'new-password123'
-                    ]
-                ]
+                        'password_confirmation' => 'new-password123',
+                    ],
+                ],
             ]);
 
             $response->assertStatus(200)
                 ->assertJsonFragment([
-                    'current_password' => ['Current password is incorrect.']
+                    'current_password' => ['Current password is incorrect.'],
                 ]);
         });
 
@@ -121,14 +121,14 @@ describe('Change Password GraphQL Mutation', function () {
                     'input' => [
                         'current_password' => $currentPassword,
                         'password' => 'new-password123',
-                        'password_confirmation' => 'different-password'
-                    ]
-                ]
+                        'password_confirmation' => 'different-password',
+                    ],
+                ],
             ]);
 
             $response->assertStatus(200)
                 ->assertJsonFragment([
-                    'message' => 'Validation failed for the field [changePassword].'
+                    'message' => 'Validation failed for the field [changePassword].',
                 ]);
         });
 
@@ -148,14 +148,14 @@ describe('Change Password GraphQL Mutation', function () {
                     'input' => [
                         'current_password' => 'current-password',
                         'password' => '123',
-                        'password_confirmation' => '123'
-                    ]
-                ]
+                        'password_confirmation' => '123',
+                    ],
+                ],
             ]);
 
             $response->assertStatus(200)
                 ->assertJsonFragment([
-                    'message' => 'Validation failed for the field [changePassword].'
+                    'message' => 'Validation failed for the field [changePassword].',
                 ]);
         });
 
@@ -173,14 +173,14 @@ describe('Change Password GraphQL Mutation', function () {
                     'input' => [
                         'current_password' => 'current-password',
                         'password' => 'new-password123',
-                        'password_confirmation' => 'new-password123'
-                    ]
-                ]
+                        'password_confirmation' => 'new-password123',
+                    ],
+                ],
             ]);
 
             $response->assertStatus(200)
                 ->assertJsonFragment([
-                    'message' => 'Current password is incorrect.'
+                    'message' => 'Current password is incorrect.',
                 ]);
         });
     });

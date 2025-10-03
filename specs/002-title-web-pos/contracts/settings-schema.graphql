@@ -1,0 +1,178 @@
+# Settings Management GraphQL Schema
+# Feature: 002-title-web-pos
+# Purpose: Configuration queries for frontend, admin settings management
+
+"""
+Setting type enumeration
+"""
+enum SettingType {
+    string
+    integer
+    boolean
+    json
+    select
+}
+
+"""
+Setting group for organization
+"""
+enum SettingGroup {
+    ORDER_MANAGEMENT
+    STOCK_MANAGEMENT
+    BUSINESS_HOURS
+    NOTIFICATIONS
+    POS_INTEGRATION
+}
+
+"""
+Configuration setting
+"""
+type Setting {
+    id: ID!
+    key: String!
+    value: String!
+    type: SettingType!
+    group: SettingGroup!
+    description: String @localized
+    is_public: Boolean! "Whether setting is exposed to frontend"
+    options: [String!] "Available options for select type"
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+"""
+Typed setting value (union for different types)
+"""
+type SettingValue {
+    key: String!
+    string_value: String
+    int_value: Int
+    boolean_value: Boolean
+    json_value: JSON
+}
+
+"""
+Input for updating a setting (admin only)
+"""
+input UpdateSettingInput {
+    key: String! @rules(apply: ["required", "exists:settings,key"])
+    value: String! @rules(apply: ["required"])
+}
+
+"""
+Response for setting mutations
+"""
+type SettingResponse {
+    success: Boolean!
+    message: String!
+    setting: Setting
+    errors: [String!]
+}
+
+extend type Query {
+    """
+    Get setting by key (public settings only for non-admin)
+    """
+    setting(key: String! @eq): Setting @find
+    
+    """
+    Get public settings for frontend (no auth required)
+    """
+    publicSettings(group: SettingGroup @eq): [Setting!]!
+        @field(resolver: "App\\GraphQL\\Queries\\Setting@publicSettings")
+    
+    """
+    Get typed setting value (convenience query for public settings)
+    """
+    settingValue(key: String!): SettingValue
+        @field(resolver: "App\\GraphQL\\Queries\\Setting@settingValue")
+    
+    """
+    Get multiple settings by keys (public settings only)
+    """
+    settingsByKeys(keys: [String!]!): [Setting!]!
+        @field(resolver: "App\\GraphQL\\Queries\\Setting@settingsByKeys")
+}
+
+"""
+Note: Setting mutations and admin management are handled via Filament resources
+No GraphQL mutations for settings - admin uses Filament UI
+"""
+
+"""
+Business hours configuration (nested type for business_hours setting)
+"""
+type BusinessHours {
+    monday: DaySchedule
+    tuesday: DaySchedule
+    wednesday: DaySchedule
+    thursday: DaySchedule
+    friday: DaySchedule
+    saturday: DaySchedule
+    sunday: DaySchedule
+}
+
+"""
+Day schedule with open/close times
+"""
+type DaySchedule {
+    is_open: Boolean!
+    open_time: String "HH:mm format"
+    close_time: String "HH:mm format"
+}
+
+"""
+Cancellation rules (from cancel_allowed_statuses setting)
+"""
+type CancellationRules {
+    user_can_cancel: Boolean!
+    allowed_statuses: [OrderStatus!]!
+}
+
+"""
+Order management configuration (aggregated)
+"""
+type OrderManagementConfig {
+    order_manager_type: OrderManagerType!
+    pos_auto_confirm_timeout: Int!
+    user_can_cancel_order: Boolean!
+    cancellation_rules: CancellationRules!
+}
+
+"""
+Stock management configuration (aggregated)
+"""
+type StockManagementConfig {
+    default_stock_manager: StockManagerType!
+    pos_stock_display_percentage_global: Int!
+    reserve_stock_on_pending: Boolean!
+    consume_stock_on_status: OrderStatus!
+    allow_negative_stock: Boolean!
+    stock_sync_interval_minutes: Int!
+}
+
+extend type Query {
+    """
+    Get order management configuration (convenience query)
+    """
+    orderManagementConfig: OrderManagementConfig!
+        @field(resolver: "App\\GraphQL\\Queries\\Config@orderManagementConfig")
+    
+    """
+    Get stock management configuration (convenience query)
+    """
+    stockManagementConfig: StockManagementConfig!
+        @field(resolver: "App\\GraphQL\\Queries\\Config@stockManagementConfig")
+    
+    """
+    Get business hours configuration
+    """
+    businessHoursConfig: BusinessHours!
+        @field(resolver: "App\\GraphQL\\Queries\\Config@businessHoursConfig")
+    
+    """
+    Check if orders can be placed now (respects business hours)
+    """
+    canPlaceOrderNow: Boolean!
+        @field(resolver: "App\\GraphQL\\Queries\\Config@canPlaceOrderNow")
+}

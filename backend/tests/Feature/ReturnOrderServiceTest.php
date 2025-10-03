@@ -8,7 +8,6 @@ use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\ReturnOrder;
 use App\Models\User;
 use App\Services\ReturnOrderService;
@@ -34,7 +33,7 @@ beforeEach(function () {
     ]);
 
     $this->product = Product::factory()->create();
-    $this->variant = ProductVariant::factory()->create([
+    $this->variant = Product::factory()->variant()->create([
         'product_id' => $this->product->id,
         'quantity' => 100,
     ]);

@@ -7,7 +7,6 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
@@ -26,12 +25,11 @@ describe('Cart GraphQL Operations', function () {
             'price' => 100.00,
             'sale_price' => null,
         ]);
-        $this->variant = ProductVariant::factory()->create([
-            'product_id' => $this->product->id,
+        $this->variant = Product::factory()->variant($this->product)->create([
             'quantity' => 100,
             'is_active' => true,
             'is_default' => true,
-            'price' => null, // Use product price
+            'price' => $this->product->price, // Use parent product price
             'sale_price' => null,
         ]);
     });
@@ -42,8 +40,7 @@ describe('Cart GraphQL Operations', function () {
             $cart = Cart::factory()->create(['user_id' => $this->user->id]);
             $cartItem = CartItem::factory()->create([
                 'cart_id' => $cart->id,
-                'product_id' => $this->product->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 2,
             ]);
 
@@ -63,15 +60,11 @@ describe('Cart GraphQL Operations', function () {
                             unit_price
                             total_price
                             is_available
-                            variant {
-                                id
-                                name
-                                sku
-                            }
                             product {
                                 id
                                 name
                                 slug
+                                sku
                             }
                         }
                     }
@@ -164,9 +157,6 @@ describe('Cart GraphQL Operations', function () {
                         quantity
                         unit_price
                         total_price
-                        variant {
-                            id
-                        }
                         product {
                             id
                         }
@@ -174,7 +164,7 @@ describe('Cart GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'product_variant_id' => (string) $this->variant->id,
+                    'product_id' => (string) $this->variant->id,
                     'quantity' => 3,
                 ],
             ]);
@@ -186,11 +176,8 @@ describe('Cart GraphQL Operations', function () {
                         'quantity' => 3,
                         'unit_price' => 100.0,
                         'total_price' => 300.0,
-                        'variant' => [
-                            'id' => (string) $this->variant->id,
-                        ],
                         'product' => [
-                            'id' => (string) $this->product->id,
+                            'id' => (string) $this->variant->id,
                         ],
                     ],
                 ],
@@ -198,7 +185,7 @@ describe('Cart GraphQL Operations', function () {
 
             // Verify cart item was created
             $this->assertDatabaseHas('cart_items', [
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 3,
             ]);
         });
@@ -208,8 +195,7 @@ describe('Cart GraphQL Operations', function () {
             $cart = Cart::factory()->create(['user_id' => $this->user->id]);
             CartItem::factory()->create([
                 'cart_id' => $cart->id,
-                'product_id' => $this->product->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 2,
             ]);
 
@@ -223,7 +209,7 @@ describe('Cart GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'product_variant_id' => (string) $this->variant->id,
+                    'product_id' => (string) $this->variant->id,
                     'quantity' => 1,
                 ],
             ]);
@@ -248,7 +234,7 @@ describe('Cart GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'product_variant_id' => '999999',
+                    'product_id' => '999999',
                     'quantity' => 1,
                 ],
             ]);
@@ -260,8 +246,8 @@ describe('Cart GraphQL Operations', function () {
                         'message' => 'Validation failed for the field [addToCart].',
                         'extensions' => [
                             'validation' => [
-                                'input.product_variant_id' => [
-                                    'The selected input.product variant id is invalid.',
+                                'input.product_id' => [
+                                    'The selected input.product id is invalid.',
                                 ],
                             ],
                         ],
@@ -280,7 +266,7 @@ describe('Cart GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'product_variant_id' => (string) $this->variant->id,
+                    'product_id' => (string) $this->variant->id,
                     'quantity' => 0,
                 ],
             ]);
@@ -313,7 +299,7 @@ describe('Cart GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'product_variant_id' => (string) $this->variant->id,
+                    'product_id' => (string) $this->variant->id,
                     'quantity' => 1,
                 ],
             ]);
@@ -334,8 +320,7 @@ describe('Cart GraphQL Operations', function () {
             $this->cart = Cart::factory()->create(['user_id' => $this->user->id]);
             $this->cartItem = CartItem::factory()->create([
                 'cart_id' => $this->cart->id,
-                'product_id' => $this->product->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 5,
             ]);
         });
@@ -441,7 +426,7 @@ describe('Cart GraphQL Operations', function () {
             $otherCart = Cart::factory()->create(['user_id' => $otherUser->id]);
             $otherCartItem = CartItem::factory()->create([
                 'cart_id' => $otherCart->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 2,
             ]);
 
@@ -475,7 +460,7 @@ describe('Cart GraphQL Operations', function () {
             $this->cart = Cart::factory()->create(['user_id' => $this->user->id]);
             $this->cartItem = CartItem::factory()->create([
                 'cart_id' => $this->cart->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
                 'quantity' => 2,
             ]);
         });
@@ -540,7 +525,7 @@ describe('Cart GraphQL Operations', function () {
             $this->cart = Cart::factory()->create(['user_id' => $this->user->id]);
             CartItem::factory()->count(3)->create([
                 'cart_id' => $this->cart->id,
-                'product_variant_id' => $this->variant->id,
+                'product_id' => $this->variant->id,
             ]);
         });
 

@@ -8,7 +8,6 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Gov;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\Promotion;
 use App\Models\ShippingCost;
 use App\Models\User;
@@ -34,32 +33,32 @@ describe('evaluateOrderCalculation', function () {
         // Setup: Create necessary data
         $product = Product::factory()->create([
             'price' => 120.0,  // This is what Cart->getTotalPrice() uses
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
             'price' => null,  // Use product price
-            'sale_price' => null
+            'sale_price' => null,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 15.0
+            'value' => 15.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation($address->id);
@@ -76,25 +75,25 @@ describe('evaluateOrderCalculation', function () {
     it('calculates order total with percentage coupon discount', function () {
         $product = Product::factory()->create([
             'price' => 100.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
             'price' => null,  // Use product price
-            'sale_price' => null
+            'sale_price' => null,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 20.0
+            'value' => 20.0,
         ]);
         $promotion = Promotion::create([
             'name_en' => 'Save 20%',
@@ -103,14 +102,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 20.0,
             'is_active' => true,
-            'min_order_value' => 50.0
+            'min_order_value' => 50.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -127,25 +126,25 @@ describe('evaluateOrderCalculation', function () {
     it('calculates order total with fixed amount coupon discount', function () {
         $product = Product::factory()->create([
             'price' => 80.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
             'price' => null,  // Use product price
-            'sale_price' => null
+            'sale_price' => null,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 25.0
+            'value' => 25.0,
         ]);
         $promotion = Promotion::create([
             'name_en' => 'Fixed Discount',
@@ -154,14 +153,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::FIXED,
             'value' => 50.0,
             'is_active' => true,
-            'min_order_value' => 100.0
+            'min_order_value' => 100.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -179,23 +178,23 @@ describe('evaluateOrderCalculation', function () {
     it('calculates order total with free shipping promotion', function () {
         $product = Product::factory()->create([
             'price' => 150.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 150.0
+            'price' => 150.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 30.0
+            'value' => 30.0,
         ]);
         $promotion = Promotion::factory()->freeShipping()->create([
             'code' => 'FREESHIP',
@@ -206,7 +205,7 @@ describe('evaluateOrderCalculation', function () {
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -223,24 +222,24 @@ describe('evaluateOrderCalculation', function () {
     it('calculates order total with promotion by ID', function () {
         $product = Product::factory()->create([
             'price' => 200.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 200.0
+            'price' => 200.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 40.0
+            'value' => 40.0,
         ]);
         $promotion = Promotion::create([
             'name_en' => 'Percentage Discount',
@@ -248,14 +247,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 15.0,
             'is_active' => true,
-            'min_order_value' => 300.0
+            'min_order_value' => 300.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -273,24 +272,24 @@ describe('evaluateOrderCalculation', function () {
     it('applies best automatic promotion when no specific promotion provided', function () {
         $product = Product::factory()->create([
             'price' => 100.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 100.0
+            'price' => 100.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 20.0
+            'value' => 20.0,
         ]);        // Create multiple promotions - the service should choose the best one
         $promotion1 = Promotion::create([
             'name_en' => 'Promotion 1',
@@ -298,7 +297,7 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 10.0,
             'is_active' => true,
-            'min_order_value' => 200.0
+            'min_order_value' => 200.0,
         ]);
 
         $promotion2 = Promotion::create([
@@ -307,14 +306,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 15.0,
             'is_active' => true,
-            'min_order_value' => 250.0
+            'min_order_value' => 250.0,
         ]);        // Add items to cart (subtotal will be 300)
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation($address->id);
@@ -328,24 +327,24 @@ describe('evaluateOrderCalculation', function () {
     it('prioritizes coupon code over promotion ID', function () {
         $product = Product::factory()->create([
             'price' => 100.0,
-            'sale_price' => null
+            'sale_price' => null,
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 100.0
+            'price' => 100.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 15.0
+            'value' => 15.0,
         ]);
         $couponPromotion = Promotion::create([
             'name_en' => 'Coupon Promotion',
@@ -354,7 +353,7 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 25.0,
             'is_active' => true,
-            'min_order_value' => 100.0
+            'min_order_value' => 100.0,
         ]);
 
         $idPromotion = Promotion::create([
@@ -363,14 +362,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 30.0,
             'is_active' => true,
-            'min_order_value' => 100.0
+            'min_order_value' => 100.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -399,7 +398,7 @@ describe('evaluateOrderCalculation', function () {
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         expect(function () use ($address) {
@@ -412,7 +411,7 @@ describe('evaluateOrderCalculation', function () {
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         expect(function () {
@@ -426,14 +425,14 @@ describe('evaluateOrderCalculation', function () {
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $otherUser->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
         $product = Product::factory()->create(['price' => 100.0]);
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         expect(function () use ($address) {
@@ -443,17 +442,17 @@ describe('evaluateOrderCalculation', function () {
 
     it('throws exception when no shipping cost is defined for area', function () {
         $product = Product::factory()->create(['price' => 100.0]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 100.0
+            'price' => 100.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         // Note: Not creating ShippingCost for this area        // Add items to cart
@@ -462,7 +461,7 @@ describe('evaluateOrderCalculation', function () {
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         expect(function () use ($address) {
@@ -472,29 +471,29 @@ describe('evaluateOrderCalculation', function () {
 
     it('handles invalid coupon code gracefully', function () {
         $product = Product::factory()->create(['price' => 100.0]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 100.0
+            'price' => 100.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 15.0
+            'value' => 15.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(
@@ -513,22 +512,22 @@ describe('evaluateOrderCalculation', function () {
 
     it('handles inactive promotion by ID gracefully', function () {
         $product = Product::factory()->create(['price' => 100.0]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
             'quantity' => 10,
-            'price' => 100.0
+            'price' => 100.0,
         ]);
 
         $gov = Gov::factory()->create();
         $area = Area::factory()->create(['gov_id' => $gov->id]);
         $address = Address::factory()->create([
             'user_id' => $this->user->id,
-            'area_id' => $area->id
+            'area_id' => $area->id,
         ]);
 
         $shippingCost = ShippingCost::factory()->create([
             'area_id' => $area->id,
-            'value' => 15.0
+            'value' => 15.0,
         ]);
         $inactivePromotion = Promotion::create([
             'name_en' => 'Inactive Promotion',
@@ -536,14 +535,14 @@ describe('evaluateOrderCalculation', function () {
             'type' => PromotionType::PERCENTAGE,
             'value' => 20.0,
             'is_active' => false, // Inactive promotion
-            'min_order_value' => 100.0
+            'min_order_value' => 100.0,
         ]);        // Add items to cart
         $cart = $this->cartService->getOrCreateCart();
         CartItem::factory()->create([
             'cart_id' => $cart->id,
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $result = $this->orderEvaluationService->evaluateOrderCalculation(

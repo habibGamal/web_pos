@@ -42,6 +42,7 @@ const ORDERS_QUERY = graphql(/* GraphQL */ `
           quantity
           unit_price
           total_price
+          options
           variant_details
           returnable_quantity
           product {
@@ -109,6 +110,7 @@ const ORDER_BY_ID_QUERY = graphql(/* GraphQL */ `
         quantity
         unit_price
         total_price
+        options
         variant_details
         returnable_quantity
         product {

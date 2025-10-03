@@ -8,9 +8,10 @@ use App\Models\Category;
 use App\Models\Product;
 use Filament\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Tests\Utilities\ProductTestUtility;
 
 use function Pest\Livewire\livewire;
+
+use Tests\Utilities\ProductTestUtility;
 
 beforeEach(function () {
     ProductTestUtility::cleanupTables();

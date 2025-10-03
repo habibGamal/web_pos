@@ -2,9 +2,10 @@
 
 use App\Filament\Resources\ProductResource\Pages\ListProducts;
 use App\Models\Product;
-use Tests\Utilities\ProductTestUtility;
 
 use function Pest\Livewire\livewire;
+
+use Tests\Utilities\ProductTestUtility;
 
 beforeEach(function () {
     ProductTestUtility::cleanupTables();

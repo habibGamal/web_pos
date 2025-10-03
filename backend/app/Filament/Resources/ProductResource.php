@@ -70,12 +70,12 @@ class ProductResource extends Resource
                                         }
                                     })
                                     ->disabled(
-                                        fn(string $operation, Forms\Get $get, ?Product $record): bool => $operation === 'edit' &&
+                                        fn (string $operation, Forms\Get $get, ?Product $record): bool => $operation === 'edit' &&
                                         $record?->type === ProductType::CONFIGURABLE &&
                                         $record?->variants()->exists()
                                     )
                                     ->helperText(
-                                        fn(string $operation, Forms\Get $get, ?Product $record): ?string => $operation === 'edit' &&
+                                        fn (string $operation, Forms\Get $get, ?Product $record): ?string => $operation === 'edit' &&
                                         $record?->type === ProductType::CONFIGURABLE &&
                                         $record?->variants()->exists()
                                         ? 'لا يمكن تغيير نوع المنتج لوجود متغيرات. يجب حذف جميع المتغيرات أولاً.'
@@ -90,7 +90,7 @@ class ProductResource extends Resource
                                     ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(
-                                        fn(Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))
+                                        fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))
                                     ),
                                 Forms\Components\TextInput::make('name_ar')
                                     ->label('الاسم باللغة العربية')
@@ -105,7 +105,7 @@ class ProductResource extends Resource
                                     ->label('رمز المنتج (SKU)')
                                     ->unique(ignoreRecord: true)
                                     ->maxLength(255)
-                                    ->visible(fn(Forms\Get $get): bool => in_array($get('type'), [
+                                    ->visible(fn (Forms\Get $get): bool => in_array($get('type'), [
                                         ProductType::SIMPLE->value,
                                         ProductType::VARIANT->value,
                                     ])),
@@ -127,7 +127,7 @@ class ProductResource extends Resource
                                 Forms\Components\Toggle::make('is_featured')
                                     ->label('مميز')
                                     ->default(false)
-                                    ->visible(fn(Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
+                                    ->visible(fn (Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
                                 // is_default is only for variants and handled by relation manager
                             ]),
                         Forms\Components\Tabs\Tab::make('الوصف')
@@ -165,7 +165,7 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->minValue(0)
                                     ->default(0)
-                                    ->visible(fn(Forms\Get $get): bool => in_array($get('type'), [
+                                    ->visible(fn (Forms\Get $get): bool => in_array($get('type'), [
                                         ProductType::SIMPLE->value,
                                         ProductType::BUNDLE->value,
                                     ])),
@@ -181,11 +181,11 @@ class ProductResource extends Resource
                                     ->optimize('webp')
                                     ->imageEditor()
                                     ->maxFiles(10)
-                                    ->visible(fn(Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
+                                    ->visible(fn (Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
                             ]),
                         Forms\Components\Tabs\Tab::make('الخصائص')
                             ->schema([
-                                Forms\Components\Repeater::make('attributeValues')
+                                Forms\Components\Repeater::make('productAttributeValues')
                                     ->label('خصائص المنتج')
                                     ->relationship()
                                     ->schema([
@@ -194,27 +194,33 @@ class ProductResource extends Resource
                                             ->options(function () {
                                                 return \App\Models\Attribute::pluck('name_' . app()->getLocale(), 'id')->toArray();
                                             })
-                                            ->required()
-                                            ->live()
-                                            ->dehydrated(false)
-                                            ->afterStateUpdated(fn(Forms\Set $set) => $set('id', null))
-                                            ->searchable(),
-                                        Forms\Components\Select::make('value')
-                                            ->label('القيمة')
-                                            ->options(function (Forms\Get $get) {
-                                                $attributeId = $get('attribute_id');
-                                                if (!$attributeId) {
-                                                    return [];
+                                            ->afterStateHydrated(function (Forms\Components\Select $component, Forms\Get $get) {
+                                                $attribute = \App\Models\AttributeValue::with('attribute')
+                                                    ->where('id', $get('attribute_value_id'))->first()?->attribute;
+                                                if ($attribute) {
+                                                    $component->state($attribute->id);
                                                 }
+                                            })
+                                            ->required()
+                                            // ->live()
+                                            ->dehydrated(false)
+                                            // ->afterStateUpdated(fn(Forms\Set $set) => $set('id', null))
+                                            ->searchable(),
+                                        Forms\Components\Select::make('attribute_value_id')
+                                            ->label('الخاصية والقيمة')
+                                            ->live()
+                                            ->options(function (Forms\Get $get) {
                                                 $locale = app()->getLocale();
+                                                $attributeId = $get('attribute_id');
 
-                                                return \App\Models\AttributeValue::where('attribute_id', $attributeId)
-                                                    ->orderBy('sort_order')
+                                                // dd($attributeId);
+                                                return \App\Models\AttributeValue::with('attribute')
+                                                    ->when($attributeId, fn (Builder $query) => $query->where('attribute_id', $attributeId))
                                                     ->get()
                                                     ->mapWithKeys(function ($attributeValue) use ($locale) {
-                                                        $displayValue = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
+                                                        $valueName = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
 
-                                                        return [$attributeValue->id => $displayValue];
+                                                        return [$attributeValue->id => $valueName];
                                                     })
                                                     ->toArray();
                                             })
@@ -225,18 +231,20 @@ class ProductResource extends Resource
                                     ->defaultItems(0)
                                     ->collapsible()
                                     ->itemLabel(function (array $state): ?string {
-                                        if (!isset($state['attribute_id']) || !isset($state['id'])) {
+                                        if (! isset($state['attribute_value_id'])) {
                                             return null;
                                         }
-                                        $attribute = \App\Models\Attribute::find($state['attribute_id']);
-                                        $attributeValue = \App\Models\AttributeValue::find($state['id']);
-                                        if (!$attribute || !$attributeValue) {
+                                        $attributeValue = \App\Models\AttributeValue::with('attribute')->find($state['attribute_value_id']);
+                                        if (! $attributeValue || ! $attributeValue->attribute) {
                                             return null;
                                         }
+                                        $locale = app()->getLocale();
+                                        $attributeName = $attributeValue->attribute->{"name_{$locale}"} ?? $attributeValue->attribute->name;
+                                        $valueName = $attributeValue->{"value_{$locale}"} ?? $attributeValue->value;
 
-                                        return $attribute->{'name_' . app()->getLocale()} . ': ' . $attributeValue->display_value;
+                                        return "{$attributeName}: {$valueName}";
                                     })
-                                    ->visible(fn(Forms\Get $get): bool => in_array($get('type'), [
+                                    ->visible(fn (Forms\Get $get): bool => in_array($get('type'), [
                                         ProductType::SIMPLE->value,
                                         ProductType::VARIANT->value,
                                     ])),
@@ -252,7 +260,7 @@ class ProductResource extends Resource
                                             ->relationship(
                                                 name: 'product',
                                                 titleAttribute: 'name_' . app()->getLocale(),
-                                                modifyQueryUsing: fn(Builder $query) => $query
+                                                modifyQueryUsing: fn (Builder $query) => $query
                                                     ->whereIn('type', [ProductType::SIMPLE])
                                                     ->where('is_active', true)
                                             )
@@ -270,11 +278,36 @@ class ProductResource extends Resource
                                     ->defaultItems(0)
                                     ->collapsible()
                                     ->itemLabel(
-                                        fn(array $state): ?string => isset($state['product_id']) ?
+                                        fn (array $state): ?string => isset($state['product_id']) ?
                                         Product::find($state['product_id'])?->{'name_' . app()->getLocale()} . ' (x' . ($state['quantity'] ?? 1) . ')'
                                         : null
                                     )
-                                    ->visible(fn(Forms\Get $get): bool => $get('type') === ProductType::BUNDLE->value),
+                                    ->visible(fn (Forms\Get $get): bool => $get('type') === ProductType::BUNDLE->value),
+                            ]),
+                        Forms\Components\Tabs\Tab::make('الخيارات')
+                            ->schema([
+                                Forms\Components\Select::make('options')
+                                    ->label('خيارات المنتج')
+                                    ->helperText('اختر الخيارات التي يمكن للعميل الاختيار من بينها (مثل: اللون، الحجم، الطعم)')
+                                    ->relationship('options', 'name_' . app()->getLocale())
+                                    ->multiple()
+                                    ->preload()
+                                    ->searchable()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('name_en')
+                                            ->label('الاسم (إنجليزي)')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('name_ar')
+                                            ->label('الاسم (عربي)')
+                                            ->required()
+                                            ->maxLength(255),
+                                        Forms\Components\TagsInput::make('values')
+                                            ->label('القيم')
+                                            ->placeholder('أضف قيمة واضغط Enter')
+                                            ->helperText('مثال: أحمر، أزرق، أخضر')
+                                            ->required(),
+                                    ]),
                             ]),
                     ])
                     ->columnSpanFull(),
@@ -287,9 +320,9 @@ class ProductResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('type')
                     ->label('النوع')
-                    ->formatStateUsing(fn(ProductType $state): string => $state->label())
+                    ->formatStateUsing(fn (ProductType $state): string => $state->label())
                     ->badge()
-                    ->color(fn(ProductType $state): string => match ($state) {
+                    ->color(fn (ProductType $state): string => match ($state) {
                         ProductType::SIMPLE => 'primary',
                         ProductType::CONFIGURABLE => 'success',
                         ProductType::VARIANT => 'warning',
@@ -302,7 +335,7 @@ class ProductResource extends Resource
                     ->defaultImageUrl(url('/images/placeholder.jpg')),
                 Tables\Columns\TextColumn::make('name_' . app()->getLocale())
                     ->label('الاسم')
-                    ->description(fn(Product $record): ?string => $record->sku)
+                    ->description(fn (Product $record): ?string => $record->sku)
                     ->sortable()
                     ->searchable()
                     ->weight('medium'),
@@ -311,7 +344,7 @@ class ProductResource extends Resource
                     ->money('EGP')
                     ->sortable()
                     ->description(
-                        fn(Product $record): ?string => $record->sale_price ? 'عرض: ' . number_format((float) $record->sale_price, 2) . ' ج.م' : null
+                        fn (Product $record): ?string => $record->sale_price ? 'عرض: ' . number_format((float) $record->sale_price, 2) . ' ج.م' : null
                     ),
                 Tables\Columns\TextColumn::make('category.name_' . app()->getLocale())
                     ->label('الفئة')
@@ -334,7 +367,7 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('total_quantity')
                     ->label('المخزون')
                     ->badge()
-                    ->color(fn(Product $record): string => match (true) {
+                    ->color(fn (Product $record): string => match (true) {
                         $record->total_quantity === 0 => 'danger',
                         $record->total_quantity < 10 => 'warning',
                         default => 'success',
@@ -405,28 +438,51 @@ class ProductResource extends Resource
                         ->label('تفعيل')
                         ->icon('heroicon-o-check-circle')
                         ->color('success')
-                        ->action(fn(Collection $records) => $records->each->update(['is_active' => true]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => true]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('deactivate')
                         ->label('إلغاء التفعيل')
                         ->icon('heroicon-o-x-circle')
                         ->color('danger')
-                        ->action(fn(Collection $records) => $records->each->update(['is_active' => false]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_active' => false]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('feature')
                         ->label('تمييز')
                         ->icon('heroicon-o-star')
                         ->color('warning')
-                        ->action(fn(Collection $records) => $records->each->update(['is_featured' => true]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_featured' => true]))
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                     Tables\Actions\BulkAction::make('unfeature')
                         ->label('إلغاء التمييز')
                         ->icon('heroicon-o-no-symbol')
                         ->color('gray')
-                        ->action(fn(Collection $records) => $records->each->update(['is_featured' => false]))
+                        ->action(fn (Collection $records) => $records->each->update(['is_featured' => false]))
+                        ->requiresConfirmation()
+                        ->deselectRecordsAfterCompletion(),
+                    Tables\Actions\BulkAction::make('applyOptions')
+                        ->label('تطبيق خيارات')
+                        ->icon('heroicon-o-adjustments-horizontal')
+                        ->color('info')
+                        ->form([
+                            Forms\Components\Select::make('options')
+                                ->label('اختر الخيارات')
+                                ->helperText('سيتم إضافة هذه الخيارات لجميع المنتجات المحددة')
+                                ->options(function () {
+                                    return \App\Models\Option::pluck('name_' . app()->getLocale(), 'id')->toArray();
+                                })
+                                ->multiple()
+                                ->preload()
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->options()->syncWithoutDetaching($data['options']);
+                            }
+                        })
                         ->requiresConfirmation()
                         ->deselectRecordsAfterCompletion(),
                 ]),

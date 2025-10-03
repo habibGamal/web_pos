@@ -257,4 +257,10 @@ extend type Mutation {
 extend type Query {
     "Get current authenticated user"
     me: User @auth
+
+    "Check if email is available for registration"
+    checkEmailAvailability(
+        "Email address to check"
+        email: String! @rules(apply: ["required", "email"])
+    ): Boolean! @field(resolver: "App\\GraphQL\\Queries\\CheckEmailAvailabilityQuery")
 }

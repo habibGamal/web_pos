@@ -209,7 +209,11 @@
     "category": "الفئة",
     "sku": "SKU",
     "noReviews": "لا توجد تقييمات",
-    "relatedProducts": "جميع المنتجات"
+    "relatedProducts": "جميع المنتجات",
+    "select": "اختر",
+    "availableOptions": "الخيارات المتاحة",
+    "selectedOptions": "الخيارات المحددة",
+    "selectOption": "يرجى اختيار {option}"
   }
 
   ,"wishlist": {
@@ -280,7 +284,8 @@
     "limitedStock": "كمية محدودة",
     "quantity": "الكمية",
     "lineTotal": "الإجمالي",
-    "stockWarning": "بعض العناصر في سلتك لم تعد متاحة بالكمية المطلوبة."
+    "stockWarning": "بعض العناصر في سلتك لم تعد متاحة بالكمية المطلوبة.",
+    "options": "الخيارات"
   }
 
   ,"brand": {

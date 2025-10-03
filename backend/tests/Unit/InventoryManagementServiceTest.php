@@ -1,13 +1,12 @@
 <?php
 
+use App\Exceptions\InsufficientStockException;
 use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\InventoryManagementService;
-use App\Exceptions\InsufficientStockException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -21,18 +20,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => 'Test Product',
-            'name_ar' => 'منتج تجريبي'
+            'name_ar' => 'منتج تجريبي',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         // Load relationships
@@ -48,18 +47,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => 'Test Product',
-            'name_ar' => 'منتج تجريبي'
+            'name_ar' => 'منتج تجريبي',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         // Load relationships
@@ -75,18 +74,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => 'Test Product',
-            'name_ar' => 'منتج تجريبي'
+            'name_ar' => 'منتج تجريبي',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         // Load relationships
@@ -102,18 +101,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => 'English Product Name',
-            'name_ar' => 'اسم المنتج بالعربية'
+            'name_ar' => 'اسم المنتج بالعربية',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         // Load relationships
@@ -129,18 +128,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => '', // Empty English name
-            'name_ar' => 'اسم المنتج بالعربية'
+            'name_ar' => 'اسم المنتج بالعربية',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         // Load relationships
@@ -156,18 +155,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => '',
-            'name_ar' => ''
+            'name_ar' => '',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         // Load relationships
@@ -183,18 +182,18 @@ describe('validateCartItemStock', function () {
         // Arrange
         $product = Product::factory()->create([
             'name_en' => 'Test Product',
-            'name_ar' => 'منتج تجريبي'
+            'name_ar' => 'منتج تجريبي',
         ]);
 
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $cartItem = CartItem::factory()->create([
             'product_id' => $product->id,
             'product_variant_id' => $variant->id,
-            'quantity' => 3
+            'quantity' => 3,
         ]);
 
         // Load relationships
@@ -211,9 +210,9 @@ describe('reserveInventory', function () {
     it('successfully reserves inventory when stock is sufficient', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         // Act
@@ -227,11 +226,11 @@ describe('reserveInventory', function () {
     it('throws InsufficientStockException when trying to reserve more than available', function () {
         // Arrange
         $product = Product::factory()->create([
-            'name_en' => 'Test Product'
+            'name_en' => 'Test Product',
         ]);
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         // Act & Assert
@@ -246,9 +245,9 @@ describe('reserveInventory', function () {
     it('reserves exact amount when requesting all available stock', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 8
+            'quantity' => 8,
         ]);
 
         // Act
@@ -262,9 +261,9 @@ describe('reserveInventory', function () {
     it('handles zero quantity reservation', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         // Act
@@ -277,8 +276,8 @@ describe('reserveInventory', function () {
 
     it('throws exception when variant does not exist', function () {
         // Arrange
-        $variant = ProductVariant::factory()->make(['id' => 99999]);
-          // Act & Assert
+        $variant = Product::factory()->variant()->make(['id' => 99999]);
+        // Act & Assert
         expect(function () use ($variant) {
             $this->inventoryService->reserveInventory($variant, 1);
         })->toThrow(Exception::class, 'Product variant not found during inventory reservation.');
@@ -289,9 +288,9 @@ describe('returnInventory', function () {
     it('successfully returns inventory to stock', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         // Act
@@ -305,9 +304,9 @@ describe('returnInventory', function () {
     it('handles zero quantity return', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         // Act
@@ -321,9 +320,9 @@ describe('returnInventory', function () {
     it('can return more items than current stock (no validation)', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         // Act
@@ -336,8 +335,8 @@ describe('returnInventory', function () {
 
     it('throws exception when variant does not exist', function () {
         // Arrange
-        $variant = ProductVariant::factory()->make(['id' => 99999]);
-          // Act & Assert
+        $variant = Product::factory()->variant()->make(['id' => 99999]);
+        // Act & Assert
         expect(function () use ($variant) {
             $this->inventoryService->returnInventory($variant, 1);
         })->toThrow(Exception::class, 'Product variant not found during inventory return.');
@@ -351,15 +350,15 @@ describe('returnOrderInventoryToStock', function () {
         $order = Order::factory()->create(['user_id' => $user->id]);
 
         $product1 = Product::factory()->create();
-        $variant1 = ProductVariant::factory()->create([
+        $variant1 = Product::factory()->variant()->create([
             'product_id' => $product1->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $product2 = Product::factory()->create();
-        $variant2 = ProductVariant::factory()->create([
+        $variant2 = Product::factory()->variant()->create([
             'product_id' => $product2->id,
-            'quantity' => 20
+            'quantity' => 20,
         ]);
 
         $orderItem1 = OrderItem::factory()->create([
@@ -414,7 +413,7 @@ describe('returnOrderInventoryToStock', function () {
         // Arrange
         $user = User::factory()->create();
         $order = Order::factory()->create(['user_id' => $user->id]);
-          // Act & Assert - Should not throw any exceptions
+        // Act & Assert - Should not throw any exceptions
         expect(function () use ($order) {
             $this->inventoryService->returnOrderInventoryToStock($order);
         })->not->toThrow(Exception::class);
@@ -425,9 +424,9 @@ describe('integration tests', function () {
     it('can reserve and return inventory in sequence', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         // Act - Reserve inventory
@@ -449,13 +448,13 @@ describe('integration tests', function () {
     it('maintains data integrity across concurrent operations', function () {
         // Arrange
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 100
+            'quantity' => 100,
         ]);
 
         // Act - Simulate multiple reservations
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 10; ++$i) {
             $this->inventoryService->reserveInventory($variant, 5);
         }
 
@@ -463,7 +462,7 @@ describe('integration tests', function () {
         expect($variant->fresh()->quantity)->toBe(50); // 100 - (10 * 5)
 
         // Act - Return some inventory
-        for ($i = 0; $i < 5; $i++) {
+        for ($i = 0; $i < 5; ++$i) {
             $this->inventoryService->returnInventory($variant, 3);
         }
 
@@ -478,11 +477,11 @@ describe('integration tests', function () {
 
         // Create multiple products with different stock levels
         $variants = collect();
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 3; ++$i) {
             $product = Product::factory()->create();
-            $variant = ProductVariant::factory()->create([
+            $variant = Product::factory()->variant()->create([
                 'product_id' => $product->id,
-                'quantity' => 20 + ($i * 5) // 20, 25, 30
+                'quantity' => 20 + ($i * 5), // 20, 25, 30
             ]);
             $variants->push($variant);
 

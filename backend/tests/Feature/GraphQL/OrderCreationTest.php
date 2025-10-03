@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\Address;
 use App\Models\Brand;
 use App\Models\Cart;
 use App\Models\CartItem;
@@ -9,7 +10,6 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Utilities\GraphQLTestHelpers;
@@ -22,52 +22,51 @@ describe('Order Creation GraphQL Operations', function () {
         $this->category = Category::factory()->create();
         $this->brand = Brand::factory()->create();
 
+        // Create shipping address
+        $this->shippingAddress = Address::factory()->create([
+            'user_id' => $this->user->id,
+        ]);
+
         // Create products and variants for cart
-        $this->product1 = Product::factory()->create([
+        $this->product1 = Product::factory()->configurable()->create([
             'category_id' => $this->category->id,
             'brand_id' => $this->brand->id,
             'is_active' => true,
             'price' => 100.00,
         ]);
 
-        $this->variant1 = ProductVariant::factory()->create([
-            'product_id' => $this->product1->id,
+        $this->variant1 = Product::factory()->variant($this->product1)->create([
             'quantity' => 100,
             'is_active' => true,
             'is_default' => true,
-            'price' => null,
+            'price' => $this->product1->price,
         ]);
 
-        $this->product2 = Product::factory()->create([
+        $this->product2 = Product::factory()->configurable()->create([
             'category_id' => $this->category->id,
             'brand_id' => $this->brand->id,
             'is_active' => true,
             'price' => 75.00,
         ]);
 
-        $this->variant2 = ProductVariant::factory()->create([
-            'product_id' => $this->product2->id,
+        $this->variant2 = Product::factory()->variant($this->product2)->create([
             'quantity' => 50,
             'is_active' => true,
             'is_default' => true,
-            'price' => null,
+            'price' => $this->product2->price,
         ]);
 
         // Create cart with items
         $this->cart = Cart::factory()->create(['user_id' => $this->user->id]);
         CartItem::factory()->create([
             'cart_id' => $this->cart->id,
-            'product_id' => $this->product1->id,
-            'product_variant_id' => $this->variant1->id,
+            'product_id' => $this->variant1->id,
             'quantity' => 2,
-            'unit_price' => 100.00,
         ]);
         CartItem::factory()->create([
             'cart_id' => $this->cart->id,
-            'product_id' => $this->product2->id,
-            'product_variant_id' => $this->variant2->id,
+            'product_id' => $this->variant2->id,
             'quantity' => 1,
-            'unit_price' => 75.00,
         ]);
     });
 
@@ -92,14 +91,10 @@ describe('Order Creation GraphQL Operations', function () {
                             id
                             quantity
                             unit_price
-                            total_price
+                            subtotal
                             product {
                                 id
                                 name
-                            }
-                            variant {
-                                id
-                                sku
                             }
                         }
                         shipping_address {
@@ -110,19 +105,9 @@ describe('Order Creation GraphQL Operations', function () {
                 }
             ', [
                 'input' => [
-                    'shipping_address' => [
-                        'full_name' => 'John Doe',
-                        'phone' => '+1234567890',
-                        'address_line_1' => '123 Test Street',
-                        'address_line_2' => 'Apt 4B',
-                        'city' => 'Test City',
-                        'state' => 'Test State',
-                        'postal_code' => '12345',
-                        'country' => 'Test Country',
-                    ],
-                    'payment_method' => 'COD',
+                    'shipping_address_id' => $this->shippingAddress->id,
+                    'payment_method' => 'CASH_ON_DELIVERY',
                     'notes' => 'Test order notes',
-                    'billing_same_as_shipping' => true,
                 ],
             ]);
 
@@ -131,9 +116,9 @@ describe('Order Creation GraphQL Operations', function () {
                 'data' => [
                     'createOrder' => [
                         'user_id' => (string) $this->user->id,
-                        'order_status' => 'PENDING',
+                        'order_status' => 'PROCESSING',
                         'payment_status' => 'PENDING',
-                        'subtotal' => 275.0, // (2 * 100) + (1 * 75)
+                        'subtotal' => 275, // (2 * 100) + (1 * 75)
                         'currency' => 'EGP',
                         'notes' => 'Test order notes',
                         'can_be_cancelled' => true,
@@ -141,23 +126,17 @@ describe('Order Creation GraphQL Operations', function () {
                         'items' => [
                             [
                                 'quantity' => 2,
-                                'unit_price' => 100.0,
-                                'total_price' => 200.0,
+                                'unit_price' => 100,
+                                'subtotal' => 200,
                                 'product' => [
-                                    'id' => (string) $this->product1->id,
-                                ],
-                                'variant' => [
                                     'id' => (string) $this->variant1->id,
                                 ],
                             ],
                             [
                                 'quantity' => 1,
-                                'unit_price' => 75.0,
-                                'total_price' => 75.0,
+                                'unit_price' => 75,
+                                'subtotal' => 75,
                                 'product' => [
-                                    'id' => (string) $this->product2->id,
-                                ],
-                                'variant' => [
                                     'id' => (string) $this->variant2->id,
                                 ],
                             ],
@@ -423,11 +402,10 @@ describe('Order Creation GraphQL Operations', function () {
             // Create order items
             OrderItem::factory()->create([
                 'order_id' => $this->order1->id,
-                'product_id' => $this->product1->id,
-                'variant_id' => $this->variant1->id,
+                'product_id' => $this->variant1->id,
                 'quantity' => 2,
                 'unit_price' => 100.0,
-                'total_price' => 200.0,
+                'subtotal' => 200.0,
             ]);
         });
 

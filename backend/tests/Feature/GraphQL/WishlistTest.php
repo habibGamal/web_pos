@@ -6,7 +6,6 @@ use App\Models\Brand;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use App\Models\WishlistItem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,7 +23,7 @@ describe('Wishlist GraphQL Operations', function () {
             'brand_id' => $this->brand->id,
             'is_active' => true,
         ]);
-        $this->variant = ProductVariant::factory()->create([
+        $this->variant = Product::factory()->variant()->create([
             'product_id' => $this->product->id,
             'quantity' => 100,
             'is_active' => true,
@@ -468,7 +467,7 @@ describe('Wishlist GraphQL Operations', function () {
                 'category_id' => $this->category->id,
                 'brand_id' => $this->brand->id,
             ]);
-            $otherVariant = ProductVariant::factory()->create([
+            $otherVariant = Product::factory()->variant()->create([
                 'product_id' => $otherProduct->id,
             ]);
 
@@ -509,7 +508,7 @@ describe('Wishlist GraphQL Operations', function () {
                 'category_id' => $this->category->id,
                 'brand_id' => $this->brand->id,
             ]);
-            $otherVariant = ProductVariant::factory()->create([
+            $otherVariant = Product::factory()->variant()->create([
                 'product_id' => $otherProduct->id,
             ]);
 

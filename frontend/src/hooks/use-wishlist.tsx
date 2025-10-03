@@ -106,31 +106,20 @@ const removeFromWishlistDocument = graphql(/* GraphQL */ `
 const moveWishlistToCartDocument = graphql(/* GraphQL */ `
   mutation MoveWishlistToCart(
     $product_id: ID!
-    $product_variant_id: ID!
     $quantity: Int!
   ) {
     moveWishlistToCart(
       product_id: $product_id
-      product_variant_id: $product_variant_id
       quantity: $quantity
     ) {
       id
       cart_id
-      product_variant_id
+      product_id
       quantity
+      options
       unit_price
       total_price
       is_available
-      variant {
-        id
-        name
-        sku
-        price
-        sale_price
-        quantity
-        is_active
-        is_default
-      }
       product {
         id
         name
@@ -154,7 +143,7 @@ interface WishlistContextType {
   error: string | null;
   addToWishlist: (input: AddToWishlistInput) => Promise<Wishlist>;
   removeFromWishlist: (input: RemoveFromWishlistInput) => Promise<boolean>;
-  moveToCart: (productId: string, variantId: string, quantity?: number) => Promise<any>;
+  moveToCart: (productId: string, quantity?: number) => Promise<any>;
   isInWishlist: (productId: string) => boolean;
   toggleWishlist: (productId: string) => Promise<boolean>;
   refreshWishlist: () => Promise<void>;
@@ -269,13 +258,12 @@ export function WishlistProvider({ children }: WishlistProviderProps) {
   );
 
   const moveToCart = useCallback(
-    async (productId: string, variantId: string, quantity: number = 1) => {
+    async (productId: string, quantity: number = 1) => {
       try {
         setError(null);
         const { data } = await moveWishlistToCartMutation({
           variables: {
             product_id: productId,
-            product_variant_id: variantId,
             quantity,
           },
         });

@@ -10,7 +10,6 @@ use App\Models\CartItem;
 use App\Models\Gov;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\ShippingCost;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -44,7 +43,7 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
-    $this->variant = ProductVariant::factory()->create([
+    $this->variant = Product::factory()->variant()->create([
         'product_id' => $this->product->id,
         'is_active' => true,
         'is_default' => true,
@@ -73,11 +72,12 @@ describe('index', function () {
 
         $response = $this->get(route('orders.index'));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Index')
-            ->has('orders_data', 5)
-            ->has('orders_pagination')
-            ->where('orders_pagination.total', 5)
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Index')
+                ->has('orders_data', 5)
+                ->has('orders_pagination')
+                ->where('orders_pagination.total', 5)
         );
     });
 
@@ -89,11 +89,12 @@ describe('index', function () {
 
         $response = $this->get(route('orders.index', ['limit' => 5]));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Index')
-            ->has('orders_data', 5)
-            ->where('orders_pagination.per_page', 5)
-            ->where('orders_pagination.total', 15)
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Index')
+                ->has('orders_data', 5)
+                ->where('orders_pagination.per_page', 5)
+                ->where('orders_pagination.total', 15)
         );
     });
 
@@ -105,10 +106,11 @@ describe('index', function () {
 
         $response = $this->get(route('orders.index'));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Index')
-            ->has('orders_data', 10) // Default limit is 10
-            ->where('orders_pagination.per_page', 10)
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Index')
+                ->has('orders_data', 10) // Default limit is 10
+                ->where('orders_pagination.per_page', 10)
         );
     });
 });
@@ -125,13 +127,14 @@ describe('show', function () {
 
         $response = $this->get(route('orders.show', $order->id));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Show')
-            ->has('order')
-            ->where('order.id', $order->id)
-            ->where('order.total', '125.00')
-            ->where('order.order_status', 'processing')
-            ->where('order.payment_status', 'paid')
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Show')
+                ->has('order')
+                ->where('order.id', $order->id)
+                ->where('order.total', '125.00')
+                ->where('order.order_status', 'processing')
+                ->where('order.payment_status', 'paid')
         );
     });
 
@@ -139,7 +142,7 @@ describe('show', function () {
         $response = $this->get(route('orders.show', 999999));
 
         $response->assertRedirect(route('orders.index'))
-                ->assertSessionHas('error', 'Order not found.');
+            ->assertSessionHas('error', 'Order not found.');
     });
 
     it('allows user to view their own orders only', function () {
@@ -158,7 +161,7 @@ describe('show', function () {
 
         // Should redirect because the order doesn't belong to the current user
         $response->assertRedirect(route('orders.index'))
-                ->assertSessionHas('error', 'Order not found.');
+            ->assertSessionHas('error', 'Order not found.');
     });
 });
 
@@ -181,15 +184,16 @@ describe('checkout', function () {
 
         $response = $this->get(route('checkout.index'));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Checkout/Index')
-            ->has('addresses', 2)
-            ->has('cartSummary')
-            ->has('paymentMethods')
-            ->where('cartSummary.totalItems', 2)
-            ->where('cartSummary.totalPrice', fn($value) => (float)$value === 200.0)
-            ->where('paymentMethods', ['cash_on_delivery', 'credit_card', 'wallet'])
-            ->where('orderSummary', null) // No address selected initially
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Checkout/Index')
+                ->has('addresses', 2)
+                ->has('cartSummary')
+                ->has('paymentMethods')
+                ->where('cartSummary.totalItems', 2)
+                ->where('cartSummary.totalPrice', fn ($value) => (float) $value === 200.0)
+                ->where('paymentMethods', ['cash_on_delivery', 'credit_card', 'wallet'])
+                ->where('orderSummary', null) // No address selected initially
         );
     });
 
@@ -203,12 +207,13 @@ describe('checkout', function () {
         ]);
         $response = $this->get(route('checkout.index', ['address_id' => $this->address->id]));
 
-        $response->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Checkout/Index')
-            ->has('orderSummary')
-            ->where('orderSummary.subtotal', fn ($value) => abs($value - 100.0) < 0.01)
-            ->where('orderSummary.shippingCost', fn ($value) => abs($value - 25.0) < 0.01)
-            ->where('orderSummary.total', fn ($value) => abs($value - 125.0) < 0.01)
+        $response->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Checkout/Index')
+                ->has('orderSummary')
+                ->where('orderSummary.subtotal', fn ($value) => abs($value - 100.0) < 0.01)
+                ->where('orderSummary.shippingCost', fn ($value) => abs($value - 25.0) < 0.01)
+                ->where('orderSummary.total', fn ($value) => abs($value - 125.0) < 0.01)
         );
     });
 
@@ -216,7 +221,7 @@ describe('checkout', function () {
         $response = $this->get(route('checkout.index'));
 
         $response->assertRedirect(route('cart.index'))
-                ->assertSessionHas('error', 'Your cart is empty. Please add items to your cart before checking out.');
+            ->assertSessionHas('error', 'Your cart is empty. Please add items to your cart before checking out.');
     });
 });
 
@@ -250,7 +255,7 @@ describe('store', function () {
         expect($order->shipping_address_id)->toBe($this->address->id);
 
         $response->assertRedirect(route('orders.show', $order->id))
-                ->assertSessionHas('success', 'Order placed successfully!');
+            ->assertSessionHas('success', 'Order placed successfully!');
     });
 
     it('redirects to payment initiation for credit_card payment', function () {
@@ -364,12 +369,13 @@ describe('cancel', function () {
         expect($order->order_status)->toBe(OrderStatus::CANCELLED);
 
         $response->assertRedirect(route('orders.index'))
-                ->assertSessionHas('success', 'Order cancelled successfully.');
-    });    it('handles order not found error', function () {
+            ->assertSessionHas('success', 'Order cancelled successfully.');
+    });
+    it('handles order not found error', function () {
         $response = $this->patch(route('orders.cancel', 999999));
 
         $response->assertRedirect(route('orders.index'))
-                ->assertSessionHas('error', 'Order not found.');
+            ->assertSessionHas('error', 'Order not found.');
     });
 
     it('prevents cancelling other users orders', function () {
@@ -387,7 +393,7 @@ describe('cancel', function () {
         $response = $this->patch(route('orders.cancel', $otherOrder->id));
 
         $response->assertRedirect(route('orders.index'))
-                ->assertSessionHas('error', 'Order not found.');        // Verify order was not cancelled
+            ->assertSessionHas('error', 'Order not found.');        // Verify order was not cancelled
         $otherOrder->refresh();
         expect($otherOrder->order_status)->toBe(OrderStatus::PROCESSING);
     });
@@ -402,7 +408,7 @@ describe('cancel', function () {
         $response = $this->patch(route('orders.cancel', $order->id));
 
         $response->assertRedirect()
-                ->assertSessionHas('error');
+            ->assertSessionHas('error');
 
         // Verify order status was not changed
         $order->refresh();
@@ -422,12 +428,14 @@ describe('Order Flow Integration', function () {
         ]);
 
         // Step 2: View checkout page
-        $checkoutResponse = $this->get(route('checkout.index', ['address_id' => $this->address->id]));        $checkoutResponse->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Checkout/Index')
-            ->has('orderSummary')
-            ->where('orderSummary.total', function ($value) {
-                return (float) $value === 125.0;
-            })
+        $checkoutResponse = $this->get(route('checkout.index', ['address_id' => $this->address->id]));
+        $checkoutResponse->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Checkout/Index')
+                ->has('orderSummary')
+                ->where('orderSummary.total', function ($value) {
+                    return (float) $value === 125.0;
+                })
         );
 
         // Step 3: Place order
@@ -448,17 +456,19 @@ describe('Order Flow Integration', function () {
 
         // Step 4: View order details
         $showResponse = $this->get(route('orders.show', $order->id));
-        $showResponse->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Show')
-            ->where('order.id', $order->id)
-            ->where('order.total', '125.00')
+        $showResponse->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Show')
+                ->where('order.id', $order->id)
+                ->where('order.total', '125.00')
         );
 
         // Step 5: View orders list
         $indexResponse = $this->get(route('orders.index'));
-        $indexResponse->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Index')
-            ->has('orders_data', 1)
+        $indexResponse->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Index')
+                ->has('orders_data', 1)
         );
     });
 
@@ -509,7 +519,7 @@ describe('Order Flow Integration', function () {
         $order = Order::where('user_id', $this->user->id)->first();        // Cancel the order
         $cancelResponse = $this->patch(route('orders.cancel', $order->id));
         $cancelResponse->assertRedirect(route('orders.index'))
-                      ->assertSessionHas('success');
+            ->assertSessionHas('success');
 
         // Verify cancellation
         $order->refresh();
@@ -517,9 +527,10 @@ describe('Order Flow Integration', function () {
 
         // Check it appears in orders list as cancelled
         $indexResponse = $this->get(route('orders.index'));
-        $indexResponse->assertInertia(fn (AssertableInertia $page) => $page
-            ->component('Orders/Index')
-            ->has('orders_data', 1)
+        $indexResponse->assertInertia(
+            fn (AssertableInertia $page) => $page
+                ->component('Orders/Index')
+                ->has('orders_data', 1)
         );
     });
 });

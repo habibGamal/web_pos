@@ -1,0 +1,92 @@
+# Product Stock Management GraphQL Schema
+# Feature: 002-title-web-pos
+# Purpose: Stock display, POS sync, availability queries
+
+"""
+Stock manager type determines stock source
+"""
+enum StockManagerType {
+    stock_pos_manager "POS controls stock"
+    stock_web_manager "Web admin controls stock"
+}
+
+"""
+Extended Product type with stock management fields
+"""
+type Product {
+    id: ID!
+    name: String! @localized
+    
+    # Stock management fields
+    quantity: Int! "Web-managed stock quantity"
+    is_stockable: Boolean!
+    stock_manager: StockManagerType!
+    
+    # POS stock mirroring
+    pos_stock_quantity: Int "Mirrored POS stock (authoritative when POS-managed)"
+    pos_stock_display_percentage: Int "Per-product display percentage override (0-100, null = use global)"
+    pos_stock_updated_at: DateTime "Last sync timestamp from POS"
+    
+    # Computed fields
+    displayed_stock: Int! @field(resolver: "App\\GraphQL\\Queries\\Product@displayedStock")
+    is_in_stock: Boolean! @field(resolver: "App\\GraphQL\\Queries\\Product@isInStock")
+    
+    # Existing relationships
+    category: Category @belongsTo
+    options: [ProductOption!]! @hasMany
+    
+    # Timestamps
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+extend type Query {
+    """
+    Get product by ID with stock information
+    """
+    product(id: ID! @eq): Product @find
+    
+    """
+    List products with stock filtering
+    """
+    products(
+        is_stockable: Boolean @eq
+        stock_manager: StockManagerType @eq
+        in_stock_only: Boolean
+    ): [Product!]! @paginate(defaultCount: 20)
+    
+    """
+    Check stock availability for multiple products
+    """
+    checkStockAvailability(
+        product_ids: [ID!]! @rules(apply: ["required", "array"])
+    ): [ProductStockAvailability!]! @field(resolver: "App\\GraphQL\\Queries\\Product@checkStockAvailability")
+}
+
+"""
+Note: Product stock management (update quantity, configure settings) is handled exclusively via Filament admin panel.
+Admin can trigger "Pull Stock from POS" action in Filament, which calls POS API to fetch current stock.
+"""
+
+"""
+Product stock availability result
+"""
+type ProductStockAvailability {
+    product_id: ID!
+    product_name: String!
+    is_stockable: Boolean!
+    is_in_stock: Boolean!
+    displayed_stock: Int!
+    stock_manager: StockManagerType!
+}
+
+"""
+Response for stock sync action
+"""
+type SyncStockResponse {
+    success: Boolean!
+    message: String!
+    synced_count: Int!
+    failed_count: Int!
+    started_at: DateTime!
+}

@@ -111,13 +111,38 @@ class Product extends Model
         $text = mb_strtolower($text, 'UTF-8');
         // Normalize common Arabic letter variations
         $search = [
-            'أ', 'إ', 'آ', 'ى', 'ئ', 'ؤ', 'ة', 'ٱ', 'ء',
+            'أ',
+            'إ',
+            'آ',
+            'ى',
+            'ئ',
+            'ؤ',
+            'ة',
+            'ٱ',
+            'ء',
         ];
         $replace = [
-            'ا', 'ا', 'ا', 'ي', 'ي', 'و', 'ه', 'ا', '',
+            'ا',
+            'ا',
+            'ا',
+            'ي',
+            'ي',
+            'و',
+            'ه',
+            'ا',
+            '',
         ];
 
         return str_replace($search, $replace, $text);
+    }
+
+    public function getImagesAttribute($value)
+    {
+        if ($this->type->isParent()) {
+            return $this->variants->pluck('images')->flatten()->values();
+        }
+
+        return $value;
     }
 
     /**
@@ -177,6 +202,14 @@ class Product extends Model
     }
 
     /**
+     * Get the product attribute values (for forms with repeater).
+     */
+    public function productAttributeValues(): HasMany
+    {
+        return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    /**
      * Get the bundle items (for bundle products).
      */
     public function bundleItems(): HasMany
@@ -219,6 +252,14 @@ class Product extends Model
     }
 
     /**
+     * Get the options for the product.
+     */
+    public function options(): BelongsToMany
+    {
+        return $this->belongsToMany(Option::class, 'product_options');
+    }
+
+    /**
      * Get the default variant for configurable products.
      */
     public function defaultVariant()
@@ -250,6 +291,10 @@ class Product extends Model
      */
     public function getFeaturedImageAttribute()
     {
+        if ($this->type->isParent() && empty($this->images)) {
+            return $this->variants->pluck('images')->flatten()->values()->first();
+        }
+
         if (empty($this->images)) {
             return;
         }

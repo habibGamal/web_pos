@@ -28,32 +28,14 @@ const getCartDocument = graphql(/* GraphQL */ `
       items {
         id
         cart_id
-        product_variant_id
+        product_id
         quantity
+        options
         unit_price
         total_price
         is_available
         created_at
         updated_at
-        variant {
-          id
-          name
-          sku
-          price
-          sale_price
-          quantity
-          is_active
-          is_default
-          product {
-            id
-            name
-            slug
-            price
-            sale_price
-            effective_price
-            featured_image
-          }
-        }
         product {
           id
           name
@@ -75,30 +57,12 @@ const addToCartDocument = graphql(/* GraphQL */ `
     addToCart(input: $input) {
       id
       cart_id
-      product_variant_id
+      product_id
       quantity
+      options
       unit_price
       total_price
       is_available
-      variant {
-        id
-        name
-        sku
-        price
-        sale_price
-        quantity
-        is_active
-        is_default
-        product {
-          id
-          name
-          slug
-          price
-          sale_price
-          effective_price
-          featured_image
-        }
-      }
       product {
         id
         name
@@ -119,21 +83,12 @@ const updateCartItemDocument = graphql(/* GraphQL */ `
     updateCartItem(input: $input) {
       id
       cart_id
-      product_variant_id
+      product_id
       quantity
+      options
       unit_price
       total_price
       is_available
-      variant {
-        id
-        name
-        sku
-        price
-        sale_price
-        quantity
-        is_active
-        is_default
-      }
       product {
         id
         name
@@ -177,7 +132,7 @@ interface CartContextType {
   clearCart: () => Promise<boolean>;
   incrementQuantity: (cartItemId: string) => Promise<void>;
   decrementQuantity: (cartItemId: string) => Promise<void>;
-  getCartItemByVariant: (variantId: string) => CartItem | null;
+  getCartItemByProduct: (productId: string, options?: Record<string, string>) => CartItem | null;
   refreshCart: () => Promise<void>;
   clearError: () => void;
 }
@@ -331,9 +286,18 @@ export function CartProvider({ children }: CartProviderProps) {
     [cartItems, updateCartItem]
   );
 
-  const getCartItemByVariant = useCallback(
-    (variantId: string): CartItem | null => {
-      return cartItems.find((item: any) => item.product_variant_id === variantId) || null;
+  const getCartItemByProduct = useCallback(
+    (productId: string, options?: Record<string, string>): CartItem | null => {
+      return cartItems.find((item: any) => {
+        if (item.product_id !== productId) return false;
+        
+        // Compare options
+        const itemOptions = item.options ? JSON.parse(item.options) : null;
+        if (!options && !itemOptions) return true;
+        if (!options || !itemOptions) return false;
+        
+        return JSON.stringify(itemOptions) === JSON.stringify(options);
+      }) || null;
     },
     [cartItems]
   );
@@ -368,7 +332,7 @@ export function CartProvider({ children }: CartProviderProps) {
     clearCart,
     incrementQuantity,
     decrementQuantity,
-    getCartItemByVariant,
+    getCartItemByProduct,
     refreshCart,
     clearError,
   };
@@ -422,19 +386,19 @@ export function useCartSummary() {
   };
 }
 
-// Hook for checking if a product variant is in cart
-export function useCartItemByVariant(variantId: string) {
-  const { getCartItemByVariant } = useCart();
-  return getCartItemByVariant(variantId);
+// Hook for checking if a product is in cart with specific options
+export function useCartItemByProduct(productId: string, options?: Record<string, string>) {
+  const { getCartItemByProduct } = useCart();
+  return getCartItemByProduct(productId, options);
 }
 
 // Hook for quick add to cart with quantity management
 export function useQuickCartActions() {
-  const { addToCart, getCartItemByVariant, updateCartItem } = useCart();
+  const { addToCart, getCartItemByProduct, updateCartItem } = useCart();
 
   const addOrUpdateCart = useCallback(
-    async (variantId: string, quantity: number = 1) => {
-      const existingItem = getCartItemByVariant(variantId);
+    async (productId: string, quantity: number = 1, options?: Record<string, string>) => {
+      const existingItem = getCartItemByProduct(productId, options);
       
       if (existingItem) {
         return await updateCartItem({
@@ -443,12 +407,13 @@ export function useQuickCartActions() {
         });
       } else {
         return await addToCart({
-          product_variant_id: variantId,
+          product_id: productId,
           quantity,
+          options: options ? JSON.stringify(options) : undefined,
         });
       }
     },
-    [addToCart, getCartItemByVariant, updateCartItem]
+    [addToCart, getCartItemByProduct, updateCartItem]
   );
 
   return { addOrUpdateCart };

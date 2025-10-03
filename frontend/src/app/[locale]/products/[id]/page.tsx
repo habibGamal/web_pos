@@ -47,6 +47,7 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string>>({});
 
   // Set default variant when product loads
   useEffect(() => {
@@ -79,11 +80,29 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = async () => {
-    if (!product || !selectedVariant) return;
+    if (!product) return;
+    
+    // Validate required options
+    if (product.options && product.options.length > 0) {
+      const missingOptions = product.options.filter(
+        (option: any) => option.is_required && !selectedOptions[option.name]
+      );
+      
+      if (missingOptions.length > 0) {
+        // Show error notification
+        console.error('Please select all required options');
+        return;
+      }
+    }
     
     setIsAddingToCart(true);
     try {
-      await addOrUpdateCart(selectedVariant.id, quantity);
+      // Pass options to cart
+      await addOrUpdateCart(
+        product.id, 
+        quantity, 
+        Object.keys(selectedOptions).length > 0 ? selectedOptions : undefined
+      );
       // Show success notification if needed
     } catch (error) {
       console.error('Failed to add to cart:', error);
@@ -301,6 +320,40 @@ export default function ProductDetailPage() {
             </div>
           )}
 
+          {/* Product Options */}
+          {product.options && product.options.length > 0 && (
+            <div className="space-y-4">
+              {product.options.map((option: any) => (
+                <div key={option.id} className="space-y-2">
+                  <Label className="text-base font-medium">
+                    {option.name}
+                    {option.is_required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
+                  </Label>
+                  <Select
+                    value={selectedOptions[option.name] || ''}
+                    onValueChange={(value) => setSelectedOptions(prev => ({
+                      ...prev,
+                      [option.name]: value
+                    }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder={`${t('product.select')} ${option.name}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {option.values.map((value: string) => (
+                        <SelectItem key={value} value={value}>
+                          {value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Quantity and Add to Cart */}
           <div className="space-y-4">
             <div className="flex items-center gap-4">
@@ -338,7 +391,13 @@ export default function ProductDetailPage() {
             <div className="flex gap-3">
               <Button
                 onClick={handleAddToCart}
-                disabled={isAddingToCart || !product.is_in_stock}
+                disabled={
+                  isAddingToCart || 
+                  !product.is_in_stock ||
+                  (product.options && product.options.some((opt: any) => 
+                    opt.is_required && !selectedOptions[opt.name]
+                  ))
+                }
                 className="flex-1"
                 size="lg"
               >
@@ -430,6 +489,25 @@ export default function ProductDetailPage() {
                     <span className="font-medium">{t('product.sku')}</span>
                     <span>{selectedVariant.sku}</span>
                   </div>
+                )}
+                {product.options && product.options.length > 0 && (
+                  <>
+                    <div className="py-2">
+                      <span className="font-semibold text-gray-900">{t('product.availableOptions')}</span>
+                    </div>
+                    {product.options.map((option: any) => (
+                      <div key={option.id} className="flex items-center justify-between py-2 border-b">
+                        <span className="font-medium">{option.name}</span>
+                        <div className="flex flex-wrap gap-1 max-w-xs justify-end">
+                          {option.values.map((value: string, idx: number) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
+                              {value}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
                 )}
               </div>
             </CardContent>

@@ -7,11 +7,9 @@ use App\Enums\ReturnStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
-use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\OrderReturnService;
 use App\Services\RefundService;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -156,7 +154,7 @@ describe('requestReturn', function () {
             'return_status' => null,
         ]);
 
-        expect(fn() => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
+        expect(fn () => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
             ->toThrow(Exception::class, 'User must be authenticated to request return.');
     });
 
@@ -169,7 +167,7 @@ describe('requestReturn', function () {
             'return_status' => null,
         ]);
 
-        expect(fn() => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
+        expect(fn () => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
             ->toThrow(ModelNotFoundException::class);
     });
 
@@ -181,7 +179,7 @@ describe('requestReturn', function () {
             'return_status' => null,
         ]);
 
-        expect(fn() => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
+        expect(fn () => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
             ->toThrow(Exception::class, 'This order is not eligible for return.');
     });
 
@@ -193,7 +191,7 @@ describe('requestReturn', function () {
             'return_status' => ReturnStatus::RETURN_REQUESTED,
         ]);
 
-        expect(fn() => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
+        expect(fn () => $this->orderReturnService->requestReturn($order->id, 'Test reason'))
             ->toThrow(Exception::class, 'This order is not eligible for return.');
     });
 });
@@ -216,7 +214,7 @@ describe('approveReturn', function () {
     });
 
     it('throws exception for non-existent order', function () {
-        expect(fn() => $this->orderReturnService->approveReturn(99999))
+        expect(fn () => $this->orderReturnService->approveReturn(99999))
             ->toThrow(ModelNotFoundException::class);
     });
 
@@ -225,7 +223,7 @@ describe('approveReturn', function () {
             'return_status' => ReturnStatus::RETURN_APPROVED,
         ]);
 
-        expect(fn() => $this->orderReturnService->approveReturn($order->id))
+        expect(fn () => $this->orderReturnService->approveReturn($order->id))
             ->toThrow(Exception::class, 'Return request is not in a valid state for approval.');
     });
 
@@ -234,7 +232,7 @@ describe('approveReturn', function () {
             'return_status' => null,
         ]);
 
-        expect(fn() => $this->orderReturnService->approveReturn($order->id))
+        expect(fn () => $this->orderReturnService->approveReturn($order->id))
             ->toThrow(Exception::class, 'Return request is not in a valid state for approval.');
     });
 });
@@ -279,7 +277,7 @@ describe('rejectReturn', function () {
             'return_status' => ReturnStatus::RETURN_APPROVED,
         ]);
 
-        expect(fn() => $this->orderReturnService->rejectReturn($order->id))
+        expect(fn () => $this->orderReturnService->rejectReturn($order->id))
             ->toThrow(Exception::class, 'Return request is not in a valid state for rejection.');
     });
 });
@@ -289,9 +287,9 @@ describe('completeReturn', function () {
         Auth::login($this->admin);
 
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $order = Order::factory()->create([
@@ -333,15 +331,15 @@ describe('completeReturn', function () {
                     'orderReference' => 'TEST-ORD-37089',
                 ],
                 'messages' => [
-                    'en' => 'Refund successful'
-                ]
-            ], 200)
+                    'en' => 'Refund successful',
+                ],
+            ], 200),
         ]);
 
         $product = Product::factory()->create();
-        $variant = ProductVariant::factory()->create([
+        $variant = Product::factory()->variant()->create([
             'product_id' => $product->id,
-            'quantity' => 5
+            'quantity' => 5,
         ]);
 
         $order = Order::factory()->create([
@@ -374,7 +372,7 @@ describe('completeReturn', function () {
             'return_status' => ReturnStatus::RETURN_REQUESTED,
         ]);
 
-        expect(fn() => $this->orderReturnService->completeReturn($order->id))
+        expect(fn () => $this->orderReturnService->completeReturn($order->id))
             ->toThrow(Exception::class, 'Return must be approved before it can be completed.');
     });
 
@@ -382,15 +380,15 @@ describe('completeReturn', function () {
         Auth::login($this->admin);
 
         $product1 = Product::factory()->create();
-        $variant1 = ProductVariant::factory()->create([
+        $variant1 = Product::factory()->variant()->create([
             'product_id' => $product1->id,
-            'quantity' => 10
+            'quantity' => 10,
         ]);
 
         $product2 = Product::factory()->create();
-        $variant2 = ProductVariant::factory()->create([
+        $variant2 = Product::factory()->variant()->create([
             'product_id' => $product2->id,
-            'quantity' => 20
+            'quantity' => 20,
         ]);
 
         $order = Order::factory()->create([

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class ProductTestUtility
 {
     /**
-     * Clean up product-related tables for testing
+     * Clean up product-related tables for testing.
      */
     public static function cleanupTables(): void
     {
@@ -20,7 +20,7 @@ class ProductTestUtility
     }
 
     /**
-     * Clean up all product-related tables including additional ones
+     * Clean up all product-related tables including additional ones.
      */
     public static function cleanupAllTables(): void
     {
@@ -36,7 +36,7 @@ class ProductTestUtility
     }
 
     /**
-     * Clean up specific tables
+     * Clean up specific tables.
      */
     public static function cleanupSpecificTables(array $tables): void
     {
@@ -48,7 +48,7 @@ class ProductTestUtility
     }
 
     /**
-     * Clean up only basic product tables (without relationships)
+     * Clean up only basic product tables (without relationships).
      */
     public static function cleanupBasicTables(): void
     {
@@ -59,7 +59,7 @@ class ProductTestUtility
     }
 
     /**
-     * Clean up category-related tables only
+     * Clean up category-related tables only.
      */
     public static function cleanupCategoryTables(): void
     {
@@ -69,7 +69,7 @@ class ProductTestUtility
     }
 
     /**
-     * Clean up brand-related tables only
+     * Clean up brand-related tables only.
      */
     public static function cleanupBrandTables(): void
     {
@@ -79,7 +79,7 @@ class ProductTestUtility
     }
 
     /**
-     * Setup test environment with sample data
+     * Setup test environment with sample data.
      */
     public static function setupWithSampleData(): array
     {

@@ -2,9 +2,10 @@
 
 use App\Filament\Resources\CategoryResource\Pages\CreateCategory;
 use App\Models\Category;
-use Tests\Utilities\CategoryTestUtility;
 
 use function Pest\Livewire\livewire;
+
+use Tests\Utilities\CategoryTestUtility;
 
 beforeEach(function () {
     CategoryTestUtility::cleanupTables();

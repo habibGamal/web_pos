@@ -1,0 +1,182 @@
+# Dead-Letter Queue Management GraphQL Schema
+# Feature: 002-title-web-pos
+# Purpose: Admin interface for failed sync items, retry actions
+
+"""
+Failed job from Laravel's failed_jobs table
+"""
+type FailedJob {
+    id: ID!
+    uuid: String!
+    connection: String!
+    queue: String!
+    payload: JSON! "Job payload (order/stock sync data)"
+    exception: String! "Exception message"
+    failed_at: DateTime!
+    
+    # Parsed payload fields (computed)
+    job_type: String! @field(resolver: "App\\GraphQL\\Queries\\FailedJob@jobType")
+    order_id: ID @field(resolver: "App\\GraphQL\\Queries\\FailedJob@orderId")
+    product_id: ID @field(resolver: "App\\GraphQL\\Queries\\FailedJob@productId")
+    attempt_count: Int! @field(resolver: "App\\GraphQL\\Queries\\FailedJob@attemptCount")
+}
+
+"""
+Failed job category for filtering
+"""
+enum FailedJobCategory {
+    order_sync "Order-related sync failures"
+    stock_sync "Stock-related sync failures"
+    notification "Notification delivery failures"
+    other "Other job failures"
+}
+
+"""
+Input for retrying a failed job
+"""
+input RetryFailedJobInput {
+    uuid: String! @rules(apply: ["required", "exists:failed_jobs,uuid"])
+}
+
+"""
+Response for retry action
+"""
+type RetryFailedJobResponse {
+    success: Boolean!
+    message: String!
+    job: FailedJob
+    errors: [String!]
+}
+
+"""
+Dead-letter statistics
+"""
+type DeadLetterStats {
+    total_failed: Int!
+    failed_today: Int!
+    failed_this_week: Int!
+    by_category: [CategoryCount!]!
+    oldest_failure: DateTime
+    newest_failure: DateTime
+    dead_letter_rate: Float! "Percentage of failed jobs (last 24h)"
+}
+
+type CategoryCount {
+    category: FailedJobCategory!
+    count: Int!
+}
+
+extend type Query {
+    """
+    Get failed job by UUID (admin only)
+    """
+    failedJob(uuid: String! @eq): FailedJob @find
+        @can(ability: "viewAny", model: "App\\Models\\FailedJob")
+    
+    """
+    List all failed jobs with filtering (admin only)
+    """
+    failedJobs(
+        category: FailedJobCategory
+        connection: String @eq
+        queue: String @eq
+        orderBy: [FailedJobsOrderByClause!] @orderBy
+    ): [FailedJob!]! @paginate(defaultCount: 20)
+        @can(ability: "viewAny", model: "App\\Models\\FailedJob")
+    
+    """
+    Get dead-letter queue statistics (admin only)
+    """
+    deadLetterStats: DeadLetterStats!
+        @field(resolver: "App\\GraphQL\\Queries\\FailedJob@stats")
+        @can(ability: "viewAny", model: "App\\Models\\FailedJob")
+    
+    """
+    Search failed jobs by order ID or product ID (admin only)
+    """
+    searchFailedJobs(
+        order_id: ID
+        product_id: ID
+    ): [FailedJob!]!
+        @field(resolver: "App\\GraphQL\\Queries\\FailedJob@search")
+        @can(ability: "viewAny", model: "App\\Models\\FailedJob")
+}
+
+extend type Mutation {
+    """
+    Retry a single failed job (admin only)
+    """
+    retryFailedJob(input: RetryFailedJobInput! @spread): RetryFailedJobResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\RetryFailedJob")
+        @can(ability: "update", model: "App\\Models\\FailedJob")
+    
+    """
+    Retry all failed jobs (admin only)
+    """
+    retryAllFailedJobs: RetryAllResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\RetryAllFailedJobs")
+        @can(ability: "update", model: "App\\Models\\FailedJob")
+    
+    """
+    Retry failed jobs by category (admin only)
+    """
+    retryFailedJobsByCategory(category: FailedJobCategory!): RetryAllResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\RetryFailedJobsByCategory")
+        @can(ability: "update", model: "App\\Models\\FailedJob")
+    
+    """
+    Delete a failed job permanently (admin only)
+    """
+    deleteFailedJob(uuid: String!): DeleteFailedJobResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\DeleteFailedJob")
+        @can(ability: "delete", model: "App\\Models\\FailedJob")
+    
+    """
+    Flush all failed jobs (admin only, dangerous action)
+    """
+    flushFailedJobs: FlushResponse
+        @field(resolver: "App\\GraphQL\\Mutations\\FlushFailedJobs")
+        @can(ability: "delete", model: "App\\Models\\FailedJob")
+}
+
+"""
+Response for retry all action
+"""
+type RetryAllResponse {
+    success: Boolean!
+    message: String!
+    retried_count: Int!
+    failed_count: Int!
+}
+
+"""
+Response for delete action
+"""
+type DeleteFailedJobResponse {
+    success: Boolean!
+    message: String!
+}
+
+"""
+Response for flush action
+"""
+type FlushResponse {
+    success: Boolean!
+    message: String!
+    deleted_count: Int!
+}
+
+"""
+Failed jobs sorting options
+"""
+input FailedJobsOrderByClause {
+    column: FailedJobsOrderByColumn!
+    order: SortOrder!
+}
+
+enum FailedJobsOrderByColumn {
+    ID
+    FAILED_AT
+    CONNECTION
+    QUEUE
+}
