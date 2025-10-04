@@ -11,16 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('cart_items', function (Blueprint $table) {
-            // Drop foreign key first
-            $table->dropForeign(['cart_id']);
+        try {
+            Schema::table('cart_items', function (Blueprint $table) {
+                // Drop foreign key first
+                $table->dropForeign(['cart_id']);
 
-            // Drop the unique constraint
-            $table->dropIndex('unique_cart_item');
+                // Drop the unique constraint
+                $table->dropIndex('unique_cart_item');
 
-            // Re-add foreign key
-            $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
-        });
+                // Re-add foreign key
+                $table->foreign('cart_id')->references('id')->on('carts')->onDelete('cascade');
+            });
+        } catch (\Exception $e) {
+            // Silently fail if the index doesn't exist
+        }
     }
 
     /**

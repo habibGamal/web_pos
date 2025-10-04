@@ -14,11 +14,16 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products'); // Points to the variant (Product with type=VARIANT)
+            $table->foreignId('product_id')->constrained('products'); // Points to the variant (Product with type=VARIANT) or simple/bundle product
+            $table->foreignId('parent_id')->nullable()->constrained('order_items')->onDelete('cascade'); // For bundle child items, points to parent bundle order item
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
             $table->decimal('subtotal', 10, 2);
             $table->timestamps();
+
+            // Indexes for efficient queries
+            $table->index(['order_id', 'parent_id']);
+            $table->index('parent_id');
         });
     }
 

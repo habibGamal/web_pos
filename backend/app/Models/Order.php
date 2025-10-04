@@ -115,7 +115,7 @@ class Order extends Model
      */
     public function canBeCancelled(): bool
     {
-        return in_array($this->order_status, [OrderStatus::PROCESSING, OrderStatus::SHIPPED]);
+        return in_array($this->order_status, [OrderStatus::PROCESSING, OrderStatus::OUT_FOR_DELIVERY]);
     }
 
     /**
@@ -123,8 +123,8 @@ class Order extends Model
      */
     public function canBeReturned(): bool
     {
-        // Business logic: Orders can be returned if they're DELIVERED and within return window
-        if ($this->order_status !== OrderStatus::DELIVERED || ! $this->delivered_at) {
+        // Business logic: Orders can be returned if they're COMPLETED and within return window
+        if ($this->order_status !== OrderStatus::COMPLETED || ! $this->delivered_at) {
             return false;
         }
 
@@ -161,19 +161,19 @@ class Order extends Model
     }
 
     /**
-     * Scope a query to only include delivery orders (shipped and delivered).
+     * Scope a query to only include delivery orders (out for delivery).
      */
     public function scopeDelivery($query)
     {
-        return $query->where('order_status', OrderStatus::SHIPPED);
+        return $query->where('order_status', OrderStatus::OUT_FOR_DELIVERY);
     }
 
     /**
-     * Scope a query to only include delivery orders (shipped and delivered).
+     * Scope a query to only include completed orders.
      */
     public function scopeCompleted($query)
     {
-        return $query->where('order_status', OrderStatus::DELIVERED)
+        return $query->where('order_status', OrderStatus::COMPLETED)
             ->whereNull('return_status');
     }
 

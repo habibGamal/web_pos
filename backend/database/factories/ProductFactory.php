@@ -158,7 +158,8 @@ class ProductFactory extends Factory
      */
     public function withVariants(int $variantCount = 3): static
     {
-        return $this->configurable()->afterCreating(function (Product $product) use ($variantCount) {
+        // Ensure the configurable parent is active to make tests deterministic
+        return $this->configurable()->state(['is_active' => true])->afterCreating(function (Product $product) use ($variantCount) {
             // Create a default variant
             Product::factory()
                 ->variant($product)

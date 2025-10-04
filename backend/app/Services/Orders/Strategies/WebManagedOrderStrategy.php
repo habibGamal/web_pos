@@ -46,10 +46,17 @@ class WebManagedOrderStrategy implements OrderStrategyInterface
         }
 
         // Validate stock availability BEFORE creating order
-        $items = $cart->items->map(fn($item) => [
+        // For bundles, validate child items (actual products), not the bundle parent
+        $items = $cart->items->filter(function ($item) {
+            // Skip bundle parent items (they don't have physical stock)
+            if ($item->parent_id === null && $item->product->type === \App\Enums\ProductType::BUNDLE) {
+                return false;
+            }
+            return true;
+        })->map(fn($item) => [
             'product_id' => $item->product_id,
-            'quantity' => $item->quantity,
-        ])->toArray();
+            'quantity' => $item->quantity * ($item->parent ? $item->parent->quantity : 1),
+        ])->values()->toArray();
 
         if (!$this->validateStockAvailability($items)) {
             $stockCheck = $this->stockService->validateOrderStock($items);
@@ -86,16 +93,38 @@ class WebManagedOrderStrategy implements OrderStrategyInterface
                 'notes' => Arr::get($cart, 'notes') ?? Arr::get($cart, 'note'),
             ]);
 
-            // Create order items
+            // Create order items (preserve bundle parent-child structure)
             foreach ($cart->items as $item) {
+                // Only process parent items (bundles and regular items)
+                if ($item->parent_id !== null) {
+                    continue;
+                }
+
                 $unitPrice = $item->getUnitPrice();
-                $order->items()->create([
+                $orderItem = $order->items()->create([
                     'product_id' => $item->product_id,
+                    'parent_id' => null,
                     'quantity' => $item->quantity,
                     'unit_price' => $unitPrice,
                     'subtotal' => $unitPrice * $item->quantity,
                     'options' => $item->options,
                 ]);
+
+                // If this is a bundle, create child order items
+                if ($item->product->type === \App\Enums\ProductType::BUNDLE) {
+                    $item->loadMissing('children.product');
+
+                    foreach ($item->children as $childCartItem) {
+                        $order->items()->create([
+                            'product_id' => $childCartItem->product_id,
+                            'parent_id' => $orderItem->id,
+                            'quantity' => $childCartItem->quantity,
+                            'unit_price' => 0,
+                            'subtotal' => 0,
+                            'options' => $childCartItem->options ?? [],
+                        ]);
+                    }
+                }
             }
 
             // Stock is now logically reserved (for PROCESSING orders via view)
@@ -117,10 +146,18 @@ class WebManagedOrderStrategy implements OrderStrategyInterface
         }
 
         // Revalidate stock before consuming
-        $items = $order->items->map(fn($item) => [
+        // For bundles, validate child items (actual products), not the bundle parent
+        $order->load('items.product');
+        $items = $order->items->filter(function ($item) {
+            // Skip bundle parent items (they don't have physical stock)
+            if ($item->parent_id === null && $item->product->type === \App\Enums\ProductType::BUNDLE) {
+                return false;
+            }
+            return true;
+        })->map(fn($item) => [
             'product_id' => $item->product_id,
-            'quantity' => $item->quantity,
-        ])->toArray();
+            'quantity' => $item->quantity * ($item->parent ? $item->parent->quantity : 1),
+        ])->values()->toArray();
 
         if (!$this->validateStockAvailability($items)) {
             $stockCheck = $this->stockService->validateOrderStock($items);

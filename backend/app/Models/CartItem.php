@@ -18,6 +18,7 @@ class CartItem extends Model
     protected $fillable = [
         'cart_id',
         'product_id',
+        'parent_id',
         'quantity',
         'options',
     ];
@@ -49,11 +50,37 @@ class CartItem extends Model
     }
 
     /**
+     * Get the parent cart item (for bundle child items).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Get the child cart items (for bundle parent items).
+     */
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function isBundleItem(): bool
+    {
+        return $this->parent_id !== null;
+    }
+
+    /**
      * Calculate the total price for this cart item.
      * Uses sale price if available, otherwise regular price.
      */
     public function getTotalPrice(): float
     {
+        if ($this->isBundleItem()) {
+            // For bundle child items, price is handled at the parent bundle level
+            return 0.0;
+        }
+
         $price = $this->product->sale_price ?? $this->product->price;
 
         return (float) ($price * $this->quantity);

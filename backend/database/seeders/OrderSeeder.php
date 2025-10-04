@@ -119,7 +119,7 @@ class OrderSeeder extends Seeder
                     'shipping_address_id' => $shippingAddress->id,
                     'notes' => fake()->boolean(30) ? fake()->sentence() : null,
                     'payment_id' => $paymentStatus === PaymentStatus::PAID ? 'pay_' . fake()->uuid() : null,
-                    'delivered_at' => $orderStatus === OrderStatus::DELIVERED ? fake()->dateTimeBetween('-30 days', 'now') : null,
+                    'delivered_at' => $orderStatus === OrderStatus::COMPLETED ? fake()->dateTimeBetween('-30 days', 'now') : null,
                     'created_at' => fake()->dateTimeBetween('-60 days', 'now'),
                 ]);
 
@@ -140,12 +140,12 @@ class OrderSeeder extends Seeder
     {
         // Cash on delivery orders are pending until delivered
         if ($paymentMethod === PaymentMethod::CASH_ON_DELIVERY) {
-            return $orderStatus === OrderStatus::DELIVERED ? PaymentStatus::PAID : PaymentStatus::PENDING;
+            return $orderStatus === OrderStatus::COMPLETED ? PaymentStatus::PAID : PaymentStatus::PENDING;
         }
 
         // For other payment methods
         return match ($orderStatus) {
-            OrderStatus::PROCESSING, OrderStatus::SHIPPED, OrderStatus::DELIVERED => PaymentStatus::PAID,
+            OrderStatus::PROCESSING, OrderStatus::OUT_FOR_DELIVERY, OrderStatus::COMPLETED => PaymentStatus::PAID,
             OrderStatus::CANCELLED => fake()->boolean(70) ? PaymentStatus::REFUNDED : PaymentStatus::PAID,
             default => fake()->randomElement([PaymentStatus::PENDING, PaymentStatus::PAID]),
         };

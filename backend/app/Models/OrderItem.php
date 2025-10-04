@@ -19,6 +19,7 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'parent_id',
         'quantity',
         'unit_price',
         'subtotal',
@@ -51,6 +52,22 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * Get the parent order item (for bundle child items).
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    /**
+     * Get the child order items (for bundle parent items).
+     */
+    public function children()
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 
     /**
