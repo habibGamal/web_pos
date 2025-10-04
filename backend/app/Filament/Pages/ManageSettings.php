@@ -125,6 +125,12 @@ class ManageSettings extends Page implements HasForms
                 ->helperText($setting->description_ar)
                 ->required($setting->is_required),
 
+            'select' => Forms\Components\Select::make($setting->key)
+                ->label($setting->label_ar)
+                ->helperText($setting->description_ar)
+                ->required($setting->is_required)
+                ->options($this->getSelectOptions($setting->key)),
+
             default => null,
         };
 
@@ -144,6 +150,10 @@ class ManageSettings extends Page implements HasForms
             'payment' => 'إعدادات الدفع',
             'legal' => 'الإعدادات القانونية',
             'images' => 'الصور الافتراضية',
+            'order_management' => 'إدارة الطلبات',
+            'stock_management' => 'إدارة المخزون',
+            'business_hours' => 'ساعات العمل',
+            'notifications' => 'الإشعارات',
             default => ucfirst($group),
         };
     }
@@ -191,5 +201,36 @@ class ManageSettings extends Page implements HasForms
                 ->danger()
                 ->send();
         }
+    }
+
+    protected function getSelectOptions(string $key): array
+    {
+        return match ($key) {
+            'order_manager_type' => [
+                'order_web_manager' => 'مدير الطلبات عبر الويب',
+                'order_pos_manager' => 'مدير طلبات نقطة البيع',
+            ],
+            'default_stock_manager' => [
+                'stock_web_manager' => 'مدير مخزون الويب',
+                'stock_pos_manager' => 'مدير مخزون نقطة البيع',
+            ],
+            'consume_stock_on_status' => [
+                'pending' => 'معلق',
+                'processing' => 'قيد المعالجة',
+                'confirmed' => 'مؤكد',
+                'shipped' => 'تم الشحن',
+            ],
+            'timezone' => [
+                'Africa/Cairo' => 'القاهرة (أفريقيا/القاهرة)',
+                'Asia/Dubai' => 'دبي (آسيا/دبي)',
+                'Asia/Riyadh' => 'الرياض (آسيا/الرياض)',
+                'Asia/Kuwait' => 'الكويت (آسيا/الكويت)',
+                'Asia/Amman' => 'عمان (آسيا/عمان)',
+                'Asia/Beirut' => 'بيروت (آسيا/بيروت)',
+                'Asia/Baghdad' => 'بغداد (آسيا/بغداد)',
+                'UTC' => 'التوقيت العالمي المنسق (UTC)',
+            ],
+            default => [],
+        };
     }
 }

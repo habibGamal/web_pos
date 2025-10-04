@@ -36,7 +36,7 @@ return new class extends Migration
             $table->decimal('cost_price', 10, 2)->nullable();
 
             // Inventory (for simple, variant, and bundle)
-            $table->integer('quantity')->default(0);
+            $table->decimal('quantity')->default(0.0);
 
             // Images (JSON array for multiple images)
             $table->json('images')->nullable();

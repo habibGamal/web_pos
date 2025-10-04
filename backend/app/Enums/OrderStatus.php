@@ -8,17 +8,21 @@ use Filament\Support\Contracts\HasLabel;
 
 enum OrderStatus: string implements HasColor, HasIcon, HasLabel
 {
+    case PENDING = 'pending';
+    case REJECTED = 'rejected';
     case PROCESSING = 'processing';
-    case SHIPPED = 'shipped';
-    case DELIVERED = 'delivered';
+    case OUT_FOR_DELIVERY = 'out_for_delivery';
+    case COMPLETED = 'completed';
     case CANCELLED = 'cancelled';
 
     public function getColor(): ?string
     {
         return match ($this) {
+            self::PENDING => 'secondary',
+            self::REJECTED => 'danger',
             self::PROCESSING => 'warning',
-            self::SHIPPED => 'info',
-            self::DELIVERED => 'success',
+            self::OUT_FOR_DELIVERY => 'info',
+            self::COMPLETED => 'success',
             self::CANCELLED => 'danger',
         };
     }
@@ -26,19 +30,23 @@ enum OrderStatus: string implements HasColor, HasIcon, HasLabel
     public function getIcon(): ?string
     {
         return match ($this) {
+            self::PENDING => 'heroicon-o-clock',
+            self::REJECTED => 'heroicon-o-x-circle',
             self::PROCESSING => 'heroicon-o-cog',
-            self::SHIPPED => 'heroicon-o-truck',
-            self::DELIVERED => 'heroicon-o-check-circle',
-            self::CANCELLED => 'heroicon-o-x-circle',
+            self::OUT_FOR_DELIVERY => 'heroicon-o-truck',
+            self::COMPLETED => 'heroicon-o-check-circle',
+            self::CANCELLED => 'heroicon-o-ban',
         };
     }
 
     public function getLabel(): ?string
     {
         return match ($this) {
+            self::PENDING => 'قيد الانتظار',
+            self::REJECTED => 'مرفوضة',
             self::PROCESSING => 'قيد التحضير',
-            self::SHIPPED => 'تم الشحن',
-            self::DELIVERED => 'تم التوصيل',
+            self::OUT_FOR_DELIVERY => 'في طريق التسليم',
+            self::COMPLETED => 'تم التوصيل',
             self::CANCELLED => 'ملغاة',
         };
     }
@@ -46,9 +54,11 @@ enum OrderStatus: string implements HasColor, HasIcon, HasLabel
     public static function toSelectArray(): array
     {
         return [
+            self::PENDING->value => self::PENDING->getLabel(),
+            self::REJECTED->value => self::REJECTED->getLabel(),
             self::PROCESSING->value => self::PROCESSING->getLabel(),
-            self::SHIPPED->value => self::SHIPPED->getLabel(),
-            self::DELIVERED->value => self::DELIVERED->getLabel(),
+            self::OUT_FOR_DELIVERY->value => self::OUT_FOR_DELIVERY->getLabel(),
+            self::COMPLETED->value => self::COMPLETED->getLabel(),
             self::CANCELLED->value => self::CANCELLED->getLabel(),
         ];
     }

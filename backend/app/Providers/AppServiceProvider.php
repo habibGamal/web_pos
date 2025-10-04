@@ -31,53 +31,53 @@ class AppServiceProvider extends ServiceProvider
     private function registerPaymentServices(): void
     {
         // Register Kashier-specific services
-        $this->app->bind(
-            \App\Interfaces\PaymentValidatorInterface::class,
-            \App\Services\Payment\Validators\KashierPaymentValidator::class
-        );
+        // $this->app->bind(
+        //     \App\Interfaces\PaymentValidatorInterface::class,
+        //     \App\Services\Payment\Validators\KashierPaymentValidator::class
+        // );
 
-        $this->app->bind(
-            \App\Interfaces\PaymentUrlProviderInterface::class,
-            \App\Services\Payment\UrlProviders\KashierUrlProvider::class
-        );
+        // $this->app->bind(
+        //     \App\Interfaces\PaymentUrlProviderInterface::class,
+        //     \App\Services\Payment\UrlProviders\KashierUrlProvider::class
+        // );
 
         // Register Kashier gateway
-        $this->app->bind(
-            \App\Services\Payment\Gateways\KashierPaymentGateway::class,
-            function ($app) {
-                return new \App\Services\Payment\Gateways\KashierPaymentGateway(
-                    $app->make(\App\Interfaces\PaymentValidatorInterface::class),
-                    $app->make(\App\Interfaces\PaymentUrlProviderInterface::class)
-                );
-            }
-        );
+        // $this->app->bind(
+        //     \App\Services\Payment\Gateways\KashierPaymentGateway::class,
+        //     function ($app) {
+        //         return new \App\Services\Payment\Gateways\KashierPaymentGateway(
+        //             $app->make(\App\Interfaces\PaymentValidatorInterface::class),
+        //             $app->make(\App\Interfaces\PaymentUrlProviderInterface::class)
+        //         );
+        //     }
+        // );
 
         // Register payment processor and strategies
-        $this->app->singleton(\App\Services\Payment\PaymentProcessor::class, function ($app) {
-            $processor = new \App\Services\Payment\PaymentProcessor;
+        // $this->app->singleton(\App\Services\Payment\PaymentProcessor::class, function ($app) {
+        //     $processor = new \App\Services\Payment\PaymentProcessor;
 
-            // Register Kashier strategy for online payment methods
-            $kashierGateway = $app->make(\App\Services\Payment\Gateways\KashierPaymentGateway::class);
-            $kashierStrategy = new \App\Services\Payment\Strategies\KashierPaymentStrategy($kashierGateway);
-            $processor->addStrategy($kashierStrategy, 'kashier');
+        //     // Register Kashier strategy for online payment methods
+        //     $kashierGateway = $app->make(\App\Services\Payment\Gateways\KashierPaymentGateway::class);
+        //     $kashierStrategy = new \App\Services\Payment\Strategies\KashierPaymentStrategy($kashierGateway);
+        //     $processor->addStrategy($kashierStrategy, 'kashier');
 
-            // Register Cash on Delivery strategy
-            $codStrategy = new \App\Services\Payment\Strategies\CashOnDeliveryStrategy;
-            $processor->addStrategy($codStrategy, 'cod');
+        //     // Register Cash on Delivery strategy
+        //     $codStrategy = new \App\Services\Payment\Strategies\CashOnDeliveryStrategy;
+        //     $processor->addStrategy($codStrategy, 'cod');
 
-            return $processor;
-        });
+        //     return $processor;
+        // });
 
-        // Register webhook handler
-        $this->app->bind(
-            \App\Services\Payment\Webhooks\PaymentWebhookHandler::class,
-            function ($app) {
-                return new \App\Services\Payment\Webhooks\PaymentWebhookHandler(
-                    $app->make(\App\Services\Payment\PaymentProcessor::class),
-                    $app->make(\App\Interfaces\PaymentValidatorInterface::class)
-                );
-            }
-        );
+        // // Register webhook handler
+        // $this->app->bind(
+        //     \App\Services\Payment\Webhooks\PaymentWebhookHandler::class,
+        //     function ($app) {
+        //         return new \App\Services\Payment\Webhooks\PaymentWebhookHandler(
+        //             $app->make(\App\Services\Payment\PaymentProcessor::class),
+        //             $app->make(\App\Interfaces\PaymentValidatorInterface::class)
+        //         );
+        //     }
+        // );
     }
 
     /**

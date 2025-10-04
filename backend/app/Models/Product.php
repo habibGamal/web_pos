@@ -57,7 +57,7 @@ class Product extends Model
             'price' => 'decimal:2',
             'sale_price' => 'decimal:2',
             'cost_price' => 'decimal:2',
-            'quantity' => 'integer',
+            'quantity' => 'decimal:2',
             'images' => 'array',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',

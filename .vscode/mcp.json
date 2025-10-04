@@ -12,6 +12,10 @@
         "docs-mcp-server": {
             "type": "sse",
             "url": "https://doc-mcp.turbosoftspace.com/mcp"
+        },
+        "drawio": {
+            "command": "npx",
+            "args": ["-y", "drawio-mcp-server"]
         }
     }
 }

@@ -49,66 +49,21 @@ class CartItem extends Model
     }
 
     /**
-     * Get the product variant that the cart item refers to.
-     */
-    public function variant(): BelongsTo
-    {
-        return $this->belongsTo(Product::class, 'product_variant_id');
-    }
-
-    /**
-     * Calculate the unit price for this cart item.
-     * Uses variant pricing when available, fallback to product pricing.
-     */
-    public function getUnitPrice(): float
-    {
-        $product = $this->product;
-        $variant = $this->variant;
-
-        // Determine pricing strategy: use variant price if available, otherwise product price
-        $pricingStrategy = $variant && $variant->price ? 'variant' : 'product';
-
-        if ($pricingStrategy === 'variant') {
-            return $variant->sale_price ?: $variant->price;
-        } else {
-            return $product->sale_price ?: $product->price;
-        }
-    }
-
-    /**
-     * Calculate the total price for this cart item (unit price * quantity).
+     * Calculate the total price for this cart item.
+     * Uses sale price if available, otherwise regular price.
      */
     public function getTotalPrice(): float
     {
-        return $this->quantity * $this->getUnitPrice();
+        $price = $this->product->sale_price ?? $this->product->price;
+
+        return (float) ($price * $this->quantity);
     }
 
     /**
-     * Get the unit price attribute.
+     * Get the unit price for this cart item.
      */
-    public function getUnitPriceAttribute(): float
+    public function getUnitPrice(): float
     {
-        return $this->getUnitPrice();
-    }
-
-    /**
-     * Get the total price attribute.
-     */
-    public function getTotalPriceAttribute(): float
-    {
-        return $this->getTotalPrice();
-    }
-
-    /**
-     * Get options as JSON string for GraphQL.
-     * Returns null if options is null or empty.
-     */
-    public function getOptionsJson(): ?string
-    {
-        if ($this->options === null || empty($this->options)) {
-            return null;
-        }
-
-        return json_encode($this->options);
+        return (float) ($this->product->sale_price ?? $this->product->price);
     }
 }

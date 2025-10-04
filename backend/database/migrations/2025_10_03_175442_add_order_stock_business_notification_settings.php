@@ -1,0 +1,310 @@
+<?php
+
+use App\Models\Setting;
+use Illuminate\Database\Migrations\Migration;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        $settings = [
+            // ORDER_MANAGEMENT Group
+            [
+                'key' => 'order_manager_type',
+                'group' => 'order_management',
+                'type' => 'select',
+                'value' => 'order_web_manager',
+                'label_en' => 'Order Manager Type',
+                'label_ar' => 'نوع مدير الطلبات',
+                'description_en' => 'Select the order management system type',
+                'description_ar' => 'اختر نوع نظام إدارة الطلبات',
+                'is_required' => true,
+                'display_order' => 1,
+            ],
+            [
+                'key' => 'pos_auto_confirm_timeout',
+                'group' => 'order_management',
+                'type' => 'integer',
+                'value' => '3600',
+                'label_en' => 'POS Auto-Confirm Timeout',
+                'label_ar' => 'مهلة التأكيد التلقائي لنقطة البيع',
+                'description_en' => 'Seconds before auto-confirm (0=disabled, POS Manager only)',
+                'description_ar' => 'الثواني قبل التأكيد التلقائي (0=معطل، لمدير نقطة البيع فقط)',
+                'is_required' => false,
+                'display_order' => 2,
+            ],
+            [
+                'key' => 'web_admin_can_modify_pos_orders',
+                'group' => 'order_management',
+                'type' => 'boolean',
+                'value' => '0',
+                'label_en' => 'Web Admin Can Modify POS Orders',
+                'label_ar' => 'مسؤول الويب يمكنه تعديل طلبات نقطة البيع',
+                'description_en' => 'Allow Web admin to override POS orders (not recommended)',
+                'description_ar' => 'السماح لمسؤول الويب بتجاوز طلبات نقطة البيع (غير موصى به)',
+                'is_required' => false,
+                'display_order' => 3,
+            ],
+            [
+                'key' => 'user_can_cancel_order',
+                'group' => 'order_management',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'User Can Cancel Order',
+                'label_ar' => 'المستخدم يمكنه إلغاء الطلب',
+                'description_en' => 'Allow users to cancel their orders',
+                'description_ar' => 'السماح للمستخدمين بإلغاء طلباتهم',
+                'is_required' => false,
+                'display_order' => 4,
+            ],
+            [
+                'key' => 'cancel_allowed_statuses',
+                'group' => 'order_management',
+                'type' => 'json',
+                'value' => json_encode(['pending', 'processing']),
+                'label_en' => 'Cancel Allowed Statuses',
+                'label_ar' => 'حالات الإلغاء المسموحة',
+                'description_en' => 'Which order statuses allow cancellation',
+                'description_ar' => 'حالات الطلبات التي تسمح بالإلغاء',
+                'is_required' => false,
+                'display_order' => 5,
+            ],
+
+            // STOCK_MANAGEMENT Group
+            [
+                'key' => 'default_stock_manager',
+                'group' => 'stock_management',
+                'type' => 'select',
+                'value' => 'stock_web_manager',
+                'label_en' => 'Default Stock Manager',
+                'label_ar' => 'مدير المخزون الافتراضي',
+                'description_en' => 'Select the default stock management system',
+                'description_ar' => 'اختر نظام إدارة المخزون الافتراضي',
+                'is_required' => true,
+                'display_order' => 1,
+            ],
+            [
+                'key' => 'product_stockable_by_default',
+                'group' => 'stock_management',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Product Stockable By Default',
+                'label_ar' => 'المنتج قابل للتخزين افتراضياً',
+                'description_en' => 'Are new products stockable by default?',
+                'description_ar' => 'هل المنتجات الجديدة قابلة للتخزين افتراضياً؟',
+                'is_required' => false,
+                'display_order' => 2,
+            ],
+            [
+                'key' => 'pos_stock_display_percentage_global',
+                'group' => 'stock_management',
+                'type' => 'integer',
+                'value' => '100',
+                'label_en' => 'POS Stock Display Percentage',
+                'label_ar' => 'نسبة عرض مخزون نقطة البيع',
+                'description_en' => 'Global percentage of POS stock to display (0-100)',
+                'description_ar' => 'النسبة المئوية العالمية لمخزون نقطة البيع للعرض (0-100)',
+                'is_required' => false,
+                'display_order' => 3,
+            ],
+            [
+                'key' => 'consume_stock_on_status',
+                'group' => 'stock_management',
+                'type' => 'select',
+                'value' => 'processing',
+                'label_en' => 'Consume Stock On Status',
+                'label_ar' => 'استهلاك المخزون عند الحالة',
+                'description_en' => 'When to consume stock (Web Manager only)',
+                'description_ar' => 'متى يتم استهلاك المخزون (لمدير الويب فقط)',
+                'is_required' => false,
+                'display_order' => 5,
+            ],
+            [
+                'key' => 'stock_sync_interval_minutes',
+                'group' => 'stock_management',
+                'type' => 'integer',
+                'value' => '15',
+                'label_en' => 'Stock Sync Interval (Minutes)',
+                'label_ar' => 'فترة مزامنة المخزون (دقائق)',
+                'description_en' => 'Periodic POS stock sync interval in minutes (0=disabled)',
+                'description_ar' => 'فترة مزامنة مخزون نقطة البيع الدورية بالدقائق (0=معطل)',
+                'is_required' => false,
+                'display_order' => 6,
+            ],
+
+            // BUSINESS_HOURS Group
+            [
+                'key' => 'accept_orders_anytime',
+                'group' => 'business_hours',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Accept Orders Anytime',
+                'label_ar' => 'قبول الطلبات في أي وقت',
+                'description_en' => 'Accept orders 24/7?',
+                'description_ar' => 'قبول الطلبات على مدار الساعة؟',
+                'is_required' => false,
+                'display_order' => 1,
+            ],
+            [
+                'key' => 'business_hours',
+                'group' => 'business_hours',
+                'type' => 'json',
+                'value' => json_encode([
+                    'sunday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                    'monday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                    'tuesday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                    'wednesday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                    'thursday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                    'friday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => false],
+                    'saturday' => ['open' => '09:00', 'close' => '18:00', 'enabled' => true],
+                ]),
+                'label_en' => 'Business Hours',
+                'label_ar' => 'ساعات العمل',
+                'description_en' => 'Per-day operating hours',
+                'description_ar' => 'ساعات العمل لكل يوم',
+                'is_required' => false,
+                'display_order' => 2,
+            ],
+            [
+                'key' => 'timezone',
+                'group' => 'business_hours',
+                'type' => 'select',
+                'value' => 'Africa/Cairo',
+                'label_en' => 'Business Timezone',
+                'label_ar' => 'المنطقة الزمنية للعمل',
+                'description_en' => 'Business timezone for operations',
+                'description_ar' => 'المنطقة الزمنية لعمليات الأعمال',
+                'is_required' => true,
+                'display_order' => 3,
+            ],
+            [
+                'key' => 'order_rejection_outside_hours',
+                'group' => 'business_hours',
+                'type' => 'boolean',
+                'value' => '0',
+                'label_en' => 'Order Rejection Outside Hours',
+                'label_ar' => 'رفض الطلبات خارج ساعات العمل',
+                'description_en' => 'Auto-reject orders outside business hours or queue them?',
+                'description_ar' => 'رفض الطلبات تلقائياً خارج ساعات العمل أم وضعها في الانتظار؟',
+                'is_required' => false,
+                'display_order' => 4,
+            ],
+
+            // NOTIFICATIONS Group
+            [
+                'key' => 'admin_email_notifications',
+                'group' => 'notifications',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Admin Email Notifications',
+                'label_ar' => 'إشعارات البريد الإلكتروني للمسؤول',
+                'description_en' => 'Send email notifications to admin on events?',
+                'description_ar' => 'إرسال إشعارات البريد الإلكتروني للمسؤول عند الأحداث؟',
+                'is_required' => false,
+                'display_order' => 1,
+            ],
+            [
+                'key' => 'admin_notification_emails',
+                'group' => 'notifications',
+                'type' => 'json',
+                'value' => json_encode([]),
+                'label_en' => 'Admin Notification Emails',
+                'label_ar' => 'بريد إشعارات المسؤول',
+                'description_en' => 'List of admin emails to receive notifications',
+                'description_ar' => 'قائمة بريد المسؤولين لتلقي الإشعارات',
+                'is_required' => false,
+                'display_order' => 2,
+            ],
+            [
+                'key' => 'notify_on_order_pending',
+                'group' => 'notifications',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Notify On Order Pending',
+                'label_ar' => 'إشعار عند طلب معلق',
+                'description_en' => 'Notify admin when a new order is pending',
+                'description_ar' => 'إشعار المسؤول عند وجود طلب جديد معلق',
+                'is_required' => false,
+                'display_order' => 3,
+            ],
+            [
+                'key' => 'notify_on_order_cancelled',
+                'group' => 'notifications',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Notify On Order Cancelled',
+                'label_ar' => 'إشعار عند إلغاء الطلب',
+                'description_en' => 'Notify admin when an order is cancelled',
+                'description_ar' => 'إشعار المسؤول عند إلغاء طلب',
+                'is_required' => false,
+                'display_order' => 4,
+            ],
+            [
+                'key' => 'notify_on_return_request',
+                'group' => 'notifications',
+                'type' => 'boolean',
+                'value' => '1',
+                'label_en' => 'Notify On Return Request',
+                'label_ar' => 'إشعار عند طلب إرجاع',
+                'description_en' => 'Notify admin on return request',
+                'description_ar' => 'إشعار المسؤول عند طلب إرجاع',
+                'is_required' => false,
+                'display_order' => 5,
+            ],
+            [
+                'key' => 'user_notification_channels',
+                'group' => 'notifications',
+                'type' => 'json',
+                'value' => json_encode(['database', 'push']),
+                'label_en' => 'User Notification Channels',
+                'label_ar' => 'قنوات إشعارات المستخدم',
+                'description_en' => 'User notification methods',
+                'description_ar' => 'طرق إشعار المستخدم',
+                'is_required' => false,
+                'display_order' => 6,
+            ],
+        ];
+
+        foreach ($settings as $setting) {
+            Setting::updateOrCreate(
+                ['key' => $setting['key']],
+                $setting
+            );
+        }
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        $keys = [
+            'order_manager_type',
+            'pos_auto_confirm_timeout',
+            'web_admin_can_modify_pos_orders',
+            'user_can_cancel_order',
+            'cancel_allowed_statuses',
+            'default_stock_manager',
+            'product_stockable_by_default',
+            'pos_stock_display_percentage_global',
+            'reserve_stock_on_pending',
+            'consume_stock_on_status',
+            'stock_sync_interval_minutes',
+            'accept_orders_anytime',
+            'business_hours',
+            'timezone',
+            'order_rejection_outside_hours',
+            'admin_email_notifications',
+            'admin_notification_emails',
+            'notify_on_order_pending',
+            'notify_on_order_cancelled',
+            'notify_on_return_request',
+            'user_notification_channels',
+        ];
+
+        Setting::whereIn('key', $keys)->delete();
+    }
+};
