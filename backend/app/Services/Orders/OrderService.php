@@ -2,21 +2,23 @@
 
 namespace App\Services\Orders;
 
+use App\DTOs\OrderPlacementData;
+use App\Enums\PaymentMethod;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Cart\CartService;
-use App\Services\Cart\CheckoutService;
 use App\Services\Orders\Contracts\OrderStrategyInterface;
 use App\Services\Orders\Strategies\PosManagedOrderStrategy;
 use App\Services\Orders\Strategies\WebManagedOrderStrategy;
 use App\Services\Payments\PaymentService;
+use App\Services\Stock\StockService;
 
 class OrderService
 {
     public function __construct(
         protected CartService $cartService,
-        protected CheckoutService $checkoutService,
-        protected PaymentService $paymentService
+        protected PaymentService $paymentService,
+        protected StockService $stockService
     ) {}
 
     /**
@@ -29,18 +31,17 @@ class OrderService
         return match ($strategyType) {
             'pos_managed' => new PosManagedOrderStrategy(
                 $this->cartService,
-                $this->checkoutService,
                 $this->paymentService
             ),
             'web_managed' => new WebManagedOrderStrategy(
                 $this->cartService,
-                $this->checkoutService,
-                $this->paymentService
+                $this->paymentService,
+                $this->stockService
             ),
             default => new WebManagedOrderStrategy(
                 $this->cartService,
-                $this->checkoutService,
-                $this->paymentService
+                $this->paymentService,
+                $this->stockService
             ),
         };
     }
@@ -48,11 +49,11 @@ class OrderService
     /**
      * Place a new order.
      */
-    public function placeOrder(User $user, array $checkoutData, ?string $promotionCode = null): Order
+    public function placeOrder(User $user, OrderPlacementData $placementData): Order
     {
         $strategy = $this->getStrategy();
 
-        return $strategy->placeOrder($user, $checkoutData, $promotionCode);
+        return $strategy->placeOrder($user, $placementData);
     }
 
     /**
@@ -83,13 +84,22 @@ class OrderService
         $strategy->cancelOrder($order, $reason);
     }
 
-    /**
-     * Update order status.
-     */
-    public function updateOrderStatus(Order $order, string $status): void
+    public function markOutForDelivery(Order $order): void
     {
         $strategy = $this->getStrategy($order->order_manager ?? null);
-        $strategy->updateOrderStatus($order, $status);
+        $strategy->markOutForDelivery($order);
+    }
+
+    public function completeOrder(Order $order): void
+    {
+        $strategy = $this->getStrategy($order->order_manager ?? null);
+        $strategy->completeOrder($order);
+    }
+
+    public function changePaymentMethod(Order $order, PaymentMethod $method): void
+    {
+        $strategy = $this->getStrategy($order->order_manager ?? null);
+        $strategy->changePaymentMethod($order, $method);
     }
 
     /**
@@ -104,10 +114,10 @@ class OrderService
     /**
      * Validate order placement.
      */
-    public function validateOrderPlacement(User $user, array $checkoutData): bool
+    public function validateOrderPlacement(User $user, OrderPlacementData $placementData): bool
     {
         $strategy = $this->getStrategy();
 
-        return $strategy->validateOrderPlacement($user, $checkoutData);
+        return $strategy->validateOrderPlacement($user, $placementData);
     }
 }

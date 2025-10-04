@@ -2,15 +2,17 @@
 
 namespace App\Services\Orders\Contracts;
 
+use App\DTOs\OrderPlacementData;
+use App\Enums\PaymentMethod;
 use App\Models\Order;
 use App\Models\User;
 
 interface OrderStrategyInterface
 {
     /**
-     * Place a new order.
+     * Place order.
      */
-    public function placeOrder(User $user, array $checkoutData, ?string $promotionCode = null): Order;
+    public function placeOrder(User $user, OrderPlacementData $placementData): Order;
 
     /**
      * Process payment for order.
@@ -23,14 +25,24 @@ interface OrderStrategyInterface
     public function confirmOrder(Order $order): void;
 
     /**
-     * Cancel order.
+     * Cancel order (legacy method - delegates to cancel).
      */
     public function cancelOrder(Order $order, ?string $reason = null): void;
 
     /**
-     * Update order status.
+     * Mark order as out for delivery and consume stock.
      */
-    public function updateOrderStatus(Order $order, string $status): void;
+    public function markOutForDelivery(Order $order): void;
+
+    /**
+     * Complete the order (mark as delivered).
+     */
+    public function completeOrder(Order $order): void;
+
+    /**
+     * Change payment method (only for pending orders).
+     */
+    public function changePaymentMethod(Order $order, PaymentMethod $method): void;
 
     /**
      * Handle order after payment.
@@ -40,5 +52,5 @@ interface OrderStrategyInterface
     /**
      * Validate order placement.
      */
-    public function validateOrderPlacement(User $user, array $checkoutData): bool;
+    public function validateOrderPlacement(User $user, OrderPlacementData $placementData): bool;
 }

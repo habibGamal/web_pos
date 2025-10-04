@@ -5,14 +5,14 @@ use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Cart\CartService;
-use App\Services\Inventory\InventoryService;
+use App\Services\Stock\StockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $this->user = User::factory()->create();
-    $this->inventoryService = $this->mock(InventoryService::class);
+    $this->inventoryService = $this->mock(StockService::class);
     $this->cartService = new CartService($this->inventoryService);
 });
 
@@ -327,10 +327,10 @@ describe('validateCartItems', function () {
 
         $result = $this->cartService->validateCartItems($this->user);
 
-        expect($result['is_valid'])->toBeTrue();
-        expect($result['valid_items'])->toHaveCount(2);
-        expect($result['invalid_items'])->toHaveCount(0);
-        expect($result['errors'])->toHaveCount(0);
+    expect($result->isValid)->toBeTrue();
+    expect($result->validItems)->toHaveCount(2);
+    expect($result->invalidItems)->toHaveCount(0);
+    expect($result->errors)->toHaveCount(0);
     });
 
     it('identifies inactive products', function () {
@@ -344,11 +344,11 @@ describe('validateCartItems', function () {
 
         $result = $this->cartService->validateCartItems($this->user);
 
-        expect($result['is_valid'])->toBeFalse();
-        expect($result['valid_items'])->toHaveCount(0);
-        expect($result['invalid_items'])->toHaveCount(1);
-        expect($result['errors'])->toHaveCount(1);
-        expect($result['errors'][0]['type'])->toBe('inactive');
+    expect($result->isValid)->toBeFalse();
+    expect($result->validItems)->toHaveCount(0);
+    expect($result->invalidItems)->toHaveCount(1);
+    expect($result->errors)->toHaveCount(1);
+    expect($result->errors[0]['type'])->toBe('inactive');
     });
 
     it('identifies insufficient stock', function () {
@@ -374,13 +374,13 @@ describe('validateCartItems', function () {
 
         $result = $this->cartService->validateCartItems($this->user);
 
-        expect($result['is_valid'])->toBeFalse();
-        expect($result['valid_items'])->toHaveCount(0);
-        expect($result['invalid_items'])->toHaveCount(1);
-        expect($result['errors'])->toHaveCount(1);
-        expect($result['errors'][0]['type'])->toBe('insufficient_stock');
-        expect($result['errors'][0]['requested_quantity'])->toBe(10);
-        expect($result['errors'][0]['available_quantity'])->toBe(5);
+    expect($result->isValid)->toBeFalse();
+    expect($result->validItems)->toHaveCount(0);
+    expect($result->invalidItems)->toHaveCount(1);
+    expect($result->errors)->toHaveCount(1);
+    expect($result->errors[0]['type'])->toBe('insufficient_stock');
+    expect($result->errors[0]['requested_quantity'])->toBe(10);
+    expect($result->errors[0]['available_quantity'])->toBe(5.0);
     });
 
     it('handles mixed valid and invalid items', function () {
@@ -425,10 +425,10 @@ describe('validateCartItems', function () {
 
         $result = $this->cartService->validateCartItems($this->user);
 
-        expect($result['is_valid'])->toBeFalse();
-        expect($result['valid_items'])->toHaveCount(1);
-        expect($result['invalid_items'])->toHaveCount(2);
-        expect($result['errors'])->toHaveCount(2);
+    expect($result->isValid)->toBeFalse();
+    expect($result->validItems)->toHaveCount(1);
+    expect($result->invalidItems)->toHaveCount(2);
+    expect($result->errors)->toHaveCount(2);
     });
 });
 

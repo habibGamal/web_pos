@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 use App\Enums\ProductType;
+use App\Enums\ProductUnit;
+use App\Enums\StockManagerStrategy;
 use App\Models\Attribute;
 use App\Models\AttributeValue;
 use App\Models\Brand;
@@ -137,6 +139,10 @@ class ProductSeeder extends Seeder
                 'sale_price' => $data['sale_price'] ?? null,
                 'cost_price' => $data['cost_price'],
                 'quantity' => 0, // Configurable products don't have direct quantity
+                'unit' => ProductUnit::PIECE->value,
+                'is_stockable' => true,
+                'stock_manager' => StockManagerStrategy::WEB_STOCK_MANAGER->value,
+                'pos_stock_display_percentage' => null,
                 'images' => null, // Configurable products use variant images
                 'category_id' => $categories->random()->id,
                 'brand_id' => $brands->random()->id,
@@ -160,6 +166,10 @@ class ProductSeeder extends Seeder
                     'sale_price' => $data['sale_price'] ?? null,
                     'cost_price' => $data['cost_price'],
                     'quantity' => $variantData['quantity'],
+                    'unit' => $configurableProduct->unit,
+                    'is_stockable' => $configurableProduct->is_stockable,
+                    'stock_manager' => $configurableProduct->stock_manager,
+                    'pos_stock_display_percentage' => $configurableProduct->pos_stock_display_percentage,
                     'images' => [$availableImages[$index % count($availableImages)]],
                     'category_id' => $configurableProduct->category_id,
                     'brand_id' => $configurableProduct->brand_id,
@@ -193,6 +203,10 @@ class ProductSeeder extends Seeder
                 'sale_price' => $data['sale_price'] ?? null,
                 'cost_price' => $data['cost_price'],
                 'quantity' => $data['quantity'],
+                'unit' => ProductUnit::PIECE->value,
+                'is_stockable' => true,
+                'stock_manager' => StockManagerStrategy::WEB_STOCK_MANAGER->value,
+                'pos_stock_display_percentage' => 50,
                 'images' => [$availableImages[($index + 3) % count($availableImages)]],
                 'category_id' => $categories->random()->id,
                 'brand_id' => $brands->random()->id,
@@ -225,6 +239,10 @@ class ProductSeeder extends Seeder
                 'sale_price' => $data['sale_price'] ?? null,
                 'cost_price' => $data['cost_price'],
                 'quantity' => $data['quantity'],
+                'unit' => ProductUnit::PIECE->value,
+                'is_stockable' => false,
+                'stock_manager' => StockManagerStrategy::WEB_STOCK_MANAGER->value,
+                'pos_stock_display_percentage' => null,
                 'images' => [$availableImages[0]], // Use first image for bundle
                 'category_id' => $categories->random()->id,
                 'brand_id' => $brands->random()->id,

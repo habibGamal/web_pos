@@ -3,13 +3,13 @@
 namespace App\Observers;
 
 use App\Models\Order;
-use App\Services\KafkaService;
+// use App\Services\KafkaService;
 use Illuminate\Support\Facades\Log;
 
 class OrderObserver
 {
     public function __construct(
-        private KafkaService $kafkaService
+        // private KafkaService $kafkaService
     ) {}
 
     public function created(Order $order): void

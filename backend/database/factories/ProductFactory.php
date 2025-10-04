@@ -3,6 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\ProductType;
+use App\Enums\ProductUnit;
+use App\Enums\StockManagerStrategy;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -39,6 +41,10 @@ class ProductFactory extends Factory
             'sale_price' => null,
             'cost_price' => $this->faker->randomFloat(2, 1, 300),
             'quantity' => $type === ProductType::CONFIGURABLE ? 0 : $this->faker->numberBetween(0, 100),
+            'unit' => $this->faker->randomElement(ProductUnit::cases())->value,
+            'is_stockable' => $type !== ProductType::BUNDLE ? true : $this->faker->boolean(80),
+            'stock_manager' => $this->faker->randomElement(StockManagerStrategy::cases())->value,
+            'pos_stock_display_percentage' => $this->faker->optional(0.3)->numberBetween(10, 100),
             'images' => $type !== ProductType::CONFIGURABLE ? [
                 'products/product-' . $this->faker->numberBetween(1, 10) . '.jpg',
             ] : null,
@@ -61,6 +67,10 @@ class ProductFactory extends Factory
                 'parent_id' => null,
                 'sku' => 'SKU-' . $this->faker->unique()->randomNumber(8),
                 'quantity' => $this->faker->numberBetween(0, 100),
+                'unit' => $this->faker->randomElement(ProductUnit::cases())->value,
+                'is_stockable' => true,
+                'stock_manager' => $this->faker->randomElement(StockManagerStrategy::cases())->value,
+                'pos_stock_display_percentage' => $this->faker->optional(0.3)->numberBetween(10, 100),
                 'images' => [
                     'products/product-' . $this->faker->numberBetween(1, 10) . '.jpg',
                 ],
@@ -97,6 +107,10 @@ class ProductFactory extends Factory
                 'parent_id' => $parentProduct->id,
                 'sku' => 'SKU-' . $parentProduct->id . '-' . $this->faker->unique()->randomNumber(4),
                 'quantity' => $this->faker->numberBetween(0, 50),
+                'unit' => $parentProduct->unit,
+                'is_stockable' => $parentProduct->is_stockable,
+                'stock_manager' => $parentProduct->stock_manager,
+                'pos_stock_display_percentage' => $parentProduct->pos_stock_display_percentage,
                 'images' => [
                     'products/variant-' . $this->faker->numberBetween(1, 10) . '.jpg',
                 ],
@@ -118,6 +132,10 @@ class ProductFactory extends Factory
                 'parent_id' => null,
                 'sku' => 'BUNDLE-' . $this->faker->unique()->randomNumber(8),
                 'quantity' => $this->faker->numberBetween(0, 20),
+                'unit' => ProductUnit::PIECE->value,
+                'is_stockable' => $this->faker->boolean(80),
+                'stock_manager' => StockManagerStrategy::WEB_STOCK_MANAGER->value,
+                'pos_stock_display_percentage' => null,
                 'images' => [
                     'products/bundle-' . $this->faker->numberBetween(1, 10) . '.jpg',
                 ],

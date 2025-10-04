@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Services\Inventory\Strategies;
+namespace App\Services\Stock\Strategies;
 
 use App\Models\Product;
-use App\Services\Inventory\Contracts\StockStrategyInterface;
+use App\Services\Stock\Contracts\StockStrategyInterface;
 
 class PosStockStrategy implements StockStrategyInterface
 {
@@ -27,11 +27,19 @@ class PosStockStrategy implements StockStrategyInterface
 
     /**
      * Get available stock for display.
+     *
+     * This provides a basic POS fallback that reads a stock-like attribute on the Product model.
+     * Adjust to call POS APIs or mirrored tables as needed.
      */
     public function getAvailableStock(Product $product): float
     {
-        // TODO: Implement POS stock availability logic with percentage calculation
-        return 0;
+        if (! $product->is_stockable) {
+            // Non-stockable products are treated as effectively unlimited here.
+            return PHP_FLOAT_MAX;
+        }
+
+        // Try common attributes that might hold stock levels; fallback to 0.
+        return (float) ($product->stock ?? $product->quantity ?? 0);
     }
 
     /**
@@ -39,8 +47,20 @@ class PosStockStrategy implements StockStrategyInterface
      */
     public function isAvailable(Product $product, float $quantity): bool
     {
-        // TODO: Implement POS stock check logic (may involve API call)
-        return false;
+        // Basic implementation: compare requested quantity with available stock.
+        return $this->getAvailableStock($product) >= $quantity;
+    }
+
+    /**
+     * Check if stock is available for multiple items.
+     *
+     * @param  array  $items  Format: [['product_id' => int, 'quantity' => float], ...]
+     * @return array ['available' => bool, 'insufficient' => array]
+     */
+    public function checkBulkAvailability(array $items): array
+    {
+        // TODO: Implement bulk availability check via POS APIs or mirrored tables
+        return [];
     }
 
     /**

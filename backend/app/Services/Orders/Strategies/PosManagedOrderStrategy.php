@@ -2,10 +2,10 @@
 
 namespace App\Services\Orders\Strategies;
 
+use App\DTOs\OrderPlacementData;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\Cart\CartService;
-use App\Services\Cart\CheckoutService;
 use App\Services\Orders\Contracts\OrderStrategyInterface;
 use App\Services\Payments\PaymentService;
 
@@ -13,14 +13,13 @@ class PosManagedOrderStrategy implements OrderStrategyInterface
 {
     public function __construct(
         protected CartService $cartService,
-        protected CheckoutService $checkoutService,
         protected PaymentService $paymentService
     ) {}
 
     /**
      * Place a new order.
      */
-    public function placeOrder(User $user, array $checkoutData, ?string $promotionCode = null): Order
+    public function placeOrder(User $user, OrderPlacementData $placementData, ?string $promotionCode = null): Order
     {
         // TODO: Implement POS-managed order placement
         // This should handle order creation and send to POS via Kafka
@@ -70,10 +69,25 @@ class PosManagedOrderStrategy implements OrderStrategyInterface
         // TODO: Implement post-payment order handling for POS-managed orders
     }
 
+    public function markOutForDelivery(Order $order): void
+    {
+        // POS-managed flow: usually handled by POS system; noop for now
+    }
+
+    public function completeOrder(Order $order): void
+    {
+        // POS-managed flow: usually handled by POS system; noop for now
+    }
+
+    public function changePaymentMethod(Order $order, \App\Enums\PaymentMethod $method): void
+    {
+        // Not typically supported for POS-managed orders; noop
+    }
+
     /**
      * Validate order placement.
      */
-    public function validateOrderPlacement(User $user, array $checkoutData): bool
+    public function validateOrderPlacement(User $user, OrderPlacementData $placementData): bool
     {
         // TODO: Implement POS-managed order validation
         // May need to check POS availability

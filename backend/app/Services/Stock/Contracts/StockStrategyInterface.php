@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Inventory\Contracts;
+namespace App\Services\Stock\Contracts;
 
 use App\Models\Product;
 
@@ -35,4 +35,12 @@ interface StockStrategyInterface
      * Sync stock from external source.
      */
     public function syncStock(Product $product): void;
+
+    /**
+     * Check if stock is available for multiple items.
+     *
+     * @param  array  $items  Format: [['product_id' => int, 'quantity' => float], ...]
+     * @return array ['available' => bool, 'insufficient' => array]
+     */
+    public function checkBulkAvailability(array $items): array;
 }

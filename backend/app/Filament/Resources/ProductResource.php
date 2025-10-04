@@ -3,6 +3,8 @@
 namespace App\Filament\Resources;
 
 use App\Enums\ProductType;
+use App\Enums\ProductUnit;
+use App\Enums\StockManagerStrategy;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
@@ -169,6 +171,41 @@ class ProductResource extends Resource
                                         ProductType::SIMPLE->value,
                                         ProductType::BUNDLE->value,
                                     ])),
+
+                                Forms\Components\Select::make('unit')
+                                    ->label('الوحدة')
+                                    ->options(ProductUnit::toSelectArray())
+                                    ->default(ProductUnit::PIECE->value)
+                                    ->required()
+                                    ->visible(fn (Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
+
+                                Forms\Components\Toggle::make('is_stockable')
+                                    ->label('قابل للإدارة في المخزون')
+                                    ->helperText('هل يتم تتبع كمية هذا المنتج في المخزون؟')
+                                    ->default(true)
+                                    ->live()
+                                    ->visible(fn (Forms\Get $get): bool => $get('type') !== ProductType::CONFIGURABLE->value),
+
+                                Forms\Components\Select::make('stock_manager')
+                                    ->label('مدير المخزون')
+                                    ->options(StockManagerStrategy::toSelectArray())
+                                    ->default(StockManagerStrategy::WEB_STOCK_MANAGER->value)
+                                    ->required()
+                                    ->visible(fn (Forms\Get $get): bool => $get('is_stockable') && $get('type') !== ProductType::CONFIGURABLE->value),
+
+                                Forms\Components\TextInput::make('pos_stock_display_percentage')
+                                    ->label('نسبة عرض المخزون في نقاط البيع (%)')
+                                    ->helperText('نسبة المخزون التي سيتم عرضها في نقاط البيع (مثال: 50 تعني عرض 50% من المخزون)')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->maxValue(100)
+                                    ->suffix('%')
+                                    ->nullable()
+                                    ->visible(
+                                        fn (Forms\Get $get): bool => $get('is_stockable') &&
+                                        $get('stock_manager') === StockManagerStrategy::POS_STOCK_MANAGER->value &&
+                                        $get('type') !== ProductType::CONFIGURABLE->value
+                                    ),
 
                                 Forms\Components\FileUpload::make('images')
                                     ->label('الصور')

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Enums\ProductType;
+use App\Enums\ProductUnit;
+use App\Enums\StockManagerStrategy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -37,6 +39,10 @@ class Product extends Model
         'sale_price',
         'cost_price',
         'quantity',
+        'unit',
+        'is_stockable',
+        'stock_manager',
+        'pos_stock_display_percentage',
         'images',
         'category_id',
         'brand_id',
@@ -54,6 +60,8 @@ class Product extends Model
     {
         return [
             'type' => ProductType::class,
+            'unit' => ProductUnit::class,
+            'stock_manager' => StockManagerStrategy::class,
             'price' => 'decimal:2',
             'sale_price' => 'decimal:2',
             'cost_price' => 'decimal:2',
@@ -62,6 +70,7 @@ class Product extends Model
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
             'is_default' => 'boolean',
+            'is_stockable' => 'boolean',
         ];
     }
 

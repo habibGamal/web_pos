@@ -5,12 +5,12 @@ namespace App\Services\Cart;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\User;
-use App\Services\Inventory\InventoryService;
+use App\Services\Stock\StockService;
 
 class CartService
 {
     public function __construct(
-        protected InventoryService $inventoryService
+        protected StockService $stockService
     ) {}
 
     /**
@@ -51,14 +51,14 @@ class CartService
             $newQuantity = $existingItem->quantity + $quantity;
 
             // Validate stock availability for new quantity
-            if (! $this->inventoryService->isAvailable($product, $newQuantity)) {
+            if (! $this->stockService->isAvailable($product, $newQuantity)) {
                 throw new \RuntimeException('Insufficient stock available');
             }
 
             $existingItem->update(['quantity' => $newQuantity]);
         } else {
             // Validate stock availability
-            if (! $this->inventoryService->isAvailable($product, $quantity)) {
+            if (! $this->stockService->isAvailable($product, $quantity)) {
                 throw new \RuntimeException('Insufficient stock available');
             }
 
@@ -107,7 +107,7 @@ class CartService
         $newQuantity = $cartItem->quantity + $quantity;
 
         // Validate stock availability
-        if (! $this->inventoryService->isAvailable($cartItem->product, $newQuantity)) {
+        if (! $this->stockService->isAvailable($cartItem->product, $newQuantity)) {
             throw new \RuntimeException('Insufficient stock available');
         }
 
@@ -153,7 +153,7 @@ class CartService
     /**
      * Validate cart items availability.
      */
-    public function validateCartItems(User $user): array
+    public function validateCartItems(User $user): \App\DTOs\CartValidationResult
     {
         $cart = $this->getCart($user);
         $cart->load('items.product');
@@ -178,8 +178,8 @@ class CartService
             }
 
             // Check stock availability
-            if (! $this->inventoryService->isAvailable($product, $item->quantity)) {
-                $availableStock = $this->inventoryService->getAvailableStock($product);
+            if (! $this->stockService->isAvailable($product, $item->quantity)) {
+                $availableStock = $this->stockService->getAvailableStock($product);
 
                 $errors[] = [
                     'cart_item_id' => $item->id,
@@ -197,12 +197,12 @@ class CartService
             $validItems[] = $item->id;
         }
 
-        return [
-            'is_valid' => empty($errors),
-            'valid_items' => $validItems,
-            'invalid_items' => $invalidItems,
-            'errors' => $errors,
-        ];
+        return new \App\DTOs\CartValidationResult(
+            isValid: empty($errors),
+            validItems: $validItems,
+            invalidItems: $invalidItems,
+            errors: $errors,
+        );
     }
 
     /**
@@ -230,7 +230,7 @@ class CartService
         }
 
         // Validate stock availability
-        if (! $this->inventoryService->isAvailable($cartItem->product, $quantity)) {
+        if (! $this->stockService->isAvailable($cartItem->product, $quantity)) {
             throw new \RuntimeException('Insufficient stock available');
         }
 

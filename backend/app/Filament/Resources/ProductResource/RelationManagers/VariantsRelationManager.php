@@ -3,6 +3,8 @@
 namespace App\Filament\Resources\ProductResource\RelationManagers;
 
 use App\Enums\ProductType;
+use App\Enums\ProductUnit;
+use App\Enums\StockManagerStrategy;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -112,6 +114,40 @@ class VariantsRelationManager extends RelationManager
                                     ->numeric()
                                     ->minValue(0)
                                     ->default(0),
+
+                                Forms\Components\Select::make('unit')
+                                    ->label('الوحدة')
+                                    ->options(ProductUnit::toSelectArray())
+                                    ->default(fn () => $this->getOwnerRecord()->unit)
+                                    ->required(),
+
+                                Forms\Components\Toggle::make('is_stockable')
+                                    ->label('قابل للإدارة في المخزون')
+                                    ->helperText('هل يتم تتبع كمية هذا المتغير في المخزون؟')
+                                    ->default(fn () => $this->getOwnerRecord()->is_stockable)
+                                    ->live(),
+
+                                Forms\Components\Select::make('stock_manager')
+                                    ->label('مدير المخزون')
+                                    ->options(StockManagerStrategy::toSelectArray())
+                                    ->default(fn () => $this->getOwnerRecord()->stock_manager)
+                                    ->required()
+                                    ->visible(fn (Forms\Get $get): bool => $get('is_stockable')),
+
+                                Forms\Components\TextInput::make('pos_stock_display_percentage')
+                                    ->label('نسبة عرض المخزون في نقاط البيع (%)')
+                                    ->helperText('نسبة المخزون التي سيتم عرضها في نقاط البيع')
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->maxValue(100)
+                                    ->suffix('%')
+                                    ->nullable()
+                                    ->default(fn () => $this->getOwnerRecord()->pos_stock_display_percentage)
+                                    ->visible(
+                                        fn (Forms\Get $get): bool => $get('is_stockable') &&
+                                        $get('stock_manager') === StockManagerStrategy::POS_STOCK_MANAGER->value
+                                    ),
+
                                 Forms\Components\FileUpload::make('images')
                                     ->label('الصور')
                                     ->image()
@@ -265,6 +301,12 @@ class VariantsRelationManager extends RelationManager
                         // Copy parent's description if not provided
                         $data['description_en'] = $data['description_en'] ?? $this->getOwnerRecord()->description_en;
                         $data['description_ar'] = $data['description_ar'] ?? $this->getOwnerRecord()->description_ar;
+
+                        // Copy parent's stock management settings if not explicitly set
+                        $data['unit'] = $data['unit'] ?? $this->getOwnerRecord()->unit;
+                        $data['is_stockable'] = $data['is_stockable'] ?? $this->getOwnerRecord()->is_stockable;
+                        $data['stock_manager'] = $data['stock_manager'] ?? $this->getOwnerRecord()->stock_manager;
+                        $data['pos_stock_display_percentage'] = $data['pos_stock_display_percentage'] ?? $this->getOwnerRecord()->pos_stock_display_percentage;
 
                         return $data;
                     })
